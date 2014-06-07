@@ -27,39 +27,61 @@ public class ComTop extends ComSet implements CsSchema {
 		return table;
 	}
 
+	protected CsTable createPrimitiveTable(CsDataType dataType) {
+		CsTable table = null;
+		CsColumn superCol = null;
+
+		if(dataType == CsDataType.Root) {
+			table = new ComSet("Top", dataType);
+			superCol = new ComDim("Super", table, this, true, true);
+		}
+		else if(dataType == CsDataType.Integer) {
+			table = new ComSet("Integer", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		else if(dataType == CsDataType.Double) {
+			table = new ComSet("Double", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		else if(dataType == CsDataType.Decimal) {
+			table = new ComSet("Decimal", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		else if(dataType == CsDataType.String) {
+			table = new ComSet("String", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		else if(dataType == CsDataType.Boolean) {
+			table = new ComSet("Boolean", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		else if(dataType == CsDataType.DateTime) {
+			table = new ComSet("DateTime", dataType);
+			superCol = new ComDim("Top", table, this, true, true);
+		}
+		
+		if(superCol != null) {
+			superCol.add();
+			return table;
+		}
+		else {
+			return null;
+		}
+	}
+
 	public ComTop(String name) {
 		super(name, CsDataType.Top);
 		
 		//
 		// Instantiate all primitive sets
 		//
-		CsTable rootT = new ComSet("Root", CsDataType.Root);
-		CsColumn rootC = new ComDim("Root", rootT, this, true, true);
-		rootC.add();
-
-		CsTable integerT = new ComSet("Integer", CsDataType.Integer);
-		CsColumn integerC = new ComDim("Root", integerT, this, true, true);
-		integerC.add();
-
-		CsTable doubleT = new ComSet("Double", CsDataType.Double);
-		CsColumn doubleC = new ComDim("Double", doubleT, this, true, true);
-		doubleC.add();
-
-		CsTable decimalT = new ComSet("Decimal", CsDataType.Decimal);
-		CsColumn decimalC = new ComDim("Decimal", decimalT, this, true, true);
-		decimalC.add();
-
-		CsTable stringT = new ComSet("String", CsDataType.String);
-		CsColumn stringC = new ComDim("String", stringT, this, true, true);
-		stringC.add();
-
-		CsTable booleanT = new ComSet("Boolean", CsDataType.Boolean);
-		CsColumn booleanC = new ComDim("Boolean", booleanT, this, true, true);
-		booleanC.add();
-
-		CsTable dateTimeT = new ComSet("DateTime", CsDataType.DateTime);
-		CsColumn dateTimeC = new ComDim("DateTime", dateTimeT, this, true, true);
-		dateTimeC.add();
+		createPrimitiveTable(CsDataType.Root);
+		createPrimitiveTable(CsDataType.Integer);
+		createPrimitiveTable(CsDataType.Double);
+		createPrimitiveTable(CsDataType.Decimal);
+		createPrimitiveTable(CsDataType.String);
+		createPrimitiveTable(CsDataType.Boolean);
+		createPrimitiveTable(CsDataType.DateTime);
 	}
 
 }
