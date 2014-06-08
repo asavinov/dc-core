@@ -10,10 +10,13 @@ public interface CsDataColumn { // Work with data
 	//
 	// Untyped methods
 	//
-	boolean IsNullValue(int input);
-	Object getValue(int input);
-	void setValue(int input, Object value);
-
+	public boolean isNullValue(int input);
+	public Object getValue(int input);
+	public void setValue(int input, Object value);
+	public void nullifyValues();
+	public void appendValue(Object value);
+	public void insertValue(int input, Object value);
+	
 	//
 	// Typed methods
 	//

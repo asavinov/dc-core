@@ -1,5 +1,8 @@
 package com.conceptoriented.com;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 public class ComDim implements CsColumn {
 
 	//
@@ -64,6 +67,12 @@ public class ComDim implements CsColumn {
 		((ComSet)output).lesserDims.remove(this);
 	}
 
+	protected CsDataColumn dataColumn;
+	@Override
+	public CsDataColumn getDataColumn() {
+		return dataColumn;
+	}
+
 	//
 	// Constructors
 	//
@@ -75,6 +84,36 @@ public class ComDim implements CsColumn {
 		this.output = output;
 		this.isSuper = isSuper;
 		this.isKey = isKey;
+
+		CsDataType dataType = output.getDataType();
+        if(dataType == CsDataType.Void) {
+        }
+        else if(dataType == CsDataType.Top) {
+        }
+        else if(dataType == CsDataType.Bottom) {
+        }
+        else if(dataType == CsDataType.Root) {
+        	dataColumn = new ComDataColumn<Integer>(this, dataType);
+        }
+        else if(dataType == CsDataType.Integer) {
+        	dataColumn = new ComDataColumn<Integer>(this, dataType);
+        }
+        else if(dataType == CsDataType.Double) {
+        	dataColumn = new ComDataColumn<Double>(this, dataType);
+        }
+        else if(dataType == CsDataType.Decimal) {
+        	dataColumn = new ComDataColumn<BigDecimal>(this, dataType);
+        }
+        else if(dataType == CsDataType.String) {
+        	dataColumn = new ComDataColumn<String>(this, dataType);
+        }
+        else if(dataType == CsDataType.Boolean) {
+        	dataColumn = new ComDataColumn<Boolean>(this, dataType);
+        }
+        else if(dataType == CsDataType.DateTime) {
+        	dataColumn = new ComDataColumn<Instant>(this, dataType);
+        }
+		
 	}
 	
 }

@@ -14,23 +14,26 @@ public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
 
     protected int allocatedSize; // How many elements (maximum) fit into the allocated memory
 
+    protected boolean _autoindex = true ;// If true then index will be automatically maintained. If false then indexing has to be done manually.
+    
+	//
+	// CsDataColumn interface
+	//
 
-
-
-    @Override
+	protected CsDataType _dataType;
+	@Override
 	public CsDataType getDataType() {
-		// TODO Auto-generated method stub
-		return null;
+		return _dataType;
 	}
 
-    protected int _length;
+	protected int _length;
     @Override
 	public int getLength() {
 		return _length;
 	}
 	@Override
 	public void setLength(int newLength) {
-        if (newLength == this._length) return;
+        if (newLength == _length) return;
 
         // Ensure that there is enough memory
         if (newLength > allocatedSize) // Not enough storage for the new element
@@ -41,20 +44,23 @@ public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
         }
 
         // Update data and index in the case of increase (append to last) and decrease (delete last)
-        if (newLength > this._length)
+        if (newLength > _length)
         {
-            while (newLength > this._length) Append(null); // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
+            while (newLength > _length) appendValue(null); // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
         }
-        else if (newLength < this._length)
+        else if (newLength < _length)
         {
             // TODO: remove last elements
         }
 	}
 
 	@Override
-	public boolean IsNullValue(int input) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isNullValue(int input) {
+        // For non-nullable storage, use the index to find if this cell is in the null interval of the index (beginning)
+        int pos = FindIndex(input);
+        return pos < _nullCount;
+        // For nullable storage: simply check the value (actually this method is not needed for nullable storage because the user can compare the values returned from GetValue)
+        // return EqualityComparer<T>.Default.Equals(_nullValue, _cells[offset]);
 	}
 
 	@Override
@@ -64,11 +70,92 @@ public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
 
 	@Override
 	public void setValue(int input, Object value) {
-		// TODO Auto-generated method stub
+        T val = null;
+        int oldPos = FindIndex(input); // Old sorted position of the cell we are going to change
+        int[] interval;
+        int pos = -1; // New sorted position for this cell
 
+        if (value == null)
+        {
+            val = _nullValue;
+            interval = new int[] {0, _nullCount};
+
+            if (oldPos >= _nullCount) _nullCount++; // If old value is not null, then increase the number of nulls
+        }
+        else
+        {
+            val = (T)value;
+            interval = FindIndexes(val);
+
+            if (oldPos < _nullCount) _nullCount--; // If old value is null, then decrease the number of nulls
+        }
+
+        // Find sorted position within this value interval (by increasing offsets)
+        pos = java.util.Arrays.binarySearch(_offsets, interval[0], interval[1], input);
+        if (pos < 0) pos = ~pos;
+
+        if (pos > oldPos)
+        {
+        	System.arraycopy(_offsets, oldPos + 1, _offsets, oldPos, (pos - 1) - oldPos); // Shift backward by overwriting old
+            _offsets[pos - 1] = input;
+        }
+        else if (pos < oldPos)
+        {
+        	System.arraycopy(_offsets, pos, _offsets, pos + 1, oldPos - pos); // Shift forward by overwriting old pos
+            _offsets[pos] = input;
+        }
+
+        _cells[input] = val;
 	}
 
+	@Override
+    public void nullifyValues() // Reset values and index to initial state (all nulls)
+    {
+    	// TODO:
+    }
 
+	@Override
+    public void appendValue(Object value)
+    {
+        // Ensure that there is enough memory
+        if (_length == allocatedSize) // Not enough storage for the new element (we need Length+1)
+        {
+            allocatedSize += incrementSize;
+
+            _cells = java.util.Arrays.copyOf(_cells, allocatedSize); // Resize the storage for values
+            _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the indeex
+        }
+
+        T val = null;
+        int[] interval;
+        int pos = -1;
+
+        if (value == null)
+        {
+            val = _nullValue;
+            interval = new int[] {0, _nullCount};
+            _nullCount++;
+        }
+        else
+        {
+            val = (T)value;
+            interval = FindIndexes(val);
+        }
+
+        pos = interval[1]; // New value has the largest offset and hence is inserted after the end of the interval of values
+
+    	System.arraycopy(_offsets, pos, _offsets, pos + 1, _length - pos); // Free an index element by shifting other elements forward
+
+        _cells[_length] = val;
+        _offsets[pos] = _length;
+        _length = _length + 1;
+    }
+
+	@Override
+    public void insertValue(int input, Object value)
+    {
+        // TODO: 
+    }
 
 	//
 	// Index methods
@@ -139,6 +226,43 @@ public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
             ;
 
         return new int[] { first+1, last };
+    }
+
+	public ComDataColumn() {
+	}
+
+    public ComDataColumn(CsColumn column, CsDataType dataType) {
+    	
+    	_dataType = dataType;
+    	
+        _length = 0;
+        allocatedSize = initialSize;
+        _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize);
+        _offsets = new int[allocatedSize];
+	
+        _nullCount = _length;
+        
+        // Initialize what representative value will be used instead of nulls
+        _nullValue = null;
+        if(_dataType == CsDataType.Integer) {
+        	_nullValue = (T) (Object) Integer.MIN_VALUE;
+        }
+        else if(_dataType == CsDataType.Double) {
+        	_nullValue = (T) (Object) Double.NaN;
+        }
+        else if(_dataType == CsDataType.Decimal) {
+        	_nullValue = (T) (Object) Double.NaN;
+        }
+        else if(_dataType == CsDataType.String) {
+        	_nullValue = (T) (Object) null;
+        }
+        else if(_dataType == CsDataType.Boolean) {
+        	_nullValue = (T) (Object) null;
+        }
+        else if(_dataType == CsDataType.DateTime) {
+        	_nullValue = (T) (Object) null;
+        }
+
     }
 
 }

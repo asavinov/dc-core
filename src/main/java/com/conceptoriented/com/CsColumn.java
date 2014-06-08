@@ -14,7 +14,8 @@ public interface CsColumn {
 	public CsTable getOutput();
 	public void setOutput(CsTable output);
 
-
 	public void add();
 	public void remove();
+
+	public CsDataColumn getDataColumn();
 }
