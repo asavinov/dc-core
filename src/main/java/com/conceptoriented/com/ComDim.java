@@ -140,14 +140,14 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	//
 	// Constructors
 	//
-	public ComDim(String name, CsTable input, CsTable output, boolean isSuper, boolean isKey) {
+	public ComDim(String name, CsTable input, CsTable output, boolean isKey, boolean isSuper) {
 		assert name != null && input != null && output != null;
 
 		this.name = name;
 		this.input = input;
 		this.output = output;
-		this.isSuper = isSuper;
 		this.isKey = isKey;
+		this.isSuper = isSuper;
 
 		CsDataType dataType = output.getDataType();
         if(dataType == CsDataType.Void) {

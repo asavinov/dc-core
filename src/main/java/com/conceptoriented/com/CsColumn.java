@@ -11,8 +11,8 @@ public interface CsColumn {
 	public String getName();
 	public void setName(String name);
 
-	public boolean isSuper(); 
 	public boolean isKey();
+	public boolean isSuper(); 
 	
 	public CsTable getInput();
 	public void setInput(CsTable input);
