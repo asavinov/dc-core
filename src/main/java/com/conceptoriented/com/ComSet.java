@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ComSet implements CsTable {
+public class ComSet implements CsTable, CsTableData {
 	
 	//
 	// CsTable interface
@@ -82,6 +82,26 @@ public class ComSet implements CsTable {
 			if(t != null) return t;
 		}
 		return null;
+	}
+
+	@Override
+	public CsTableData getTableData() {
+		return this;
+	}
+
+	//
+	// CsTableData
+	//
+
+	protected int _length;
+	@Override
+	public int getLength() {
+		return _length;
+	}
+
+	@Override
+	public void setLength(int length) {
+		_length = length;
 	}
 
 	//

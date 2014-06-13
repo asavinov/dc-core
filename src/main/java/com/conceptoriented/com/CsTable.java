@@ -20,6 +20,8 @@ public interface CsTable {
 	public List<CsColumn> getSubColumns();
 	public CsTable getTable(String name); // Find sub-table
 	public CsTable findTable(String name); // Find a table among all sub-tables recursively
+
+	public CsTableData getTableData();
 }
 
 enum CsDataType

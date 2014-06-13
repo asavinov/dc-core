@@ -1,6 +1,6 @@
 package com.conceptoriented.com;
 
-public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
+public class ComColumnData<T extends Comparable<T>> implements CsColumnData {
 
     private T[] _cells; // Each cell contains a T value in arbitrary original order
     private int[] _offsets; // Each cell contains an offset to an element in cells in ascending or descending order
@@ -228,10 +228,10 @@ public class ComDataColumn<T extends Comparable<T>> implements CsDataColumn {
         return new int[] { first+1, last };
     }
 
-	public ComDataColumn() {
+	public ComColumnData() {
 	}
 
-    public ComDataColumn(CsColumn column, CsDataType dataType) {
+    public ComColumnData(CsColumn column, CsDataType dataType) {
     	
     	_dataType = dataType;
     	

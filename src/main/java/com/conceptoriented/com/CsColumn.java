@@ -1,5 +1,11 @@
 package com.conceptoriented.com;
 
+/**
+ * Describes one column. 
+ * 
+ * @author savinov
+ *
+ */
 public interface CsColumn {
 
 	public String getName();
@@ -17,5 +23,6 @@ public interface CsColumn {
 	public void add();
 	public void remove();
 
-	public CsDataColumn getDataColumn();
+	public CsColumnData getColumnData();
+	public CsColumnDefinition getColumnDefinition();
 }

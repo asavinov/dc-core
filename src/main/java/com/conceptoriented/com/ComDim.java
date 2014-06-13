@@ -3,7 +3,7 @@ package com.conceptoriented.com;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class ComDim implements CsColumn {
+public class ComDim implements CsColumn, CsColumnDefinition {
 
 	//
 	// CsColumn interface
@@ -67,10 +67,74 @@ public class ComDim implements CsColumn {
 		((ComSet)output).lesserDims.remove(this);
 	}
 
-	protected CsDataColumn dataColumn;
+	protected CsColumnData columnData;
 	@Override
-	public CsDataColumn getDataColumn() {
-		return dataColumn;
+	public CsColumnData getColumnData() {
+		return columnData;
+	}
+
+	protected CsColumnDefinition columnDefinition;
+	@Override
+	public CsColumnDefinition getColumnDefinition() {
+		return columnDefinition;
+	}
+
+	//
+	// CsColumnDefinition interface
+	//
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void evaluate() {
+		CsColumn column = this;
+
+		CsRecordEvaluator recordEvaluator = getEvaluator(); // Compile formula into computing object
+		// TODO Turn off indexing/sorting in the storage object as we set the function values and reindex at the end
+
+		//
+		// Determine if it is an aggregated (accumulated) function or not
+		//
+		boolean isAggregated = false;
+
+		//
+		// Organize a loop with record evaluations
+		//
+        if (isAggregated) {
+        	// Loop through all inputs of the fact set and *updating* (accumulating) the function output
+        	CsTable loopTable = null; // TODO
+    		for (int input = 0; input < loopTable.getTableData().getLength(); input++)
+            {
+            	recordEvaluator.evaluateUpdate(input);
+            }
+        }
+        else {
+        	 // Loop through all inputs of this set and *setting* (writing) the function output
+    		CsTable loopTable = column.getInput();
+            for (int input = 0; input < loopTable.getTableData().getLength(); input++)
+            {
+            	recordEvaluator.evaluateSet(input);
+            }
+        }
+
+	}
+
+	@Override
+	public void finish() {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public CsRecordEvaluator getEvaluator() {
+		CsColumn column = this;
+		CsColumnData columnData = column.getColumnData();
+		
+		// TODO: Depending on the format of the formula and type of function instantiate a specific object
+
+		return null;
 	}
 
 	//
@@ -93,27 +157,28 @@ public class ComDim implements CsColumn {
         else if(dataType == CsDataType.Bottom) {
         }
         else if(dataType == CsDataType.Root) {
-        	dataColumn = new ComDataColumn<Integer>(this, dataType);
+        	columnData = new ComColumnData<Integer>(this, dataType);
         }
         else if(dataType == CsDataType.Integer) {
-        	dataColumn = new ComDataColumn<Integer>(this, dataType);
+        	columnData = new ComColumnData<Integer>(this, dataType);
         }
         else if(dataType == CsDataType.Double) {
-        	dataColumn = new ComDataColumn<Double>(this, dataType);
+        	columnData = new ComColumnData<Double>(this, dataType);
         }
         else if(dataType == CsDataType.Decimal) {
-        	dataColumn = new ComDataColumn<BigDecimal>(this, dataType);
+        	columnData = new ComColumnData<BigDecimal>(this, dataType);
         }
         else if(dataType == CsDataType.String) {
-        	dataColumn = new ComDataColumn<String>(this, dataType);
+        	columnData = new ComColumnData<String>(this, dataType);
         }
         else if(dataType == CsDataType.Boolean) {
-        	dataColumn = new ComDataColumn<Boolean>(this, dataType);
+        	columnData = new ComColumnData<Boolean>(this, dataType);
         }
         else if(dataType == CsDataType.DateTime) {
-        	dataColumn = new ComDataColumn<Instant>(this, dataType);
+        	columnData = new ComColumnData<Instant>(this, dataType);
         }
 		
+        columnDefinition = this;
 	}
 	
 }

@@ -1,6 +1,12 @@
 package com.conceptoriented.com;
 
-public interface CsDataColumn { // Work with data
+/**
+ * Storage methods for working with function data like reading and writing function output values for the specified inputs.   
+ * 
+ * @author savinov
+ *
+ */
+public interface CsColumnData {
 
 	public CsDataType getDataType();
 	
