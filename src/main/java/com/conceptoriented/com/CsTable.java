@@ -14,10 +14,11 @@ public interface CsTable {
 	public CsSchema getSchema();
 	public List<CsColumn> getKeyColumns(); // No super
 	public List<CsColumn> getNonkeyColumns();
-	public CsColumn getColumn(String name); // Name resolution
 
 	public List<CsColumn> getInputColumns();
 	public List<CsColumn> getSubColumns();
+
+	public CsColumn getColumn(String name); // Name resolution
 	public CsTable getTable(String name); // Find sub-table
 	public CsTable findTable(String name); // Find a table among all sub-tables recursively
 

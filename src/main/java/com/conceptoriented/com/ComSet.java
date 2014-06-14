@@ -53,11 +53,6 @@ public class ComSet implements CsTable, CsTableData {
 	public List<CsColumn> getNonkeyColumns() {
 		return greaterDims.stream().filter(x -> !x.isKey()).collect(Collectors.toList());
 	}
-	@Override
-	public CsColumn getColumn(String name) {
-		Optional<CsColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
-		return ret.isPresent() ? ret.get() : null;
-	}
 
 	protected List<CsColumn> lesserDims;
 	@Override
@@ -67,6 +62,12 @@ public class ComSet implements CsTable, CsTableData {
 	@Override
 	public List<CsColumn> getSubColumns() {
 		return lesserDims.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
+	}
+
+	@Override
+	public CsColumn getColumn(String name) {
+		Optional<CsColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+		return ret.isPresent() ? ret.get() : null;
 	}
 	@Override
 	public CsTable getTable(String name) {
