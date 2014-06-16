@@ -21,7 +21,7 @@ public interface CsColumnDefinition {
 	// Aggregation/accumulation (loop over another set): standard (sum, mul etc. - separate class), user-defined like this+value/2 - 1.
 	// Join predicate (two loops over input and output sets)
 
-	public CsRecordEvaluator getEvaluator(); // Get an object which is used to compute the function values according to the formula
+	public CsColumnEvaluator getColumnEvaluator(); // Get an object which is used to compute the function values according to the formula
 	
 	//
 	// Dependencies. Either manual or automatic.
@@ -46,7 +46,7 @@ public interface CsColumnDefinition {
  * @author savinov
  *
  */
-interface CsRecordEvaluator {
+interface CsColumnEvaluator {
 
 	public Object evaluateSet(int input); // Compute output for the specified input and write it 
 	public Object evaluateUpdate(int input); // Read group and measure for the specified input and compute update according to the aggregation formula. It may also increment another function if necessary.

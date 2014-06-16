@@ -92,7 +92,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	public void evaluate() {
 		CsColumn column = this;
 
-		CsRecordEvaluator recordEvaluator = getEvaluator(); // Compile formula into computing object
+		CsColumnEvaluator recordEvaluator = getColumnEvaluator(); // Compile formula into computing object
 		// TODO Turn off indexing/sorting in the storage object as we set the function values and reindex at the end
 
 		//
@@ -128,7 +128,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	}
 	
 	@Override
-	public CsRecordEvaluator getEvaluator() {
+	public CsColumnEvaluator getColumnEvaluator() {
 		CsColumn column = this;
 		CsColumnData columnData = column.getColumnData();
 		
