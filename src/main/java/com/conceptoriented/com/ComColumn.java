@@ -11,9 +11,20 @@ public interface ComColumn {
 	public String getName();
 	public void setName(String name);
 
+	//
+	// Properties
+	//
 	public boolean isKey();
+	void setKey(boolean isKey);
+
 	public boolean isSuper(); 
+	void setSuper(boolean isSuper); 
+
+	public boolean isPrimitive(); 
 	
+	//
+	// Input and output
+	//
 	public ComTable getInput();
 	public void setInput(ComTable input);
 	
@@ -23,6 +34,10 @@ public interface ComColumn {
 	public void add();
 	public void remove();
 
-	public ComColumnData getColumnData();
-	public ComColumnDefinition getColumnDefinition();
+	//
+	// Data and definition objects
+	//
+	public ComColumnData getData();
+	public ComColumnDefinition getDefinition();
+
 }

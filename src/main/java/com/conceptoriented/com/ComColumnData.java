@@ -8,23 +8,30 @@ package com.conceptoriented.com;
  */
 public interface ComColumnData {
 
-	public CsDataType getDataType();
-	
 	public int getLength();
 	public void setLength(int length);
 	
-	//
-	// Untyped methods
-	//
+    //
+    // Untyped methods. Default conversion will be done according to the function type.
+    //
 	public boolean isNullValue(int input);
+
 	public Object getValue(int input);
 	public void setValue(int input, Object value);
+
 	public void nullifyValues();
+
 	public void appendValue(Object value);
+
 	public void insertValue(int input, Object value);
 	
-	//
-	// Typed methods
-	//
+	public void Remove(int input);
+
+    //
+    // Project/de-project
+    //
+
+    Object projectValues(int[] offsets);
+    int[] deprojectValue(Object value);
 
 }
