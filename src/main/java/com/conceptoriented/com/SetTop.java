@@ -5,18 +5,18 @@ import java.util.Optional;
 public class SetTop extends Set implements ComSchema {
 
 	@Override
-	public ComTable getPrimitive(CsDataType dataType) {
+	public ComTable getPrimitive(ComDataType dataType) {
 		Optional<ComColumn> col = getSubColumns().stream().filter(x -> x.getInput().getDataType() == dataType).findAny();
 		return col.isPresent() ? col.get().getInput() : null;
 	}
 
 	@Override
 	public ComTable getRoot() {
-		return getPrimitive(CsDataType.Root);
+		return getPrimitive(ComDataType.Root);
 	}
 
 	@Override
-	public ComTable createTable(String name, CsDataType dataType, ComTable parent) {
+	public ComTable createTable(String name, ComDataType dataType, ComTable parent) {
 		if(parent == null) {
 			parent = getRoot();
 		}
@@ -27,35 +27,35 @@ public class SetTop extends Set implements ComSchema {
 		return table;
 	}
 
-	protected ComTable createPrimitiveTable(CsDataType dataType) {
+	protected ComTable createPrimitiveTable(ComDataType dataType) {
 		ComTable table = null;
 		ComColumn superCol = null;
 
-		if(dataType == CsDataType.Root) {
+		if(dataType == ComDataType.Root) {
 			table = new Set("Top", dataType);
 			superCol = new Dim("Super", table, this, true, true);
 		}
-		else if(dataType == CsDataType.Integer) {
+		else if(dataType == ComDataType.Integer) {
 			table = new Set("Integer", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
-		else if(dataType == CsDataType.Double) {
+		else if(dataType == ComDataType.Double) {
 			table = new Set("Double", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
-		else if(dataType == CsDataType.Decimal) {
+		else if(dataType == ComDataType.Decimal) {
 			table = new Set("Decimal", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
-		else if(dataType == CsDataType.String) {
+		else if(dataType == ComDataType.String) {
 			table = new Set("String", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
-		else if(dataType == CsDataType.Boolean) {
+		else if(dataType == ComDataType.Boolean) {
 			table = new Set("Boolean", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
-		else if(dataType == CsDataType.DateTime) {
+		else if(dataType == ComDataType.DateTime) {
 			table = new Set("DateTime", dataType);
 			superCol = new Dim("Top", table, this, true, true);
 		}
@@ -70,18 +70,18 @@ public class SetTop extends Set implements ComSchema {
 	}
 
 	public SetTop(String name) {
-		super(name, CsDataType.Top);
+		super(name, ComDataType.Top);
 		
 		//
 		// Instantiate all primitive sets
 		//
-		createPrimitiveTable(CsDataType.Root);
-		createPrimitiveTable(CsDataType.Integer);
-		createPrimitiveTable(CsDataType.Double);
-		createPrimitiveTable(CsDataType.Decimal);
-		createPrimitiveTable(CsDataType.String);
-		createPrimitiveTable(CsDataType.Boolean);
-		createPrimitiveTable(CsDataType.DateTime);
+		createPrimitiveTable(ComDataType.Root);
+		createPrimitiveTable(ComDataType.Integer);
+		createPrimitiveTable(ComDataType.Double);
+		createPrimitiveTable(ComDataType.Decimal);
+		createPrimitiveTable(ComDataType.String);
+		createPrimitiveTable(ComDataType.Boolean);
+		createPrimitiveTable(ComDataType.DateTime);
 	}
 
 }

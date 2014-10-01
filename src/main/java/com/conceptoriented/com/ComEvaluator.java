@@ -1,6 +1,6 @@
 package com.conceptoriented.com;
 
-public interface ComColumnEvaluator {
+interface ComEvaluator {
     public boolean next(); // True if there exists a next element
     public boolean first(); // True if there exists a first element (if the set is not empty)
     public boolean last(); // True if there exists a last element (if the set is not empty)

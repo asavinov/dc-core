@@ -1,6 +1,11 @@
 package com.conceptoriented.com;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
+
+	protected ComColumn _dim;
 
     private T[] _cells; // Each cell contains a T value in arbitrary original order
     private int[] _offsets; // Each cell contains an offset to an element in cells in ascending or descending order
@@ -17,14 +22,8 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
     protected boolean _autoindex = true ;// If true then index will be automatically maintained. If false then indexing has to be done manually.
     
 	//
-	// CsDataColumn interface
+	// ComColumnData interface
 	//
-
-	protected CsDataType _dataType;
-	@Override
-	public CsDataType getDataType() {
-		return _dataType;
-	}
 
 	protected int _length;
     @Override
@@ -46,7 +45,7 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
         // Update data and index in the case of increase (append to last) and decrease (delete last)
         if (newLength > _length)
         {
-            while (newLength > _length) appendValue(null); // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
+            while (newLength > _length) append(null); // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
         }
         else if (newLength < _length)
         {
@@ -55,7 +54,7 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
 	}
 
 	@Override
-	public boolean isNullValue(int input) {
+	public boolean isNull(int input) {
         // For non-nullable storage, use the index to find if this cell is in the null interval of the index (beginning)
         int pos = FindIndex(input);
         return pos < _nullCount;
@@ -109,13 +108,13 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
 	}
 
 	@Override
-    public void nullifyValues() // Reset values and index to initial state (all nulls)
+    public void nullify() // Reset values and index to initial state (all nulls)
     {
-    	// TODO:
+        throw new UnsupportedOperationException();
     }
 
 	@Override
-    public void appendValue(Object value)
+    public void append(Object value)
     {
         // Ensure that there is enough memory
         if (_length == allocatedSize) // Not enough storage for the new element (we need Length+1)
@@ -152,12 +151,38 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
     }
 
 	@Override
-    public void insertValue(int input, Object value)
+    public void insert(int input, Object value)
     {
-        // TODO: 
+        throw new UnsupportedOperationException();
     }
 
-	//
+	@Override
+    public void remove(int input)
+    {
+        int pos = FindIndex(input);
+
+    	System.arraycopy(_offsets, pos + 1, _offsets, pos, _length - pos - 1); // Remove this index element by shifting all next elements backward
+
+        // If it was null value then decrease also their count
+        if (pos < _nullCount)
+        {
+            _nullCount--;
+        }
+
+        _length = _length - 1;
+    }
+
+    @Override
+    public Object project(int[] offsets) { 
+        throw new UnsupportedOperationException();
+	}
+
+    @Override
+    public int[] deproject(Object value) { 
+        throw new UnsupportedOperationException();
+	} 
+
+    //
 	// Index methods
 	//
 
@@ -228,41 +253,325 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
         return new int[] { first+1, last };
     }
 
-	public DimPrimitive() {
-	}
+	public DimPrimitive(ComColumn dim) {
+        // TODO: Check if output (greater) set is of correct type
 
-    public DimPrimitive(ComColumn column, CsDataType dataType) {
-    	
-    	_dataType = dataType;
-    	
+        _dim = dim;
+
         _length = 0;
         allocatedSize = initialSize;
         _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize);
         _offsets = new int[allocatedSize];
-	
+
         _nullCount = _length;
-        
+
+        setLength(dim.getInput().getData().getLength());
+
         // Initialize what representative value will be used instead of nulls
         _nullValue = null;
-        if(_dataType == CsDataType.Integer) {
-        	_nullValue = (T) (Object) Integer.MIN_VALUE;
+        // JavaNote: Java does not have primitive generics (we have only object references) and also does not store generic info at run-time
+	}
+}
+
+class DimEmpty implements ComColumnData
+{
+
+    protected int _length;
+    @Override
+    public int getLength() {
+        return _length;
+    }
+    @Override
+    public void setLength(int value) {
+        _length = value;
+    }
+
+    @Override
+    public boolean isNull(int input) { return true; }
+
+    @Override
+    public Object getValue(int input) { return null; }
+
+    @Override
+    public void setValue(int input, Object value) { }
+
+    @Override
+    public void nullify() { }
+
+    @Override
+    public void append(Object value) { }
+
+    @Override
+    public void insert(int input, Object value) { }
+
+    @Override
+    public void remove(int input) { }
+
+    @Override
+    public Object project(int[] offsets) { return null; }
+
+    @Override
+    public int[] deproject(Object value) { return null; } // Or empty array 
+}
+
+class ColumnDefinition implements ComColumnDefinition 
+{
+	protected ComColumn _dim;
+
+	//
+    // ComColumnDefinition interface
+	//
+
+	protected boolean _generating;
+	public boolean isGenerating() { return _generating; }
+	public void setGenerating(boolean generating) { _generating = generating; }
+
+	protected ColumnDefinitionType _definitionType;
+	@Override
+    public ColumnDefinitionType getDefinitionType() { return _definitionType; }
+	@Override
+	public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
+
+    protected ExprNode _formula;
+	@Override
+	public ExprNode getFormula() { return _formula; }
+	@Override
+	public void setFormula(ExprNode value) { _formula = value; }
+
+    protected Mapping _mapping;
+	@Override
+	public Mapping getMapping() { return _mapping; }
+	@Override
+	public void setMapping(Mapping value) { _mapping = value; }
+
+    protected ExprNode _whereExpr;
+	@Override
+	public ExprNode getWhereExpr() { return _whereExpr; }
+	@Override
+	public void setWhereExpr(ExprNode value) { _whereExpr = value; }
+
+    //
+    // Aggregation
+    //
+
+    protected ComTable _factTable;
+	@Override
+	public ComTable getFactTable() { return _factTable; } 
+	@Override
+	public void setFactTable(ComTable value) { _factTable = value; } 
+
+	protected List<DimPath> _groupPaths;
+	@Override
+    public List<DimPath> getGroupPaths() { return _groupPaths; }
+	@Override
+    public void setGroupPaths(List<DimPath> value) { _groupPaths = value; }
+
+    protected List<DimPath> _measurePaths;
+	@Override
+    public List<DimPath> getMeasurePaths() { return _measurePaths; }
+	@Override
+    public void getMeasurePaths(List<DimPath> value) { _measurePaths = value; }
+
+	protected String _updater;
+	@Override
+    public String getUpdater() { return _updater; }
+	@Override
+    public void setUpdater(String value) { _updater = value; }
+
+    //
+    // Compute
+    //
+
+	@Override
+	public ComColumnEvaluator getColumnEvaluator()
+    {
+        // Principle: population methods are unaware of Definition type (expressions etc.) - they use only evaluator (no dependency on the definition details)
+
+        // Here we return different types of objects that implement this interface depending on the definition type (and reflecting/based on the definition)
+        // Based on Mapping - can be transformed an (tuple) expression
+        // Based on tuple expression - object that can evaluate tuple tree (find, append etc.), say, an extension of a passive tuple or simply implement the Evaluator interface by the expression object
+        // Based on expression - as above
+        // Based on aggregation - it is update function so initially we can return a standard updater like SUM (untyped), in future, return typed updaters, and in future also custom updaters based on v-expr or other code
+        // Based on library - load lib, instantiate via factory, initialize (say, resolve names), return object
+        // Based on source code - compile class, instantiate, initialize (say, resolve), return instance
+
+        ComColumnEvaluator evaluator = null;
+
+        if (_definitionType == ColumnDefinitionType.FREE) 
+        {
+            ; // Nothing to do
         }
-        else if(_dataType == CsDataType.Double) {
-        	_nullValue = (T) (Object) Double.NaN;
+        else if (_dim.getInput().getSchema() != _dim.getOutput().getSchema() && _dim.getInput().getSchema() instanceof SetTopCsv) // Import data from a remote source
+        {
+            evaluator = ExprEvaluator.CreateCsvEvaluator(_dim);
         }
-        else if(_dataType == CsDataType.Decimal) {
-        	_nullValue = (T) (Object) Double.NaN;
+        else if (_dim.getInput().getSchema() != _dim.getOutput().getSchema() && _dim.getInput().getSchema() instanceof SetTopOledb) // Import data from a remote source
+        {
+            evaluator = ExprEvaluator.CreateOledbEvaluator(_dim);
         }
-        else if(_dataType == CsDataType.String) {
-        	_nullValue = (T) (Object) null;
+        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
+        {
+            evaluator = ExprEvaluator.CreateAggrEvaluator(_dim);
         }
-        else if(_dataType == CsDataType.Boolean) {
-        	_nullValue = (T) (Object) null;
+        else if (_definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
+        {
+            evaluator = ExprEvaluator.CreateColumnEvaluator(_dim);
         }
-        else if(_dataType == CsDataType.DateTime) {
-        	_nullValue = (T) (Object) null;
+        else
+        {
+        	throw new UnsupportedOperationException("This type of column definition is not implemented.");
         }
 
+        return evaluator;
+    }
+
+	@Override
+	public void initialize() { }
+
+	@Override
+    public void evaluate()
+    {
+        ComColumnEvaluator evaluator = getColumnEvaluator();
+        if (evaluator == null) return;
+
+        while (evaluator.next())
+        {
+            evaluator.evaluate();
+        }
+    }
+
+	@Override
+    public void finish() { }
+
+    //
+    // Dependencies
+    //
+
+    public List<Dim> dependencies;
+
+	@Override
+    public List<ComTable> usesTables(boolean recursive) // This element depends upon
+    {
+        List<ComTable> res = new ArrayList<ComTable>();
+
+        if (_definitionType == ColumnDefinitionType.FREE)
+        {
+            ;
+        }
+        else if (_definitionType == ColumnDefinitionType.ANY || _definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
+        {
+            if (_formula != null) // Dependency information is stored in expression (formula)
+            {
+                res = _formula.find((ComTable)null).Select(x => x.Result.TypeTable).ToList();
+            }
+        }
+        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
+        {
+            res.add(_factTable); // This column depends on the fact table
+
+            // Grouping and measure paths are used in this column
+            if (_groupPaths != null)
+            {
+                for (DimPath path : _groupPaths)
+                {
+                    for (ComColumn seg : path.Segments)
+                    {
+                        if (!res.contains(seg.getOutput())) res.add(seg.getOutput());
+                    }
+                }
+            }
+            if (_measurePaths != null)
+            {
+                for (DimPath path : _measurePaths)
+                {
+                    for (ComColumn seg : path.Segments)
+                    {
+                        if (!res.contains(seg.getOutput())) res.add(seg.getOutput());
+                    }
+                }
+            }
+        }
+
+        return res;
+    }
+	@Override
+    public List<ComTable> isUsedInTables(boolean recursive) // Dependants
+    {
+        List<ComTable> res = new ArrayList<ComTable>();
+
+        // TODO: Which other sets use this function for their content? Say, if it is a generating function. Or it is a group/measure function.
+        // Analyze other function definitions and check if this function is used there directly. 
+        // If such a function has been found, then make the same call for it, that is find other functins where it is used.
+
+        // A function can be used in Filter expression and Sort expression
+
+        return res;
+    }
+
+	@Override
+    public List<ComColumn> usesColumns(boolean recursive) // This element depends upon
+    {
+        List<ComColumn> res = new ArrayList<ComColumn>();
+
+        if (_definitionType == ColumnDefinitionType.FREE)
+        {
+            ;
+        }
+        else if (_definitionType == ColumnDefinitionType.ANY || _definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
+        {
+            if (_formula != null) // Dependency information is stored in expression (formula)
+            {
+                res = _formula.find((ComColumn)null).Select(x => x.Column).ToList();
+            }
+        }
+        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
+        {
+            // Grouping and measure paths are used in this column
+            if (_groupPaths != null)
+            {
+                for (DimPath path : _groupPaths)
+                {
+                    for (ComColumn seg : path.Segments)
+                    {
+                        if (!res.contains(seg)) res.add(seg);
+                    }
+                }
+            }
+            if (_measurePaths != null)
+            {
+                for (DimPath path : _measurePaths)
+                {
+                    for (ComColumn seg : path.Segments)
+                    {
+                        if (!res.contains(seg)) res.add(seg);
+                    }
+                }
+            }
+        }
+
+        return res;
+    }
+	@Override
+    public List<ComColumn> isUsedInColumns(boolean recursive) // Dependants
+    {
+        List<ComColumn> res = new ArrayList<ComColumn>();
+
+        // TODO: Find which other columns use this column in the definition
+
+        return res;
+    }
+
+    public ColumnDefinition(ComColumn dim)
+    {
+        _dim = dim;
+
+        _generating = false;
+        _definitionType = ColumnDefinitionType.FREE;
+        
+        _groupPaths = new ArrayList<DimPath>();
+        _measurePaths = new ArrayList<DimPath>();
+
+        dependencies = new ArrayList<Dim>();
     }
 
 }

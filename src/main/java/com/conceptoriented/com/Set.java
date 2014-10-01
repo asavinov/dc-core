@@ -23,15 +23,15 @@ public class Set implements ComTable, ComTableData {
 		this.name = name;
 	}
 
-	protected CsDataType dataType;
+	protected ComDataType dataType;
 	@Override
-	public CsDataType getDataType() {
+	public ComDataType getDataType() {
 		return dataType;
 	}
 	
 	protected List<ComColumn> greaterDims;
 	@Override
-	public List<ComColumn> getOutputColumns() {
+	public List<ComColumn> getColumns() {
 		return greaterDims;
 	}
 	@Override
@@ -86,7 +86,7 @@ public class Set implements ComTable, ComTableData {
 	}
 
 	@Override
-	public ComTableData getTableData() {
+	public ComTableData getData() {
 		return this;
 	}
 
@@ -109,7 +109,7 @@ public class Set implements ComTable, ComTableData {
 	// Constructors
 	//
 	
-	public Set(String name, CsDataType dataType) {
+	public Set(String name, ComDataType dataType) {
 		this.name = name;
 		this.dataType = dataType;
 		
