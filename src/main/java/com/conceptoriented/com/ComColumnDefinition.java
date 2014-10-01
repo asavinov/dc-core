@@ -6,7 +6,7 @@ package com.conceptoriented.com;
  * @author savinov
  *
  */
-public interface CsColumnDefinition {
+public interface ComColumnDefinition {
 
 	// The form of representation:
 	// Our own v-expr or its parsed AST: 

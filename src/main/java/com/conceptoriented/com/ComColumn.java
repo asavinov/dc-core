@@ -6,7 +6,7 @@ package com.conceptoriented.com;
  * @author savinov
  *
  */
-public interface CsColumn {
+public interface ComColumn {
 
 	public String getName();
 	public void setName(String name);
@@ -14,15 +14,15 @@ public interface CsColumn {
 	public boolean isKey();
 	public boolean isSuper(); 
 	
-	public CsTable getInput();
-	public void setInput(CsTable input);
+	public ComTable getInput();
+	public void setInput(ComTable input);
 	
-	public CsTable getOutput();
-	public void setOutput(CsTable output);
+	public ComTable getOutput();
+	public void setOutput(ComTable output);
 
 	public void add();
 	public void remove();
 
-	public CsColumnData getColumnData();
-	public CsColumnDefinition getColumnDefinition();
+	public ComColumnData getColumnData();
+	public ComColumnDefinition getColumnDefinition();
 }

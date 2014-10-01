@@ -3,7 +3,7 @@ package com.conceptoriented.com;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class ComDim implements CsColumn, CsColumnDefinition {
+public class Dim implements ComColumn, ComColumnDefinition {
 
 	//
 	// CsColumn interface
@@ -31,23 +31,23 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 		return isKey;
 	}
 
-	protected CsTable input;
+	protected ComTable input;
 	@Override
-	public CsTable getInput() {
+	public ComTable getInput() {
 		return input;
 	}
 	@Override
-	public void setInput(CsTable input) {
+	public void setInput(ComTable input) {
 		this.input = input;
 	}
 
-	protected CsTable output;
+	protected ComTable output;
 	@Override
-	public CsTable getOutput() {
+	public ComTable getOutput() {
 		return output;
 	}
 	@Override
-	public void setOutput(CsTable output) {
+	public void setOutput(ComTable output) {
 		this.output = output;
 	}
 
@@ -55,27 +55,27 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	public void add() {
 		assert input != null && output != null; 
 
-		((ComSet)input).greaterDims.add(this);
-		((ComSet)output).lesserDims.add(this);
+		((Set)input).greaterDims.add(this);
+		((Set)output).lesserDims.add(this);
 	}
 
 	@Override
 	public void remove() {
 		assert input != null && output != null; 
 
-		((ComSet)input).greaterDims.remove(this);
-		((ComSet)output).lesserDims.remove(this);
+		((Set)input).greaterDims.remove(this);
+		((Set)output).lesserDims.remove(this);
 	}
 
-	protected CsColumnData columnData;
+	protected ComColumnData columnData;
 	@Override
-	public CsColumnData getColumnData() {
+	public ComColumnData getColumnData() {
 		return columnData;
 	}
 
-	protected CsColumnDefinition columnDefinition;
+	protected ComColumnDefinition columnDefinition;
 	@Override
-	public CsColumnDefinition getColumnDefinition() {
+	public ComColumnDefinition getColumnDefinition() {
 		return columnDefinition;
 	}
 
@@ -90,7 +90,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 
 	@Override
 	public void evaluate() {
-		CsColumn column = this;
+		ComColumn column = this;
 
 		CsColumnEvaluator recordEvaluator = getColumnEvaluator(); // Compile formula into computing object
 		// TODO Turn off indexing/sorting in the storage object as we set the function values and reindex at the end
@@ -105,7 +105,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 		//
         if (isAggregated) {
         	// Loop through all inputs of the fact set and *updating* (accumulating) the function output
-        	CsTable loopTable = null; // TODO
+        	ComTable loopTable = null; // TODO
     		for (int input = 0; input < loopTable.getTableData().getLength(); input++)
             {
             	recordEvaluator.evaluateUpdate(input);
@@ -113,7 +113,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
         }
         else {
         	 // Loop through all inputs of this set and *setting* (writing) the function output
-    		CsTable loopTable = column.getInput();
+    		ComTable loopTable = column.getInput();
             for (int input = 0; input < loopTable.getTableData().getLength(); input++)
             {
             	recordEvaluator.evaluateSet(input);
@@ -129,8 +129,8 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	
 	@Override
 	public CsColumnEvaluator getColumnEvaluator() {
-		CsColumn column = this;
-		CsColumnData columnData = column.getColumnData();
+		ComColumn column = this;
+		ComColumnData columnData = column.getColumnData();
 		
 		// TODO: Depending on the format of the formula and type of function instantiate a specific object
 
@@ -140,7 +140,7 @@ public class ComDim implements CsColumn, CsColumnDefinition {
 	//
 	// Constructors
 	//
-	public ComDim(String name, CsTable input, CsTable output, boolean isKey, boolean isSuper) {
+	public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
 		assert name != null && input != null && output != null;
 
 		this.name = name;
@@ -157,25 +157,25 @@ public class ComDim implements CsColumn, CsColumnDefinition {
         else if(dataType == CsDataType.Bottom) {
         }
         else if(dataType == CsDataType.Root) {
-        	columnData = new ComColumnData<Integer>(this, dataType);
+        	columnData = new DimPrimitive<Integer>(this, dataType);
         }
         else if(dataType == CsDataType.Integer) {
-        	columnData = new ComColumnData<Integer>(this, dataType);
+        	columnData = new DimPrimitive<Integer>(this, dataType);
         }
         else if(dataType == CsDataType.Double) {
-        	columnData = new ComColumnData<Double>(this, dataType);
+        	columnData = new DimPrimitive<Double>(this, dataType);
         }
         else if(dataType == CsDataType.Decimal) {
-        	columnData = new ComColumnData<BigDecimal>(this, dataType);
+        	columnData = new DimPrimitive<BigDecimal>(this, dataType);
         }
         else if(dataType == CsDataType.String) {
-        	columnData = new ComColumnData<String>(this, dataType);
+        	columnData = new DimPrimitive<String>(this, dataType);
         }
         else if(dataType == CsDataType.Boolean) {
-        	columnData = new ComColumnData<Boolean>(this, dataType);
+        	columnData = new DimPrimitive<Boolean>(this, dataType);
         }
         else if(dataType == CsDataType.DateTime) {
-        	columnData = new ComColumnData<Instant>(this, dataType);
+        	columnData = new DimPrimitive<Instant>(this, dataType);
         }
 		
         columnDefinition = this;

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ComSet implements CsTable, CsTableData {
+public class Set implements ComTable, ComTableData {
 	
 	//
 	// CsTable interface
@@ -29,64 +29,64 @@ public class ComSet implements CsTable, CsTableData {
 		return dataType;
 	}
 	
-	protected List<CsColumn> greaterDims;
+	protected List<ComColumn> greaterDims;
 	@Override
-	public List<CsColumn> getOutputColumns() {
+	public List<ComColumn> getOutputColumns() {
 		return greaterDims;
 	}
 	@Override
-	public CsColumn getSuperColumn() {
-		Optional<CsColumn> ret = greaterDims.stream().filter(x -> x.isSuper()).findAny();
+	public ComColumn getSuperColumn() {
+		Optional<ComColumn> ret = greaterDims.stream().filter(x -> x.isSuper()).findAny();
 		return ret.isPresent() ? ret.get() : null;
 	}
 	@Override
-	public CsSchema getSchema() {
-		CsTable t = this;
+	public ComSchema getSchema() {
+		ComTable t = this;
 		while(t.getSuperColumn() != null) t = t.getSuperColumn().getOutput();
-		return (CsSchema)t;
+		return (ComSchema)t;
 	}
 	@Override
-	public List<CsColumn> getKeyColumns() {
+	public List<ComColumn> getKeyColumns() {
 		return greaterDims.stream().filter(x -> x.isKey() && !x.isSuper()).collect(Collectors.toList());
 	}
 	@Override
-	public List<CsColumn> getNonkeyColumns() {
+	public List<ComColumn> getNonkeyColumns() {
 		return greaterDims.stream().filter(x -> !x.isKey()).collect(Collectors.toList());
 	}
 
-	protected List<CsColumn> lesserDims;
+	protected List<ComColumn> lesserDims;
 	@Override
-	public List<CsColumn> getInputColumns() {
+	public List<ComColumn> getInputColumns() {
 		return lesserDims;
 	}
 	@Override
-	public List<CsColumn> getSubColumns() {
+	public List<ComColumn> getSubColumns() {
 		return lesserDims.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
 	}
 
 	@Override
-	public CsColumn getColumn(String name) {
-		Optional<CsColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+	public ComColumn getColumn(String name) {
+		Optional<ComColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
 		return ret.isPresent() ? ret.get() : null;
 	}
 	@Override
-	public CsTable getTable(String name) {
-		Optional<CsColumn> ret = lesserDims.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
+	public ComTable getTable(String name) {
+		Optional<ComColumn> ret = lesserDims.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
 		return ret.isPresent() ? ret.get().getInput() : null;
 	}
 	@Override
-	public CsTable findTable(String name) {
+	public ComTable findTable(String name) {
 		if(getName().equalsIgnoreCase(name)) return this;
 
-		for(CsColumn c : getSubColumns()) {
-			CsTable t = c.getInput().findTable(name);
+		for(ComColumn c : getSubColumns()) {
+			ComTable t = c.getInput().findTable(name);
 			if(t != null) return t;
 		}
 		return null;
 	}
 
 	@Override
-	public CsTableData getTableData() {
+	public ComTableData getTableData() {
 		return this;
 	}
 
@@ -109,12 +109,12 @@ public class ComSet implements CsTable, CsTableData {
 	// Constructors
 	//
 	
-	public ComSet(String name, CsDataType dataType) {
+	public Set(String name, CsDataType dataType) {
 		this.name = name;
 		this.dataType = dataType;
 		
-		greaterDims = new ArrayList<CsColumn>();
-		lesserDims = new ArrayList<CsColumn>();
+		greaterDims = new ArrayList<ComColumn>();
+		lesserDims = new ArrayList<ComColumn>();
 	}
 
 }

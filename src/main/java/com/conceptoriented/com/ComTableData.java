@@ -1,6 +1,6 @@
 package com.conceptoriented.com;
 
-public interface CsTableData {
+public interface ComTableData {
 
 	public int getLength();
 	public void setLength(int length);
