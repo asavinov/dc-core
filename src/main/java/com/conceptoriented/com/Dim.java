@@ -102,64 +102,88 @@ public class Dim implements ComColumn {
 		return _definition;
 	}
 
-	//
-	// ComColumnData interface
-	//
-
-	//
-	// ComColumnDefinition interface
-	//
-
 	public static ComColumnData CreateColumnData(ComTable type, ComColumn column)
     {
         ComColumnData colData = new DimEmpty();
 
-        if (type == null || String.IsNullOrEmpty(type.getName()))
+        
+        if (type == null || Utils.isNullOrEmpty(type.getName()))
         {
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Void"))
+        else if (Utils.sameTableName(type.getName(), "Void"))
         {
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Top"))
+        else if (Utils.sameTableName(type.getName(), "Top"))
         {
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Bottom")) // Not possible by definition
+        else if (Utils.sameTableName(type.getName(), "Bottom")) // Not possible by definition
         {
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Root"))
+        else if (Utils.sameTableName(type.getName(), "Root"))
         {
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Integer"))
+        else if (Utils.sameTableName(type.getName(), "Integer"))
         {
-            colData = new DimPrimitive<Integer>(column);
+            colData = new DimData<Integer>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Double"))
+        else if (Utils.sameTableName(type.getName(), "Double"))
         {
-            colData = new DimPrimitive<Double>(column);
+            colData = new DimData<Double>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Decimal"))
+        else if (Utils.sameTableName(type.getName(), "Decimal"))
         {
-            colData = new DimPrimitive<Decimal>(column);
+            colData = new DimData<BigDecimal>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "String"))
+        else if (Utils.sameTableName(type.getName(), "String"))
         {
-            colData = new DimPrimitive<String>(column);
+            colData = new DimData<String>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Boolean"))
+        else if (Utils.sameTableName(type.getName(), "Boolean"))
         {
-            colData = new DimPrimitive<Boolean>(column);
+            colData = new DimData<Boolean>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "DateTime"))
+        else if (Utils.sameTableName(type.getName(), "DateTime"))
         {
-            colData = new DimPrimitive<LocalDate>(column);
+            colData = new DimData<Instant>(column);
         }
-        else if (StringSimilarity.SameTableName(type.getName(), "Set"))
+        else if (Utils.sameTableName(type.getName(), "Set"))
         {
         }
         else // User (non-primitive) set
         {
-            colData = new DimPrimitive<Integer>(column);
+            colData = new DimData<Integer>(column);
         }
+        
+        /*
+		ComDataType dataType = output.getDataType();
+        if(dataType == ComDataType.Void) {
+        }
+        else if(dataType == ComDataType.Top) {
+        }
+        else if(dataType == ComDataType.Bottom) {
+        }
+        else if(dataType == ComDataType.Root) {
+        	_data = new DimData<Integer>(this, dataType);
+        }
+        else if(dataType == ComDataType.Integer) {
+        	_data = new DimData<Integer>(this, dataType);
+        }
+        else if(dataType == ComDataType.Double) {
+        	_data = new DimData<Double>(this, dataType);
+        }
+        else if(dataType == ComDataType.Decimal) {
+        	_data = new DimData<BigDecimal>(this, dataType);
+        }
+        else if(dataType == ComDataType.String) {
+        	_data = new DimData<String>(this, dataType);
+        }
+        else if(dataType == ComDataType.Boolean) {
+        	_data = new DimData<Boolean>(this, dataType);
+        }
+        else if(dataType == ComDataType.DateTime) {
+        	_data = new DimData<Instant>(this, dataType);
+        }
+		*/
 
         return colData;
     }
@@ -176,36 +200,9 @@ public class Dim implements ComColumn {
 		this._key = isKey;
 		this._super = isSuper;
 
-		ComDataType dataType = output.getDataType();
-        if(dataType == ComDataType.Void) {
-        }
-        else if(dataType == ComDataType.Top) {
-        }
-        else if(dataType == ComDataType.Bottom) {
-        }
-        else if(dataType == ComDataType.Root) {
-        	_data = new DimPrimitive<Integer>(this, dataType);
-        }
-        else if(dataType == ComDataType.Integer) {
-        	_data = new DimPrimitive<Integer>(this, dataType);
-        }
-        else if(dataType == ComDataType.Double) {
-        	_data = new DimPrimitive<Double>(this, dataType);
-        }
-        else if(dataType == ComDataType.Decimal) {
-        	_data = new DimPrimitive<BigDecimal>(this, dataType);
-        }
-        else if(dataType == ComDataType.String) {
-        	_data = new DimPrimitive<String>(this, dataType);
-        }
-        else if(dataType == ComDataType.Boolean) {
-        	_data = new DimPrimitive<Boolean>(this, dataType);
-        }
-        else if(dataType == ComDataType.DateTime) {
-        	_data = new DimPrimitive<Instant>(this, dataType);
-        }
 		
-        _definition = this;
+		_data = CreateColumnData(output, this);
+        _definition = new ColumnDefinition(this);
 	}
 	
 }

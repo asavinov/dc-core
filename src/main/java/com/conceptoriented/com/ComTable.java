@@ -30,17 +30,17 @@ public interface ComTable {
 	public List<ComColumn> getInputColumns();
 
 	public List<ComColumn> getSubColumns();
-	public List<ComColumn> getSubTables();
-	public List<ComColumn> getAllSubTables();
+	public List<ComTable> getSubTables();
+	public List<ComTable> getAllSubTables();
 
     //
     // Poset relation
     //
 
-	boolean IsSubTable(ComTable parent); // Is subset of the specified table
-    boolean IsInput(ComTable set); // Is lesser than the specified table
-    boolean IsLeast(); // Has no inputs
-    boolean IsGreatest(); // Has no outputs
+	boolean isSubTable(ComTable parent); // Is subset of the specified table
+    boolean isInput(ComTable set); // Is lesser than the specified table
+    boolean isLeast(); // Has no inputs
+    boolean isGreatest(); // Has no outputs
 
     //
     // Names
@@ -68,20 +68,24 @@ interface ComTableData {
     // Value methods (convenience, probably should be removed and replaced by manual access to dimensions)
     //
 
-    Object GetValue(String name, int offset);
-    void SetValue(String name, int offset, Object value);
+    Object getValue(String name, int offset);
+    void setValue(String name, int offset, Object value);
 
     //
-    // Tuple methods: append, insert, remove, read, write.
+    // Tuple (flat record) methods: append, insert, remove, read, write.
     //
 
-    int Find(ComColumn[] dims, Object[] values);
-    int Append(ComColumn[] dims, Object[] values);
-    void Remove(int input);
+    int find(ComColumn[] dims, Object[] values);
+    int append(ComColumn[] dims, Object[] values);
+    void remove(int input);
 
-    int Find(ExprNode expr);
-    boolean CanAppend(ExprNode expr);
-    int Append(ExprNode expr);
+    //
+    // Expression (nested record) methods: append, insert, remove, read, write.
+    //
+
+    int find(ExprNode expr);
+    boolean canAppend(ExprNode expr);
+    int append(ExprNode expr);
 }
 
 /**
@@ -96,16 +100,16 @@ interface ComTableDefinition
     void setDefinitionType(TableDefinitionType value);
 
     ExprNode getWhereExpr();
-    void getWhereExpr(ExprNode value);
+    void setWhereExpr(ExprNode value);
 
     ExprNode getOrderbyExp();
-    void getOrderbyExp(ExprNode value);
+    void setOrderbyExp(ExprNode value);
 
     ComEvaluator getWhereEvaluator();
 
-    void Populate();
+    void populate();
 
-    void Unpopulate(); // Is not it Length=0?
+    void unpopulate(); // Is not it Length=0?
 
     //
     // Dependencies. The order is important and corresponds to dependency chain

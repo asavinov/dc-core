@@ -3,7 +3,7 @@ package com.conceptoriented.com;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
+public class DimData<T extends Comparable<T>> implements ComColumnData {
 
 	protected ComColumn _dim;
 
@@ -39,7 +39,7 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
         {
             allocatedSize += incrementSize * ((newLength - allocatedSize) / incrementSize + 1);
             _cells = java.util.Arrays.copyOf(_cells, allocatedSize); // Resize the storage for values
-            _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the indeex
+            _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the index
         }
 
         // Update data and index in the case of increase (append to last) and decrease (delete last)
@@ -122,7 +122,7 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
             allocatedSize += incrementSize;
 
             _cells = java.util.Arrays.copyOf(_cells, allocatedSize); // Resize the storage for values
-            _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the indeex
+            _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the index
         }
 
         T val = null;
@@ -253,7 +253,7 @@ public class DimPrimitive<T extends Comparable<T>> implements ComColumnData {
         return new int[] { first+1, last };
     }
 
-	public DimPrimitive(ComColumn dim) {
+	public DimData(ComColumn dim) {
         // TODO: Check if output (greater) set is of correct type
 
         _dim = dim;
