@@ -124,7 +124,7 @@ interface ComColumnDefinition {
     // Compute
     //
 
-	public ComEvaluator getColumnEvaluator(); // Get an object which is used to compute the function values according to the formula
+	public ComEvaluator getEvaluator(); // Get an object which is used to compute the function values according to the formula
     
 	public void initialize();
 	public void evaluate();

@@ -95,8 +95,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 	}
 	@Override
 	public boolean isInput(ComTable set) { // Is lesser than the specified table
-        var paths = new PathEnumerator(this, set, DimensionType.IDENTITY_ENTITY);
-        return paths.Count() > 0;
+    	throw new UnsupportedOperationException("TODO");
 	}
 	@Override
 	public boolean isLeast() { // Has no inputs
@@ -184,7 +183,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
         {
             hasBeenRestricted = true;
             int[] range = dims[i].getData().deproject(values[i]); // Deproject one value
-            result = result.Intersect(range).ToArray(); 
+//            result = result.Intersect(range).ToArray(); 
             // OPTIMIZE: Write our own implementation for various operations (intersection etc.). Use the fact that they are ordered.
             // OPTIMIZE: Use statistics for column distribution to choose best order of de-projections. Alternatively, the order of dimensions can be set by the external procedure taking into account statistics. Say, there could be a special utility method like SortDimensionsAccordingDiscriminationFactor or SortDimsForFinding tuples.
             // OPTIMIZE: Remember the position for the case this value will have to be inserted so we do not have again search for this positin during insertion. Maybe store it in a static field as part of last operation.

@@ -260,7 +260,8 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
         _length = 0;
         allocatedSize = initialSize;
-        _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize);
+        _cells = (T[]) new Comparable[allocatedSize];
+        // _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize); // DOES NOT WORK because we do not know generic type at run-time: 
         _offsets = new int[allocatedSize];
 
         _nullCount = _length;
@@ -383,46 +384,9 @@ class ColumnDefinition implements ComColumnDefinition
     //
 
 	@Override
-	public ComColumnEvaluator getColumnEvaluator()
+	public ComEvaluator getEvaluator()
     {
-        // Principle: population methods are unaware of Definition type (expressions etc.) - they use only evaluator (no dependency on the definition details)
-
-        // Here we return different types of objects that implement this interface depending on the definition type (and reflecting/based on the definition)
-        // Based on Mapping - can be transformed an (tuple) expression
-        // Based on tuple expression - object that can evaluate tuple tree (find, append etc.), say, an extension of a passive tuple or simply implement the Evaluator interface by the expression object
-        // Based on expression - as above
-        // Based on aggregation - it is update function so initially we can return a standard updater like SUM (untyped), in future, return typed updaters, and in future also custom updaters based on v-expr or other code
-        // Based on library - load lib, instantiate via factory, initialize (say, resolve names), return object
-        // Based on source code - compile class, instantiate, initialize (say, resolve), return instance
-
-        ComColumnEvaluator evaluator = null;
-
-        if (_definitionType == ColumnDefinitionType.FREE) 
-        {
-            ; // Nothing to do
-        }
-        else if (_dim.getInput().getSchema() != _dim.getOutput().getSchema() && _dim.getInput().getSchema() instanceof SetTopCsv) // Import data from a remote source
-        {
-            evaluator = ExprEvaluator.CreateCsvEvaluator(_dim);
-        }
-        else if (_dim.getInput().getSchema() != _dim.getOutput().getSchema() && _dim.getInput().getSchema() instanceof SetTopOledb) // Import data from a remote source
-        {
-            evaluator = ExprEvaluator.CreateOledbEvaluator(_dim);
-        }
-        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
-        {
-            evaluator = ExprEvaluator.CreateAggrEvaluator(_dim);
-        }
-        else if (_definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
-        {
-            evaluator = ExprEvaluator.CreateColumnEvaluator(_dim);
-        }
-        else
-        {
-        	throw new UnsupportedOperationException("This type of column definition is not implemented.");
-        }
-
-        return evaluator;
+    	throw new UnsupportedOperationException("TODO");
     }
 
 	@Override
@@ -431,7 +395,7 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
     public void evaluate()
     {
-        ComColumnEvaluator evaluator = getColumnEvaluator();
+        ComEvaluator evaluator = getEvaluator();
         if (evaluator == null) return;
 
         while (evaluator.next())
@@ -452,113 +416,23 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
     public List<ComTable> usesTables(boolean recursive) // This element depends upon
     {
-        List<ComTable> res = new ArrayList<ComTable>();
-
-        if (_definitionType == ColumnDefinitionType.FREE)
-        {
-            ;
-        }
-        else if (_definitionType == ColumnDefinitionType.ANY || _definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
-        {
-            if (_formula != null) // Dependency information is stored in expression (formula)
-            {
-                res = _formula.find((ComTable)null).Select(x => x.Result.TypeTable).ToList();
-            }
-        }
-        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
-        {
-            res.add(_factTable); // This column depends on the fact table
-
-            // Grouping and measure paths are used in this column
-            if (_groupPaths != null)
-            {
-                for (DimPath path : _groupPaths)
-                {
-                    for (ComColumn seg : path.Segments)
-                    {
-                        if (!res.contains(seg.getOutput())) res.add(seg.getOutput());
-                    }
-                }
-            }
-            if (_measurePaths != null)
-            {
-                for (DimPath path : _measurePaths)
-                {
-                    for (ComColumn seg : path.Segments)
-                    {
-                        if (!res.contains(seg.getOutput())) res.add(seg.getOutput());
-                    }
-                }
-            }
-        }
-
-        return res;
+    	throw new UnsupportedOperationException("TODO");
     }
 	@Override
     public List<ComTable> isUsedInTables(boolean recursive) // Dependants
     {
-        List<ComTable> res = new ArrayList<ComTable>();
-
-        // TODO: Which other sets use this function for their content? Say, if it is a generating function. Or it is a group/measure function.
-        // Analyze other function definitions and check if this function is used there directly. 
-        // If such a function has been found, then make the same call for it, that is find other functins where it is used.
-
-        // A function can be used in Filter expression and Sort expression
-
-        return res;
+    	throw new UnsupportedOperationException("TODO");
     }
 
 	@Override
     public List<ComColumn> usesColumns(boolean recursive) // This element depends upon
     {
-        List<ComColumn> res = new ArrayList<ComColumn>();
-
-        if (_definitionType == ColumnDefinitionType.FREE)
-        {
-            ;
-        }
-        else if (_definitionType == ColumnDefinitionType.ANY || _definitionType == ColumnDefinitionType.ARITHMETIC || _definitionType == ColumnDefinitionType.LINK)
-        {
-            if (_formula != null) // Dependency information is stored in expression (formula)
-            {
-                res = _formula.find((ComColumn)null).Select(x => x.Column).ToList();
-            }
-        }
-        else if (_definitionType == ColumnDefinitionType.AGGREGATION)
-        {
-            // Grouping and measure paths are used in this column
-            if (_groupPaths != null)
-            {
-                for (DimPath path : _groupPaths)
-                {
-                    for (ComColumn seg : path.Segments)
-                    {
-                        if (!res.contains(seg)) res.add(seg);
-                    }
-                }
-            }
-            if (_measurePaths != null)
-            {
-                for (DimPath path : _measurePaths)
-                {
-                    for (ComColumn seg : path.Segments)
-                    {
-                        if (!res.contains(seg)) res.add(seg);
-                    }
-                }
-            }
-        }
-
-        return res;
+    	throw new UnsupportedOperationException("TODO");
     }
 	@Override
     public List<ComColumn> isUsedInColumns(boolean recursive) // Dependants
     {
-        List<ComColumn> res = new ArrayList<ComColumn>();
-
-        // TODO: Find which other columns use this column in the definition
-
-        return res;
+    	throw new UnsupportedOperationException("TODO");
     }
 
     public ColumnDefinition(ComColumn dim)
