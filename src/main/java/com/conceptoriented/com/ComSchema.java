@@ -2,10 +2,21 @@ package com.conceptoriented.com;
 
 public interface ComSchema extends ComTable {
 	
-	public ComTable getPrimitive(ComDataType dataType);
+	public ComTable getPrimitive(String dataType);
 	public ComTable getRoot();
 
-	public ComTable createTable(String name, ComDataType dataType, ComTable parent);
+    // Table factory
+
+	public ComTable createTable(String name);
+	public ComTable addTable(ComTable table, ComTable parent, String superName);
+	public void deleteTable(ComTable table);
+	public void renameTable(ComTable table, String newName);
+
+    // Column factory
+
+	public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey);
+	public void deleteColumn(ComColumn column);
+	public void renameColumn(ComColumn column, String newName);
 }
 
 enum ComDataType

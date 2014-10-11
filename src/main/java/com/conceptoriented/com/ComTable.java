@@ -123,7 +123,7 @@ interface ComTableDefinition
 
 enum TableDefinitionType // Specific types of table formula
 {
-    NONE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
+    FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
     ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
     PROJECTION, // Table gets its elements from (unique) outputs of some function
     PRODUCT, // Table contains all combinations of its greater (key) sets satsifying the constraints

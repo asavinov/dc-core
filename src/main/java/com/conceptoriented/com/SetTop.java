@@ -1,87 +1,147 @@
 package com.conceptoriented.com;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class SetTop extends Set implements ComSchema {
 
+	//
+	// ComSchema interface
+	//
+	
 	@Override
-	public ComTable getPrimitive(ComDataType dataType) {
-		Optional<ComColumn> col = getSubColumns().stream().filter(x -> x.getInput().getDataType() == dataType).findAny();
+	public ComTable getPrimitive(String dataType) {
+		Optional<ComColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
 		return col.isPresent() ? col.get().getInput() : null;
 	}
 
 	@Override
 	public ComTable getRoot() {
-		return getPrimitive(ComDataType.Root);
+		return getPrimitive("Root");
+	}
+
+    // Table factory
+
+	@Override
+	public ComTable createTable(String name) {
+		ComTable table = new Set(name);
+		return table;
+	}
+	
+	@Override
+	public ComTable addTable(ComTable table, ComTable parent, String superName) {
+        if (parent == null)
+        {
+            parent = getRoot();
+        }
+        if (Utils.isNullOrEmpty(superName))
+        {
+            superName = "Super";
+        }
+
+        Dim dim = new Dim(superName, table, parent, true, true);
+
+        dim.add();
+
+        return table;
 	}
 
 	@Override
-	public ComTable createTable(String name, ComDataType dataType, ComTable parent) {
-		if(parent == null) {
-			parent = getRoot();
-		}
-
-		ComTable table = new Set(name, dataType);
-		ComColumn superCol = new Dim("Super", table, parent, true, true);
-		superCol.add();
-		return table;
+	public void deleteTable(ComTable table) {
+		List<ComColumn> toRemove; 
+		toRemove = new ArrayList<ComColumn>(table.getInputColumns());  
+        for (ComColumn col : toRemove) 
+        {
+            col.remove();
+        }
+        toRemove = new ArrayList<ComColumn>(table.getColumns());
+        for (ComColumn col : toRemove)
+        {
+            col.remove();
+        }
 	}
 
-	protected ComTable createPrimitiveTable(ComDataType dataType) {
-		ComTable table = null;
-		ComColumn superCol = null;
+	@Override
+	public void renameTable(ComTable table, String newName) {
+        tableRenamed(table, newName); // Rename with propagation
+        table.setName(newName);
+	}
+	
+    // Column factory
+	
+	@Override
+	public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey) {
 
-		if(dataType == ComDataType.Root) {
-			table = new Set("Top", dataType);
-			superCol = new Dim("Super", table, this, true, true);
-		}
-		else if(dataType == ComDataType.Integer) {
-			table = new Set("Integer", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		else if(dataType == ComDataType.Double) {
-			table = new Set("Double", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		else if(dataType == ComDataType.Decimal) {
-			table = new Set("Decimal", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		else if(dataType == ComDataType.String) {
-			table = new Set("String", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		else if(dataType == ComDataType.Boolean) {
-			table = new Set("Boolean", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		else if(dataType == ComDataType.DateTime) {
-			table = new Set("DateTime", dataType);
-			superCol = new Dim("Top", table, this, true, true);
-		}
-		
-		if(superCol != null) {
-			superCol.add();
-			return table;
-		}
-		else {
-			return null;
-		}
+		ComColumn dim = new Dim(name, input, output, isKey, false);
+
+        return dim;
+	}
+	@Override
+	public void deleteColumn(ComColumn column) {
+        columnDeleted(column);
+        column.remove();
+	}
+	@Override
+	public void renameColumn(ComColumn column, String newName) {
+        columnRenamed(column, newName); // Rename with propagation
+        column.setName(newName);
+	}
+	
+    protected void columnRenamed(ComColumn column, String newName) {
+		throw new UnsupportedOperationException();
+    }
+
+    protected void tableRenamed(ComTable table, String newName) {
+		throw new UnsupportedOperationException();
+    }
+	
+    protected void columnDeleted(ComColumn column) {
+		throw new UnsupportedOperationException();
+    }
+	
+    protected void createDataTypes() // Create all primitive data types from some specification like Enum, List or XML
+    {
+        Set set;
+        Dim dim;
+
+        set = new Set("Root");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("Integer");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("Double");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("Decimal");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("String");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("Boolean");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+
+        set = new Set("DateTime");
+        dim = new Dim("Top", set, this, true, true);
+        dim.add();
+    }
+
+	public SetTop() {
+		this("");
 	}
 
 	public SetTop(String name) {
-		super(name, ComDataType.Top);
+		super(name);
 		
-		//
-		// Instantiate all primitive sets
-		//
-		createPrimitiveTable(ComDataType.Root);
-		createPrimitiveTable(ComDataType.Integer);
-		createPrimitiveTable(ComDataType.Double);
-		createPrimitiveTable(ComDataType.Decimal);
-		createPrimitiveTable(ComDataType.String);
-		createPrimitiveTable(ComDataType.Boolean);
-		createPrimitiveTable(ComDataType.DateTime);
+        createDataTypes(); // Generate all predefined primitive sets as subsets
 	}
 
 }

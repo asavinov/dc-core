@@ -300,11 +300,18 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 	// Constructors
 	//
 	
-	public Set(String name, ComDataType dataType) {
+    public Set() {
+    	this("");
+    }
+    
+    public Set(String name)
+    {
 		this.name = name;
-		
+
 		greaterDims = new ArrayList<ComColumn>();
 		lesserDims = new ArrayList<ComColumn>();
-	}
+
+        setDefinitionType(TableDefinitionType.FREE);
+    }
 
 }
