@@ -2,9 +2,32 @@ package com.conceptoriented.com;
 
 import static org.junit.Assert.*;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
 public class SchemaTest {
+
+    protected ExprNode BuildExpr(String str)
+    {
+        ExprLexer lexer;
+        ExprParser parser;
+        ParseTree tree;
+        String tree_str;
+        ExprNode ast;
+
+        ExprBuilder builder = new ExprBuilder();
+
+        lexer = new ExprLexer(new ANTLRInputStream(str));
+        parser = new ExprParser(new CommonTokenStream(lexer));
+        tree = parser.expr();
+        tree_str = tree.toStringTree(parser);
+
+        ast = builder.visit(tree);
+
+        return ast;
+    }
 
     protected ComSchema createSampleSchema()
     {
@@ -40,9 +63,81 @@ public class SchemaTest {
         return schema;
     }
 
+    protected void createSampleData(ComSchema schema)
+    {
+        //
+        // Fill sample data in "Table 1"
+        //
+        ComTable t1 = schema.getSubTable("Table 1");
+
+        ComColumn c11 = t1.getColumn("Column 11");
+        ComColumn c12 = t1.getColumn("Column 12");
+        ComColumn c13 = t1.getColumn("Column 13");
+        ComColumn c14 = t1.getColumn("Column 14");
+
+        ComColumn[] cols = new ComColumn[] { c11, c12, c13, c14 };
+        Object[] vals = new Object[4];
+
+        vals[0] = 20;
+        vals[1] = "Record 0";
+        vals[2] = 20.0;
+        vals[3] = 20.0;
+        t1.getData().append(cols, vals);
+
+        vals[0] = 10;
+        vals[1] = "Record 1";
+        vals[2] = 10.0;
+        vals[3] = 20.0;
+        t1.getData().append(cols, vals);
+
+        vals[0] = 30;
+        vals[1] = "Record 2";
+        vals[2] = 30.0;
+        vals[3] = 20.0;
+        t1.getData().append(cols, vals);
+
+        //
+        // Fill sample data in "Table 2"
+        //
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        ComColumn c21 = t2.getColumn("Column 21");
+        ComColumn c22 = t2.getColumn("Column 22");
+        ComColumn c23 = t2.getColumn("Column 23");
+        ComColumn c24 = t2.getColumn("Table 1");
+
+        cols = new ComColumn[] { c21, c22, c23, c24 };
+        vals = new Object[4];
+
+        vals[0] = "Value A";
+        vals[1] = 20;
+        vals[2] = 40.0;
+        vals[3] = 0;
+        t2.getData().append(cols, vals);
+
+        vals[0] = "Value A";
+        vals[1] = 30;
+        vals[2] = 40.0;
+        vals[3] = 1;
+        t2.getData().append(cols, vals);
+
+        vals[0] = "Value A";
+        vals[1] = 30;
+        vals[2] = 50.0;
+        vals[3] = 1;
+        t2.getData().append(cols, vals);
+
+        vals[0] = "Value B";
+        vals[1] = 30;
+        vals[2] = 50.0;
+        vals[3] = 1;
+        t2.getData().append(cols, vals);
+    }
+
 	@Test
 	public void SchemaCreationTest() {
-		createSampleSchema();
+		ComSchema schema = createSampleSchema();
+		createSampleData(schema);
 	}
 
 }

@@ -12,7 +12,6 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 	//
 
 	protected String name;
-
 	@Override
 	public String getName() {
 		return name;
