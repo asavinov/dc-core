@@ -333,11 +333,11 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
 	public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
 
-    protected ExprNode _formula;
+    protected ExprNode _formulaExpr;
 	@Override
-	public ExprNode getFormula() { return _formula; }
+	public ExprNode getFormulaExpr() { return _formulaExpr; }
 	@Override
-	public void setFormula(ExprNode value) { _formula = value; }
+	public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
 
     protected Mapping _mapping;
 	@Override
@@ -386,7 +386,18 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
 	public ComEvaluator getEvaluator()
     {
-    	throw new UnsupportedOperationException("TODO");
+        ComEvaluator evaluator = null;
+
+        if (getDefinitionType() == ColumnDefinitionType.FREE) 
+        {
+            ; // Nothing to do
+        }
+        else
+        {
+            evaluator = new ExprEvaluator(_dim);
+        }
+
+        return evaluator;
     }
 
 	@Override

@@ -1,5 +1,7 @@
 package com.conceptoriented.com;
 
+import java.util.List;
+
 public class ExprNode extends TreeNode<ExprNode> {
 
     public ExprNode getChild(int child) { throw new UnsupportedOperationException("TODO"); }
@@ -57,10 +59,18 @@ public class ExprNode extends TreeNode<ExprNode> {
 	}
 
 
-	// TODO
+    public void resolve(ComSchema schema, List<ComVariable> variables) {
+    	throw new UnsupportedOperationException("TODO");
+    }
+
+    public void evaluate() {
+    	throw new UnsupportedOperationException("TODO");
+    }
+    
 	
-	
-	public ExprNode()
+
+    
+    public ExprNode()
     {
         setResult(new Variable("return", "Void"));
     }

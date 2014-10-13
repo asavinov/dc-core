@@ -94,8 +94,8 @@ interface ComColumnDefinition {
 	public ColumnDefinitionType getDefinitionType();
 	public void setDefinitionType(ColumnDefinitionType columnDefinitionType);
 	
-	public ExprNode getFormula();
-	public void setFormula(ExprNode exprNode);
+	public ExprNode getFormulaExpr();
+	public void setFormulaExpr(ExprNode exprNode);
 
 	public Mapping getMapping();
 	public void setMapping(Mapping mapping);

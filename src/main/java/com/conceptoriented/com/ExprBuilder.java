@@ -11,7 +11,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
 
         // Determine the type of expression
 
-        if (context.op != null && context.op.getText() == ".") // Composition (dot) operation
+        if (context.op != null && context.op.getText().equals(".")) // Composition (dot) operation
         {
             n.setOperation(OperationType.CALL);
             n.setAction(ActionType.READ);
@@ -50,21 +50,21 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
             String op = context.op.getText(); // Alternatively, context.GetChild(1).GetText()
             n.setName(op);
 
-            if (op == "*") n.setAction(ActionType.MUL);
-            else if (op == "/") n.setAction(ActionType.DIV);
-            else if (op == "+") n.setAction(ActionType.ADD);
-            else if (op == "-") n.setAction(ActionType.SUB);
+            if (op.equals("*")) n.setAction(ActionType.MUL);
+            else if (op.equals("/")) n.setAction(ActionType.DIV);
+            else if (op.equals("+")) n.setAction(ActionType.ADD);
+            else if (op.equals("-")) n.setAction(ActionType.SUB);
 
-            else if (op == "<=") n.setAction(ActionType.LEQ);
-            else if (op == ">=") n.setAction(ActionType.GEQ);
-            else if (op == ">") n.setAction(ActionType.GRE);
-            else if (op == "<") n.setAction(ActionType.LES);
+            else if (op.equals("<=")) n.setAction(ActionType.LEQ);
+            else if (op.equals(">=")) n.setAction(ActionType.GEQ);
+            else if (op.equals(">")) n.setAction(ActionType.GRE);
+            else if (op.equals("<")) n.setAction(ActionType.LES);
 
-            else if (op == "==") n.setAction(ActionType.EQ);
-            else if (op == "!=") n.setAction(ActionType.NEQ);
+            else if (op.equals("==")) n.setAction(ActionType.EQ);
+            else if (op.equals("!=")) n.setAction(ActionType.NEQ);
 
-            else if (op == "&&") n.setAction(ActionType.AND);
-            else if (op == "||") n.setAction(ActionType.OR);
+            else if (op.equals("&&")) n.setAction(ActionType.AND);
+            else if (op.equals("||")) n.setAction(ActionType.OR);
 
             else ;
 
@@ -80,11 +80,11 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
                 n.addChild(expr2);
             }
         }
-        else if (context.expr() != null && context.getChild(0).getText() == "(") // Priority
+        else if (context.expr() != null && context.getChild(0).getText().equals("(")) // Priority
         {
             n = visit(context.expr(0)); // Skip
         }
-        else if (context.getChild(0).getText() == "((" || context.getChild(0).getText() == "TUPLE") // Tuple
+        else if (context.getChild(0).getText().equals("((") || context.getChild(0).getText().equals("TUPLE")) // Tuple
         {
             n.setOperation(OperationType.TUPLE);
             n.setAction(ActionType.READ); // Find
@@ -115,7 +115,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
             }
             else if (context.literal().STRING() != null)
             {
-                name = name.substring(1, name.length() - 2); // Remove quotes
+                name = name.substring(1, name.length() - 1); // Remove quotes
             }
             n.setName(name);
         }
@@ -162,7 +162,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         if (context.DELIMITED_ID() != null)
         {
             String name = context.DELIMITED_ID().getText();
-            n.setName(name.substring(1, name.length() - 2)); // Remove delimiters
+            n.setName(name.substring(1, name.length() - 1)); // Remove delimiters
         }
         else
         {

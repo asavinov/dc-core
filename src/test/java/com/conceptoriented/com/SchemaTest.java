@@ -135,9 +135,68 @@ public class SchemaTest {
     }
 
 	@Test
-	public void SchemaCreationTest() {
-		ComSchema schema = createSampleSchema();
-		createSampleData(schema);
+	public void SchemaTest() { // ComColumn. Manually add/remove tables/columns
+        //
+        // Prepare schema
+        //
+        ComSchema schema = createSampleSchema();
+
+        ComTable t1 = schema.getSubTable("Table 1");
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        // Finding by name and check various properties provided by the schema
+        assertEquals(schema.getPrimitive("Decimal").getName(), "Decimal");
+
+        assertEquals(t1.getName(), "Table 1");
+        assertEquals(t2.getName(), "Table 2");
+        assertEquals(schema.getSubTable("Table 2"), t2);
+
+        assertEquals(t1.getColumn("Column 11").getName(), "Column 11");
+        assertEquals(t2.getColumn("Column 21").getName(), "Column 21");
+
+        assertEquals(t2.getColumn("Super").isSuper(), true);
+        assertEquals(t2.getSuperColumn().getInput(), t2);
+        assertEquals(t2.getSuperColumn().getOutput(), schema.getRoot());
+
+        // Test path enumerator
+        //var pathEnum = new PathEnumerator(t2, t1, DimensionType.IDENTITY_ENTITY);
+        //Assert.AreEqual(1, pathEnum.Count());
 	}
+
+	@Test
+    public void ColumnDefinitionTest() // ComColumnDefinition. Defining new columns and evaluate them
+    {
+        //
+        // Prepare schema and fill data
+        //
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t1 = schema.getSubTable("Table 1");
+
+        ComColumn c11 = t1.getColumn("Column 11");
+        ComColumn c12 = t1.getColumn("Column 12");
+        ComColumn c13 = t1.getColumn("Column 13");
+        ComColumn c14 = t1.getColumn("Column 14");
+
+        //
+        // Define a derived column with a definition
+        //
+        ComColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+
+        c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+        ExprNode ast = BuildExpr("([Column 11]+10.0) * this.[Column 13]"); // ConceptScript source code: "[Decimal] [Column 15] <body of expression>"
+        c15.getDefinition().setFormulaExpr(ast);
+        
+        c15.add();
+
+        // Evaluate column
+//        c15.getDefinition().evaluate();
+
+//        assertEquals(600.0, c15.getData().getValue(0));
+//        assertEquals(200.0, c15.getData().getValue(1));
+//        assertEquals(1200.0, c15.getData().getValue(2));
+    }
+
 
 }
