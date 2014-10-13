@@ -1,16 +1,17 @@
 package com.conceptoriented.com;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import javax.naming.OperationNotSupportedException;
-
 public class ExprNode extends TreeNode<ExprNode> {
 
-    public ExprNode getChild(int child) { throw new UnsupportedOperationException("TODO"); }
+    public ExprNode getChild(int child) { return (ExprNode)children.get(child); }
     public ExprNode getChild(String name)
     {
-    	throw new UnsupportedOperationException("TODO");
+    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> ((ExprNode)x).getName().equals(name)).findAny();
+    	return child != null ? child.get().data : null;
     }
 
 	protected OperationType _operation;
@@ -290,10 +291,282 @@ public class ExprNode extends TreeNode<ExprNode> {
     }
 
     public void evaluate() {
-    	throw new UnsupportedOperationException("TODO");
+        //
+        // Evaluate children so that we have all their return values
+        //
+
+        if (getOperation() == OperationType.VALUE)
+        {
+
+        }
+        else if (getOperation() == OperationType.TUPLE)
+        {
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.data.evaluate();
+            }
+
+            if (getResult().getTypeTable().isPrimitive()) // Primitive TUPLE nodes are processed differently
+            {
+                ExprNode childNode = getChild(0);
+                Object val = childNode.getResult().getValue();
+                String targeTypeName = getResult().getTypeTable().getName();
+
+                // Copy result from the child expression and convert it to this node type
+                if (val instanceof String && Utils.isNullOrEmpty((String)val)) 
+                {
+                    getResult().setValue(null);
+                }
+                else if (Utils.sameTableName(targeTypeName, "Integer"))
+                {
+                    getResult().setValue((int)val);
+                }
+                else if (Utils.sameTableName(targeTypeName, "Double"))
+                {
+                    getResult().setValue((double)val);
+                }
+                else if(Utils.sameTableName(targeTypeName, "Decimal"))
+                {
+                    getResult().setValue(new BigDecimal(val.toString()));
+                }
+                else if (Utils.sameTableName(targeTypeName, "String"))
+                {
+                    getResult().setValue(val.toString());
+                }
+                else if (Utils.sameTableName(targeTypeName, "Boolean"))
+                {
+                    getResult().setValue((boolean)val);
+                }
+                else if (Utils.sameTableName(targeTypeName, "DateTime"))
+                {
+                    getResult().setValue(Instant.parse(val.toString()));
+                }
+                else
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                // Do execute the action because it is a primitive set
+            }
+            else // Non-primitive/non-leaf TUPLE node is a complex value with a special operation
+            {
+                // Find, append or update an element in this set (depending on the action type)
+                if (getAction() == ActionType.READ) // Find the offset
+                {
+                    int input = getResult().getTypeTable().getData().find(this);
+
+                    if (input < 0 || input >= getResult().getTypeTable().getData().getLength()) // Not found
+                    {
+                        getResult().setValue(null);
+                    }
+                    else
+                    {
+                        getResult().setValue(input);
+                    }
+                }
+                else if (getAction() == ActionType.UPDATE) // Find and update the record
+                {
+                }
+                else if (getAction() == ActionType.APPEND) // Find, try to update and append if cannot be found
+                {
+                    int input = getResult().getTypeTable().getData().find(this); // Uniqueness constraint: check if it exists already
+
+                    if (input < 0 || input >= getResult().getTypeTable().getData().getLength()) // Not found
+                    {
+                        input = getResult().getTypeTable().getData().append(this); // Append new
+                    }
+
+                    getResult().setValue(input);
+                }
+                else
+                {
+                    throw new UnsupportedOperationException("ERROR: Other actions with tuples are not possible.");
+                }
+            }
+        }
+        else if (getOperation() == OperationType.CALL)
+        {
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.data.evaluate();
+            }
+
+            int intRes;
+            double doubleRes;
+            boolean boolRes = false;
+
+            if (getAction() == ActionType.READ)
+            {
+            	/*
+                if (this instanceof CsvExprNode) // It is easier to do it here rather than (correctly) in the extension
+                {
+                    // Find current Row object
+                    ExprNode thisNode = getChild("this");
+                    String[] input = (String[])thisNode.getResult().getValue();
+
+                    // Use attribute name or number by applying it to the current Row object (offset is not used)
+                    int attributeIndex = ((DimCsv)getColumn()).ColumnIndex;
+                    Object output = input[attributeIndex];
+                    getResult().setValue(output);
+                }
+                else if (this instanceof OledbExprNode) // It is easier to do it here rather than (correctly) in the extension
+                {
+                    // Find current Row object
+                    ExprNode thisNode = getChild("this");
+                    DataRow input = (DataRow)thisNode.getResult().getValue();
+
+                    // Use attribute name or number by applying it to the current Row object (offset is not used)
+                    String attributeName = getName();
+                    Object output = input[attributeName];
+                    getResult().setValue(output);
+                }
+                else 
+                */
+            	if (getColumn() != null) 
+                {
+                    ExprNode prevOutput = getChild(0);
+                    int input = (int)prevOutput.getResult().getValue();
+                    Object output = getColumn().getData().getValue(input);
+                    getResult().setValue(output);
+                }
+                else if (getVariable() != null)
+                {
+                    Object result = getVariable().getValue();
+                    getResult().setValue(result);
+                }
+            }
+            else if (getAction() == ActionType.UPDATE) // Compute new value for the specified offset using a new value in the variable
+            {
+            }
+            //
+            // MUL, DIV, ADD, SUB, 
+            //
+            else if (getAction() == ActionType.MUL)
+            {
+                doubleRes = 1.0;
+                for (TreeNode<ExprNode> childNode : children)
+                {
+                    double arg = (double)childNode.data.getResult().getValue();
+                    if (Double.isNaN(arg)) continue;
+                    doubleRes *= arg;
+                }
+                getResult().setValue(doubleRes);
+            }
+            else if (getAction() == ActionType.DIV)
+            {
+                doubleRes = (double)((ExprNode)children.get(0)).getResult().getValue();
+                for (int i = 1; i < children.size(); i++)
+                {
+                    double arg = (double)((ExprNode)children.get(i)).getResult().getValue();
+                    if (Double.isNaN(arg)) continue;
+                    doubleRes /= arg;
+                }
+                getResult().setValue(doubleRes);
+            }
+            else if (getAction() == ActionType.ADD)
+            {
+                doubleRes = 0.0;
+                for (TreeNode<ExprNode> childNode : children)
+                {
+                    double arg = (double)childNode.data.getResult().getValue();
+                    if (Double.isNaN(arg)) continue;
+                    doubleRes += arg;
+                }
+                getResult().setValue(doubleRes);
+            }
+            else if (getAction() == ActionType.SUB)
+            {
+                doubleRes = (double)((ExprNode)children.get(0)).getResult().getValue();
+                for (int i = 1; i < children.size(); i++)
+                {
+                    double arg = (double)((ExprNode)children.get(0)).getResult().getValue();
+                    if (Double.isNaN(arg)) continue;
+                    doubleRes /= arg;
+                }
+                getResult().setValue(doubleRes);
+            }
+            else if (getAction() == ActionType.COUNT)
+            {
+                intRes = (int)(((ExprNode)children.get(0)).getResult().getValue());
+                intRes += 1;
+                getResult().setValue(intRes);
+            }
+            //
+            // LEQ, GEQ, GRE, LES,
+            //
+            else if (getAction() == ActionType.LEQ)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 <= arg2;
+                getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.GEQ)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 >= arg2;
+                getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.GRE)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 > arg2;
+                getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.LES)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 < arg2;
+                getResult().setValue(boolRes);
+            }
+            //
+            // EQ, NEQ
+            //
+            else if (getAction() == ActionType.EQ)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 == arg2;
+                getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.NEQ)
+            {
+                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
+                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 != arg2;
+                getResult().setValue(boolRes);
+            }
+            //
+            // AND, OR
+            //
+            else if (getAction() == ActionType.AND)
+            {
+                boolean arg1 = (boolean)((ExprNode)children.get(0)).getResult().getValue();
+                boolean arg2 = (boolean)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 && arg2;
+                getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.OR)
+            {
+                boolean arg1 = (boolean)((ExprNode)children.get(0)).getResult().getValue();
+                boolean arg2 = (boolean)((ExprNode)children.get(1)).getResult().getValue();
+                boolRes = arg1 || arg2;
+                getResult().setValue(boolRes);
+            }
+            else // Some procedure. Find its API specification or retrieve via reflection
+            {
+            }
+        }
     }
-    
-	
 
     
     public ExprNode()
