@@ -1,6 +1,9 @@
 package com.conceptoriented.com;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.naming.OperationNotSupportedException;
 
 public class ExprNode extends TreeNode<ExprNode> {
 
@@ -60,7 +63,230 @@ public class ExprNode extends TreeNode<ExprNode> {
 
 
     public void resolve(ComSchema schema, List<ComVariable> variables) {
-    	throw new UnsupportedOperationException("TODO");
+        if (getOperation() == OperationType.VALUE)
+        {
+        	boolean success;
+            int intValue = 0;
+            double doubleValue = 0.0;
+
+            //
+            // Resolve string into object and store in the result. Derive the type from the format. 
+            //
+            success = true;
+            try { intValue = Integer.parseInt(getName()); } catch (NumberFormatException e) { success = false; }
+            if (success)
+            {
+                getResult().setTypeName("Integer");
+                getResult().setValue(intValue);
+            }
+            else {
+                success = true;
+                try { doubleValue = Double.parseDouble(getName()); } catch (NumberFormatException e) { success = false; }
+                if (success)
+                {
+                	getResult().setTypeName("Double");
+                	getResult().setValue(doubleValue);
+                }
+                else // Cannot parse means string
+                {
+                	getResult().setTypeName("String");
+                	getResult().setValue(getName());
+                }
+            }
+            getResult().setTypeTable(schema.getPrimitive(getResult().getTypeName()));
+        }
+        else if (getOperation() == OperationType.TUPLE)
+        {
+            //
+            // Resolve this (assuming the parents are resolved)
+            //
+            if (Utils.isNullOrEmpty(getResult().getTypeName()))
+            {
+                ExprNode parentNode = (ExprNode)parent;
+                if (parentNode == null)
+                {
+                    ;
+                }
+                else if (parentNode.getOperation() == OperationType.TUPLE) // Tuple in another tuple
+                {
+                    if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
+                    {
+                        ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
+                        setColumn(col);
+                        getResult().setTypeTable(col.getOutput());
+                        getResult().setTypeName(col.getOutput().getName());
+                    }
+                }
+                else // Tuple in some other node, e.g, argument or value
+                {
+                    if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
+                    {
+                        ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
+                        setColumn(col);
+                        getResult().setTypeTable(col.getOutput());
+                        getResult().setTypeName(col.getOutput().getName());
+                    }
+                }
+            }
+            else if (getResult().getTypeTable() == null || !Utils.sameTableName(getResult().getTypeTable().getName(), getResult().getTypeName()))
+            {
+                // There is name without table, so we need to resolve this table name but against correct schema
+            	throw new UnsupportedOperationException("TODO");
+            }
+
+            //
+            // Resolve children (important: after the tuple itself, because this node will be used)
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.data.resolve(schema, variables);
+            }
+        }
+        else if (getOperation() == OperationType.CALL)
+        {
+            //
+            // Resolve children (important: before this node because this node uses children)
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.data.resolve(schema, variables);
+            }
+            
+            // Resolve type name
+            if (!Utils.isNullOrEmpty(getResult().getTypeName()))
+            {
+                getResult().setTypeTable(schema.getSubTable(getResult().getTypeName()));
+            }
+
+            //
+            // Resolve this (assuming the children have been resolved)
+            //
+            ExprNode methodChild = getChild("method"); // Get column name
+            ExprNode thisChild = getChild("this"); // Get column lesser set
+            int childCount = children.size();
+
+            if (childCount == 0) // Resolve variable (or add a child this variable assuming that it has been omitted)
+            {
+                // Try to resolve as a variable (including this variable). If success then finish.
+            	Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
+
+                if (varOpt != null) // Resolved as a variable
+                {
+                	ComVariable var = varOpt.get();
+                    setVariable(var);
+
+                    getResult().setTypeName(var.getTypeName());
+                    getResult().setTypeTable(var.getTypeTable());
+                }
+                else // Cannot resolve as a variable - try resolve as a column name starting from 'this' table and then continue to super tables
+                {
+                    //
+                    // Start from 'this' node bound to 'this' variable
+                    //
+                	Optional<ComVariable> thisVarOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), "this")).findAny();
+                	ComVariable thisVar = thisVarOpt.get();
+
+                    thisChild = new ExprNode();
+                    thisChild.setOperation(OperationType.CALL);
+                    thisChild.setAction(ActionType.READ);
+                    thisChild.setName("this");
+                    thisChild.getResult().setTypeName(thisVar.getTypeName());
+                    thisChild.getResult().setTypeTable(thisVar.getTypeTable());
+                    thisChild.setVariable(thisVar);
+
+                    ExprNode path = thisChild;
+                    ComTable contextTable = thisChild.getResult().getTypeTable();
+                    ComColumn col = null;
+
+                    while (contextTable != null)
+                    {
+                        //
+                        // Try to resolve name
+                        //
+                        col = contextTable.getColumn(getName());
+
+                        if (col != null) // Resolved
+                        {
+                            break;
+                        }
+
+                        //
+                        // Iterator. Find super-column in the current context (where we have just failed to resolve the name)
+                        //
+                        ComColumn superColumn = contextTable.getSuperColumn();
+                        contextTable = contextTable.getSuperTable();
+
+                        if (contextTable == null || contextTable == contextTable.getSchema().getRoot())
+                        {
+                            break; // Root. No super dimensions anymore
+                        }
+
+                        //
+                        // Build next super-access node and resolve it
+                        //
+                        ExprNode superNode = new ExprNode();
+                        superNode.setOperation(OperationType.CALL);
+                        superNode.setAction(ActionType.READ);
+                        superNode.setName(superColumn.getName());
+                        superNode.setColumn(superColumn);
+
+                        superNode.addChild(path);
+                        path = superNode;
+                    }
+
+                    if (col != null) // Successfully resolved. Store the results.
+                    {
+                        setColumn(col);
+
+                        getResult().setTypeName(col.getOutput().getName());
+                        getResult().setTypeTable(col.getOutput());
+
+                        addChild(path);
+                    }
+                    else // Failed to resolve symbol
+                    {
+                        ; // ERROR: failed to resolve symbol in this and parent contexts
+                    }
+                }
+            }
+            else if (childCount == 1) // Function applied to previous output (resolve column)
+            {
+                String methodName = this.getName();
+                ExprNode outputChild = null;
+                if (thisChild != null) // Function applied to 'this' (resolve column)
+                {
+                    outputChild = thisChild;
+                }
+                else // Function applied to previous function output (resolve column)
+                {
+                    outputChild = getChild(0);
+                }
+                ComColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
+                setColumn(col);
+
+                getResult().setTypeName(col.getOutput().getName());
+                getResult().setTypeTable(col.getOutput());
+            }
+            else // System procedure or operator (arithmetic, logical etc.)
+            {
+                String methodName = this.getName();
+
+                // TODO: Derive return type. It is derived from arguments by using type conversion rules
+                getResult().setTypeName("Double");
+                getResult().setTypeTable(schema.getPrimitive(getResult().getTypeName()));
+
+                switch (getAction())
+                {
+                    case MUL:
+                    case DIV:
+                    case ADD:
+                    case SUB:
+                        break;
+                    default: // Some procedure. Find its API specification or retrieve via reflection
+                        break;
+                }
+            }
+        }
     }
 
     public void evaluate() {
