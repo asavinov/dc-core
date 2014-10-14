@@ -23,4 +23,62 @@ public class Utils {
         return sameTableName(n1, n2);
     }
 
+
+    public static int toInt32(Object val) {
+        if (val instanceof Integer) {
+             return ((Integer) val).intValue();
+        } 
+        else if (val instanceof Double) {
+            return ((Double) val).intValue();
+        } 
+        else if (val instanceof String) {
+             return Integer.parseInt((String) val);
+        } 
+        else {
+             String toString = val.toString();
+             if (toString.matches("-?\\d+"))
+             {
+                  return Integer.parseInt(toString);
+             }
+             throw new IllegalArgumentException("This Object doesn't represent an int");
+        }
+    }
+
+    public static double toDouble(Object val) {
+        if (val instanceof Integer) {
+             return ((Integer) val).doubleValue();
+        } 
+        else if (val instanceof Double) {
+            return ((Double) val).doubleValue();
+        } 
+        else if (val instanceof String) {
+             return Double.parseDouble((String) val);
+        } 
+        else {
+             String toString = val.toString();
+             if (toString.matches("-?\\d+"))
+             {
+                  return Double.parseDouble(toString);
+             }
+             throw new IllegalArgumentException("This Object doesn't represent an int");
+        }
+    }
+
+    public static boolean toBoolean(Object val) {
+    	if(val == null) return false;
+    	
+        if (val instanceof Integer) {
+             return ((Integer) val) == 0 ? false : true;
+        } 
+        else if (val instanceof Double) {
+            return ((Double) val) == 0.0 ? false : true;
+        } 
+        else if (val instanceof String) {
+             return ((String) val).equals("0") || ((String) val).equals("false") ? false : true;
+        } 
+        else {
+             throw new IllegalArgumentException("This Object doesn't represent an int");
+        }
+    }
+
 }

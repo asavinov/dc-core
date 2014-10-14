@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public class ExprNode extends TreeNode<ExprNode> {
 
-    public ExprNode getChild(int child) { return (ExprNode)children.get(child); }
+    public ExprNode getChild(int child) { return (ExprNode)children.get(child).data; }
     public ExprNode getChild(String name)
     {
-    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> ((ExprNode)x).getName().equals(name)).findAny();
-    	return child != null ? child.get().data : null;
+    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> x.data.getName().equals(name)).findAny();
+    	return child.isPresent() ? child.get().data : null;
     }
 
 	protected OperationType _operation;
@@ -171,7 +171,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 // Try to resolve as a variable (including this variable). If success then finish.
             	Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
 
-                if (varOpt != null) // Resolved as a variable
+                if (varOpt.isPresent()) // Resolved as a variable
                 {
                 	ComVariable var = varOpt.get();
                     setVariable(var);
@@ -452,7 +452,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 1.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = (double)childNode.data.getResult().getValue();
+                    double arg = Utils.toDouble(childNode.data.getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes *= arg;
                 }
@@ -460,10 +460,10 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
             else if (getAction() == ActionType.DIV)
             {
-                doubleRes = (double)((ExprNode)children.get(0)).getResult().getValue();
+                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
                 for (int i = 1; i < children.size(); i++)
                 {
-                    double arg = (double)((ExprNode)children.get(i)).getResult().getValue();
+                    double arg = Utils.toDouble(((ExprNode)children.get(i)).getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes /= arg;
                 }
@@ -474,7 +474,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 0.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = (double)childNode.data.getResult().getValue();
+                    double arg = Utils.toDouble(childNode.data.getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes += arg;
                 }
@@ -482,10 +482,10 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
             else if (getAction() == ActionType.SUB)
             {
-                doubleRes = (double)((ExprNode)children.get(0)).getResult().getValue();
+                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
                 for (int i = 1; i < children.size(); i++)
                 {
-                    double arg = (double)((ExprNode)children.get(0)).getResult().getValue();
+                    double arg = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes /= arg;
                 }
@@ -493,7 +493,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
             else if (getAction() == ActionType.COUNT)
             {
-                intRes = (int)(((ExprNode)children.get(0)).getResult().getValue());
+                intRes = Utils.toInt32((((ExprNode)children.get(0)).getResult().getValue()));
                 intRes += 1;
                 getResult().setValue(intRes);
             }
@@ -502,29 +502,29 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             else if (getAction() == ActionType.LEQ)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 <= arg2;
                 getResult().setValue(boolRes);
             }
             else if (getAction() == ActionType.GEQ)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 >= arg2;
                 getResult().setValue(boolRes);
             }
             else if (getAction() == ActionType.GRE)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 > arg2;
                 getResult().setValue(boolRes);
             }
             else if (getAction() == ActionType.LES)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 < arg2;
                 getResult().setValue(boolRes);
             }
@@ -533,15 +533,15 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             else if (getAction() == ActionType.EQ)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 == arg2;
                 getResult().setValue(boolRes);
             }
             else if (getAction() == ActionType.NEQ)
             {
-                double arg1 = (double)((ExprNode)children.get(0)).getResult().getValue();
-                double arg2 = (double)((ExprNode)children.get(1)).getResult().getValue();
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 != arg2;
                 getResult().setValue(boolRes);
             }
@@ -550,15 +550,15 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             else if (getAction() == ActionType.AND)
             {
-                boolean arg1 = (boolean)((ExprNode)children.get(0)).getResult().getValue();
-                boolean arg2 = (boolean)((ExprNode)children.get(1)).getResult().getValue();
+                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getResult().getValue());
+                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 && arg2;
                 getResult().setValue(boolRes);
             }
             else if (getAction() == ActionType.OR)
             {
-                boolean arg1 = (boolean)((ExprNode)children.get(0)).getResult().getValue();
-                boolean arg2 = (boolean)((ExprNode)children.get(1)).getResult().getValue();
+                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getResult().getValue());
+                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 || arg2;
                 getResult().setValue(boolRes);
             }

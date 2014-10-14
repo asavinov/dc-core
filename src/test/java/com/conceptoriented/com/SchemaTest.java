@@ -191,11 +191,11 @@ public class SchemaTest {
         c15.add();
 
         // Evaluate column
-//        c15.getDefinition().evaluate();
+        c15.getDefinition().evaluate();
 
-//        assertEquals(600.0, c15.getData().getValue(0));
-//        assertEquals(200.0, c15.getData().getValue(1));
-//        assertEquals(1200.0, c15.getData().getValue(2));
+        assertEquals(600.0, c15.getData().getValue(0));
+        assertEquals(200.0, c15.getData().getValue(1));
+        assertEquals(1200.0, c15.getData().getValue(2));
     }
 
 
