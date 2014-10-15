@@ -153,6 +153,59 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
     }
 
 	@Override
+    public ExprNode visitMember(ExprParser.MemberContext context) 
+    {
+        // Determine declared (output, returned) type of the member
+        String type;
+        if (context.type().prim_set() != null)
+        {
+            type = context.type().prim_set().getText();
+        }
+        else if (context.type().DELIMITED_ID() != null)
+        {
+            type = context.type().DELIMITED_ID().getText();
+            type = type.substring(1, type.length() - 1); // Remove delimiters
+        }
+        else
+        {
+            type = context.type().ID().getText();
+        }
+
+        // Determine declared member (constituent, offset, parameter) name
+        ExprNode nameNode = visit(context.name());
+        String name = nameNode.getName();
+
+        // Determine value assigned to this member (it can be a CALL node, TUPLE node etc.)
+        ExprNode expr = null;
+        if (context.expr() != null)
+        {
+            expr = visit(context.expr());
+        }
+        else if (context.scope() != null)
+        {
+            throw new UnsupportedOperationException("Scopes in tuple members are currently not implemented");
+        }
+
+        ExprNode n;
+        if (expr.getOperation() == OperationType.TUPLE) // Use directly this TUPLE node as a member node
+        {
+            n = expr;
+        }
+        else // Create a (primitive, leaf) TUPLE node with the only child as an expression
+        {
+            n = new ExprNode();
+            n.addChild(expr);
+        }
+
+        n.setName(name);
+        n.getResult().setTypeName(type);
+        n.setOperation(OperationType.TUPLE);
+        n.setAction(ActionType.READ);
+
+        return n; 
+    }
+
+	@Override
     public ExprNode visitName(ExprParser.NameContext context) 
     {
         ExprNode n = new ExprNode();

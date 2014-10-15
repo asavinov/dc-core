@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
-public class SchemaTest {
+public class CoreTest {
 
     protected ExprNode BuildExpr(String str)
     {
@@ -164,7 +164,7 @@ public class SchemaTest {
 	}
 
 	@Test
-    public void ColumnDefinitionTest() // ComColumnDefinition. Defining new columns and evaluate them
+    public void ArithmeticTest() // ComColumnDefinition. Defining new columns and evaluate them
     {
         //
         // Prepare schema and fill data
@@ -196,6 +196,42 @@ public class SchemaTest {
         assertEquals(600.0, c15.getData().getValue(0));
         assertEquals(200.0, c15.getData().getValue(1));
         assertEquals(1200.0, c15.getData().getValue(2));
+    }
+
+	@Test
+    public void LinkTest()
+    {
+        //
+        // Prepare schema and fill data
+        //
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t1 = schema.getSubTable("Table 1");
+        ComColumn c11 = t1.getColumn("Column 11"); // 20, 10, 30
+
+        ComTable t2 = schema.getSubTable("Table 2");
+        ComColumn c22 = t2.getColumn("Column 22"); // 20, 30, 30, 30
+
+        //
+        // Define a derived column with a definition
+        //
+
+        ComColumn link = schema.createColumn("Column Link", t2, t1, false);
+
+        link.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
+        ExprNode ast = BuildExpr("(( [Integer] [Column 11] = this.[Column 22], [Double] [Column 14] = 20.0 ))"); // Tuple structure corresponds to output table
+        link.getDefinition().setFormulaExpr(ast);
+
+        link.add();
+
+        // Evaluate column
+        link.getDefinition().evaluate();
+
+        assertEquals(0, link.getData().getValue(0));
+        assertEquals(2, link.getData().getValue(1));
+        assertEquals(2, link.getData().getValue(2));
+        assertEquals(2, link.getData().getValue(2));
     }
 
 

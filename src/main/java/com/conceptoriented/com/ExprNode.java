@@ -99,9 +99,9 @@ public class ExprNode extends TreeNode<ExprNode> {
         else if (getOperation() == OperationType.TUPLE)
         {
             //
-            // Resolve this (assuming the parents are resolved)
+            // Resolve this (tuples are resolved through the parent which must be resolved before children)
             //
-            if (Utils.isNullOrEmpty(getResult().getTypeName()))
+            if (getResult().getTypeTable() == null) // Not resolved yet
             {
                 ExprNode parentNode = (ExprNode)parent;
                 if (parentNode == null)
@@ -129,11 +129,6 @@ public class ExprNode extends TreeNode<ExprNode> {
                     }
                 }
             }
-            else if (getResult().getTypeTable() == null || !Utils.sameTableName(getResult().getTypeTable().getName(), getResult().getTypeName()))
-            {
-                // There is name without table, so we need to resolve this table name but against correct schema
-            	throw new UnsupportedOperationException("TODO");
-            }
 
             //
             // Resolve children (important: after the tuple itself, because this node will be used)
@@ -160,7 +155,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
 
             //
-            // Resolve this (assuming the children have been resolved)
+            // Resolve this (children must be resolved before parents)
             //
             ExprNode methodChild = getChild("method"); // Get column name
             ExprNode thisChild = getChild("this"); // Get column lesser set

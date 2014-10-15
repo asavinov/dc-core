@@ -100,6 +100,8 @@ public class ExprEvaluator implements ComEvaluator {
         {
             exprNode = column.getDefinition().getFormulaExpr();
         }
+        exprNode.getResult().setTypeName(column.getOutput().getName());
+        exprNode.getResult().setTypeTable(column.getOutput());
 
         currentElement = -1;
         loopTable = column.getInput();
