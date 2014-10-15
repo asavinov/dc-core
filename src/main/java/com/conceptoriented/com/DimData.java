@@ -179,7 +179,14 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
     @Override
     public int[] deproject(Object value) { 
-        throw new UnsupportedOperationException();
+        if (value == null || !value.getClass().isArray())
+        {
+            return deprojectValue((T)value);
+        }
+        else
+        {
+            return deproject((T[])value);
+        }
 	} 
 
     //
@@ -251,6 +258,41 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
             ;
 
         return new int[] { first+1, last };
+    }
+
+    protected int[] deprojectValue(T value)
+    {
+        int[] indexes = new int[2];
+
+        if (value == null)
+        {
+            indexes[0] = 0;
+            indexes[1] = _nullCount;
+        }
+        else
+        {
+            indexes = FindIndexes(value);
+        }
+
+        if (indexes[0] == indexes[1])
+        {
+            return new int[0]; // Not found
+        }
+
+        int[] result = new int[indexes[1] - indexes[0]];
+
+        for (int i = 0; i < result.length; i++)
+        {
+            // OPTIMIZE: Use system copy function
+            result[i] = _offsets[indexes[0] + i];
+        }
+
+        return result;
+    }
+
+    protected int[] deproject(T[] values)
+    {
+    	throw new UnsupportedOperationException("TODO");
     }
 
 	public DimData(ComColumn dim) {

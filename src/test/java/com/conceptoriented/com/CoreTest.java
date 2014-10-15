@@ -2,6 +2,8 @@ package com.conceptoriented.com;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -81,19 +83,19 @@ public class CoreTest {
         vals[0] = 20;
         vals[1] = "Record 0";
         vals[2] = 20.0;
-        vals[3] = 20.0;
+        vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
         t1.getData().append(cols, vals);
 
         vals[0] = 10;
         vals[1] = "Record 1";
         vals[2] = 10.0;
-        vals[3] = 20.0;
+        vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
         t1.getData().append(cols, vals);
 
         vals[0] = 30;
         vals[1] = "Record 2";
         vals[2] = 30.0;
-        vals[3] = 20.0;
+        vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
         t1.getData().append(cols, vals);
 
         //
@@ -220,7 +222,7 @@ public class CoreTest {
         ComColumn link = schema.createColumn("Column Link", t2, t1, false);
 
         link.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
-        ExprNode ast = BuildExpr("(( [Integer] [Column 11] = this.[Column 22], [Double] [Column 14] = 20.0 ))"); // Tuple structure corresponds to output table
+        ExprNode ast = BuildExpr("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))"); // Tuple structure corresponds to output table
         link.getDefinition().setFormulaExpr(ast);
 
         link.add();

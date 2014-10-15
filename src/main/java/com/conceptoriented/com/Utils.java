@@ -24,6 +24,25 @@ public class Utils {
     }
 
 
+    public static int[] intersect(int[] source, int[] target) { // Restrict the source array by elements from the second array
+    	int size=0;
+    	int[] result = new int[Math.min(source.length, target.length)];
+    	int trgFirst = 0;
+    	for(int src=0; src<source.length; src++) {
+    		
+    		for(int trg=trgFirst; trg<target.length; trg++) {
+    			if(source[src] != target[trg]) continue;
+    			// Found target in source
+    			result[size] = source[src]; // Store in the result
+    			size = size + 1;
+    			trgFirst = trg + 1;
+    			break;
+    		}
+    	}
+
+        return java.util.Arrays.copyOf(result, size);
+    }
+
     public static int toInt32(Object val) {
         if (val instanceof Integer) {
              return ((Integer) val).intValue();

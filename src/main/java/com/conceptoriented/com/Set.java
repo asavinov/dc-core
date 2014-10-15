@@ -176,13 +176,12 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 	public int find(ComColumn[] dims, Object[] values) {
         int[] result = java.util.stream.IntStream.range(0, getLength()).toArray(); // All elements of this set (can be quite long)
 
-
         boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
         for (int i = 0; i < dims.length; i++)
         {
             hasBeenRestricted = true;
             int[] range = dims[i].getData().deproject(values[i]); // Deproject one value
-//            result = result.Intersect(range).ToArray(); 
+            result = Utils.intersect(result, range);
             // OPTIMIZE: Write our own implementation for various operations (intersection etc.). Use the fact that they are ordered.
             // OPTIMIZE: Use statistics for column distribution to choose best order of de-projections. Alternatively, the order of dimensions can be set by the external procedure taking into account statistics. Say, there could be a special utility method like SortDimensionsAccordingDiscriminationFactor or SortDimsForFinding tuples.
             // OPTIMIZE: Remember the position for the case this value will have to be inserted so we do not have again search for this positin during insertion. Maybe store it in a static field as part of last operation.
@@ -228,7 +227,45 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 
 	@Override
 	public int find(ExprNode expr) {
-		throw new UnsupportedOperationException();
+        int[] result = java.util.stream.IntStream.range(0, getLength()).toArray(); // All elements of this set (can be quite long)
+
+        boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
+
+        List<ComColumn> dims = new ArrayList<ComColumn>();
+        dims.addAll(getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()));
+        dims.addAll(getColumns().stream().filter(x -> !x.isKey()).collect(Collectors.toList()));
+
+        for (ComColumn dim : dims) // OPTIMIZE: the order of dimensions matters (use statistics, first dimensins with better filtering). Also, first identity dimensions.
+        {
+            ExprNode childExpr = expr.getChild(dim.getName());
+            if (childExpr != null)
+            {
+                Object val = null;
+                val = childExpr.getResult().getValue();
+
+                hasBeenRestricted = true;
+                int[] range = dim.getData().deproject(val); // Deproject the value
+                result = Utils.intersect(result, range); // Intersect with previous de-projections
+                // OPTIMIZE: Write our own implementation for intersection and other operations. Assume that they are ordered.
+                // OPTIMIZE: Remember the position for the case this value will have to be inserted so we do not have again search for this positin during insertion (optimization)
+
+                if (result.length == 0) break; // Not found
+            }
+        }
+
+        if (result.length == 0) // Not found
+        {
+            return -1;
+        }
+        else if (result.length == 1) // Found single element - return its offset
+        {
+            if (hasBeenRestricted) return result[0];
+            else return -result.length;
+        }
+        else // Many elements satisfy these properties (non-unique identities). Use other methods for getting these records (like de-projection)
+        {
+            return -result.length;
+        }
 	}
 	@Override
 	public boolean canAppend(ExprNode expr) {
