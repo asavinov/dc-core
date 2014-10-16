@@ -7,13 +7,18 @@ import java.util.List;
 // Copied from here: https://code.google.com/p/yet-another-tree-structure/
 public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
-	public T data;
+	public T item;
 	public TreeNode<T> parent;
 	public List<TreeNode<T>> children;
 
 	public boolean isRoot() {
 		return parent == null;
 	}
+    public TreeNode<T> getRoot() { 
+	    TreeNode<T> node = this; 
+	    while (node.parent != null) node = node.parent; 
+	    return node;
+    }
 
 	public boolean isLeaf() {
 		return children.size() == 0;
@@ -23,11 +28,11 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
 	public TreeNode() {
 		this(null);
-		this.data = (T) (Object) this;
+		this.item = (T) (Object) this;
 	}
 
-	public TreeNode(T data) {
-		this.data = data;
+	public TreeNode(T item) {
+		this.item = item;
 		this.children = new LinkedList<TreeNode<T>>();
 		this.elementsIndex = new LinkedList<TreeNode<T>>();
 		this.elementsIndex.add(this);
@@ -68,8 +73,8 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
 	public TreeNode<T> findTreeNode(Comparable<T> cmp) {
 		for (TreeNode<T> element : this.elementsIndex) {
-			T elData = element.data;
-			if (cmp.compareTo(elData) == 0)
+			T elItem = element.item;
+			if (cmp.compareTo(elItem) == 0)
 				return element;
 		}
 
@@ -78,7 +83,7 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
 	@Override
 	public String toString() {
-		return data != null ? data.toString() : "[data null]";
+		return item != null ? item.toString() : "[item null]";
 	}
 
 	@Override

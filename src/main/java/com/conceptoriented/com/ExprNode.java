@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public class ExprNode extends TreeNode<ExprNode> {
 
-    public ExprNode getChild(int child) { return (ExprNode)children.get(child).data; }
+    public ExprNode getChild(int child) { return (ExprNode)children.get(child).item; }
     public ExprNode getChild(String name)
     {
-    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> x.data.getName().equals(name)).findAny();
-    	return child.isPresent() ? child.get().data : null;
+    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> x.item.getName().equals(name)).findAny();
+    	return child.isPresent() ? child.get().item : null;
     }
 
 	protected OperationType _operation;
@@ -61,7 +61,6 @@ public class ExprNode extends TreeNode<ExprNode> {
 	public void setResult(ComVariable result) {
 		this._result = result;
 	}
-
 
     public void resolve(ComSchema schema, List<ComVariable> variables) {
         if (getOperation() == OperationType.VALUE)
@@ -135,7 +134,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.data.resolve(schema, variables);
+                childNode.item.resolve(schema, variables);
             }
         }
         else if (getOperation() == OperationType.CALL)
@@ -145,7 +144,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.data.resolve(schema, variables);
+                childNode.item.resolve(schema, variables);
             }
             
             // Resolve type name
@@ -301,7 +300,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.data.evaluate();
+                childNode.item.evaluate();
             }
 
             if (getResult().getTypeTable().isPrimitive()) // Primitive TUPLE nodes are processed differently
@@ -389,7 +388,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.data.evaluate();
+                childNode.item.evaluate();
             }
 
             int intRes;
@@ -447,7 +446,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 1.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = Utils.toDouble(childNode.data.getResult().getValue());
+                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes *= arg;
                 }
@@ -469,7 +468,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 0.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = Utils.toDouble(childNode.data.getResult().getValue());
+                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes += arg;
                 }
@@ -564,6 +563,129 @@ public class ExprNode extends TreeNode<ExprNode> {
     }
 
     
+    public static ExprNode createReader(DimPath path, boolean withThisVariable) 
+    {
+        ExprNode expr = null;
+
+        if(false) 
+        {
+        	
+        }
+        /*
+        if (path.Input.Schema is SetTopCsv) // Access via column index
+        {
+            throw new UnsupportedOperationException();
+        }
+        else if (path.Input.Schema is SetTopOledb) // Access via relational attribute
+        {
+            throw new UnsupportedOperationException();
+        }
+        */
+        else // Access via function/column composition
+        {
+            for (int i = path.getSegments().size() - 1; i >= 0; i--)
+            {
+                ComColumn seg = path.getSegments().get(i);
+
+                ExprNode node = new ExprNode();
+                node.setOperation(OperationType.CALL);
+                node.setAction(ActionType.READ);
+                node.setName(seg.getName());
+                node.getResult().setTypeTable(seg.getOutput());
+                node.getResult().setTypeName(seg.getOutput().getName());
+
+                if (expr != null)
+                {
+                    expr.addChild(node);
+                }
+
+                expr = node;
+            }
+        }
+
+        //
+        // Create the last node corresponding to this variable and append it to the expression
+        //
+        ExprNode thisNode = null;
+        if (withThisVariable)
+        {
+            thisNode = new ExprNode();
+            thisNode.setName("this");
+            thisNode.setOperation(OperationType.CALL);
+            thisNode.setAction(ActionType.READ);
+
+            thisNode.getResult().setTypeTable(path.getInput());
+            thisNode.getResult().setTypeName(path.getInput().getName());
+
+            if (expr != null)
+            {
+                expr.addChild(thisNode);
+                expr = thisNode;
+            }
+        }
+
+        return expr;
+    }
+
+    public static ExprNode createReader(ComColumn column, boolean withThisVariable)
+    {
+        return createReader(new DimPath(column), withThisVariable);
+    }
+
+    public static ExprNode createUpdater(ComColumn column, String aggregationFunction)
+    {
+        ActionType aggregation;
+        if (aggregationFunction.equals("COUNT"))
+        {
+            aggregation = ActionType.COUNT;
+        }
+        else if (aggregationFunction.equals("SUM"))
+        {
+            aggregation = ActionType.ADD;
+        }
+        else if (aggregationFunction.equals("MUL"))
+        {
+            aggregation = ActionType.MUL;
+        }
+        else
+        {
+            throw new UnsupportedOperationException("Aggregation function is not implemented.");
+        }
+
+        //
+        // A node for reading the current function value at the offset in 'this' variable
+        //
+        ExprNode currentValueNode = (ExprNode)createReader(column, true).getRoot();
+
+        //
+        // A node for reading a new function value from the well-known variable
+        //
+        ExprNode valueNode = new ExprNode();
+        valueNode.setName("value");
+        valueNode.setOperation(OperationType.CALL);
+        valueNode.setAction(ActionType.READ);
+
+        valueNode.getResult().setTypeTable(column.getOutput());
+        valueNode.getResult().setTypeName(column.getOutput().getName());
+
+        //
+        // A node for computing a result (updated) function value from the current value and new value
+        //
+        ExprNode expr = new ExprNode();
+        expr.setOperation(OperationType.CALL);
+        expr.setAction(aggregation); // SUM etc.
+        expr.setName(column.getName());
+
+        expr.getResult().setTypeTable(column.getOutput());
+        expr.getResult().setTypeName(column.getOutput().getName());
+
+        // Two arguments in child nodes
+        expr.addChild(currentValueNode);
+        expr.addChild(valueNode);
+
+        return expr;
+    }
+
     public ExprNode()
     {
         setResult(new Variable("return", "Void"));

@@ -191,16 +191,47 @@ public class Dim implements ComColumn {
 	//
 	// Constructors
 	//
-	public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
-		assert name != null && input != null && output != null;
 
+    public Dim(Dim dim) {
+        this();
+
+    	setName(dim.getName());
+
+    	setKey(dim.isKey());
+
+    	setInput(dim.getInput());
+    	setOutput(dim.getOutput());
+
+    	_data = CreateColumnData(_output, this);
+    	_definition = new ColumnDefinition(this);
+    	// TODO: Copy definition
+    }
+
+    public Dim(ComTable set) { // Empty dimension
+    	this("", set, set);
+	}
+
+    public Dim() {
+        this("");
+    }
+    
+    public Dim(String name) {
+        this(name, null, null);
+    }
+    
+    public Dim(String name, ComTable input, ComTable output) {
+        this(name, input, output, false, false);
+    }
+
+	public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
 		this._name = name;
-		this._input = input;
-		this._output = output;
+
 		this._key = isKey;
 		this._super = isSuper;
 
-		
+		this._input = input;
+		this._output = output;
+
 		_data = CreateColumnData(output, this);
         _definition = new ColumnDefinition(this);
 	}

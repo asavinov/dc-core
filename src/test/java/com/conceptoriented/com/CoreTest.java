@@ -3,6 +3,8 @@ package com.conceptoriented.com;
 import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -234,6 +236,64 @@ public class CoreTest {
         assertEquals(2, link.getData().getValue(1));
         assertEquals(2, link.getData().getValue(2));
         assertEquals(2, link.getData().getValue(2));
+    }
+
+	@Test
+    public void AggregationTest() // Defining new aggregated columns and evaluate them
+    {
+        //
+        // Prepare schema and fill data
+        //
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t1 = schema.getSubTable("Table 1");
+
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        ComColumn c23 = t2.getColumn("Column 23");
+        ComColumn c24 = t2.getColumn("Table 1");
+
+        //
+        // Define aggregated column
+        //
+        ComColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
+        c15.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
+
+        c15.getDefinition().setFactTable(t2); // Fact table
+        c15.getDefinition().setGroupPaths(Arrays.asList(new DimPath(c24))); // One group path
+        c15.getDefinition().setMeasurePaths(Arrays.asList(new DimPath(c23))); // One measure path
+        c15.getDefinition().setUpdater("SUM"); // Aggregation function
+
+        c15.add();
+
+        //
+        // Evaluate expression
+        //
+        c15.getData().setValue(0.0);
+        c15.getDefinition().evaluate(); // {40, 140, 0}
+
+        assertEquals(40.0, c15.getData().getValue(0));
+        assertEquals(140.0, c15.getData().getValue(1));
+        assertEquals(0.0, c15.getData().getValue(2)); // In fact, it has to be NaN or null (no values have been aggregated)
+
+        //
+        // Aggregation via a syntactic formula
+        //
+        ComColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
+        c16.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
+
+        ExprNode ast = BuildExpr("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
+        c16.getDefinition().setFormulaExpr(ast);
+
+        c16.add();
+
+        c16.getData().setValue(0.0);
+        c16.getDefinition().evaluate(); // {40, 140, 0}
+
+        assertEquals(81.0, c16.getData().getValue(0));
+        assertEquals(283.0, c16.getData().getValue(1));
+        assertEquals(0.0, c16.getData().getValue(2));
     }
 
 

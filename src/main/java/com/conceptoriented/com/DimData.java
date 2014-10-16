@@ -106,6 +106,23 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
         _cells[input] = val;
 	}
+	@Override
+	public void setValue(Object value) {
+        if (value == null)
+        {
+            nullify();
+            return;
+        }
+
+        T val = (T)value;
+        for (int i = 0; i < _length; i++)
+        {
+            _cells[i] = val;
+            _offsets[i] = i;
+        }
+
+        _nullCount = 0;
+	}
 
 	@Override
     public void nullify() // Reset values and index to initial state (all nulls)
@@ -337,6 +354,8 @@ class DimEmpty implements ComColumnData
 
     @Override
     public void setValue(int input, Object value) { }
+    @Override
+    public void setValue(Object value) { }
 
     @Override
     public void nullify() { }
@@ -413,7 +432,7 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
     public List<DimPath> getMeasurePaths() { return _measurePaths; }
 	@Override
-    public void getMeasurePaths(List<DimPath> value) { _measurePaths = value; }
+    public void setMeasurePaths(List<DimPath> value) { _measurePaths = value; }
 
 	protected String _updater;
 	@Override
@@ -434,9 +453,17 @@ class ColumnDefinition implements ComColumnDefinition
         {
             ; // Nothing to do
         }
-        else
+        else if (getDefinitionType() == ColumnDefinitionType.AGGREGATION)
+        {
+            evaluator = new AggrEvaluator(_dim);
+        }
+        else if (getDefinitionType() == ColumnDefinitionType.ARITHMETIC || getDefinitionType() == ColumnDefinitionType.LINK)
         {
             evaluator = new ExprEvaluator(_dim);
+        }
+        else
+        {
+        	throw new UnsupportedOperationException("This type of column definition is not implemented.");
         }
 
         return evaluator;

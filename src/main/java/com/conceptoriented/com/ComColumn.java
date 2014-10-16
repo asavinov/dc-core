@@ -62,6 +62,7 @@ interface ComColumnData {
 
 	public Object getValue(int input);
 	public void setValue(int input, Object value);
+	public void setValue(Object value);
 
 	public void nullify();
 
@@ -114,7 +115,7 @@ interface ComColumnDefinition {
     public void setGroupPaths(List<DimPath> groupPaths);
 
     public List<DimPath> getMeasurePaths();
-    public void getMeasurePaths(List<DimPath> measurePaths);
+    public void setMeasurePaths(List<DimPath> measurePaths);
 
     public String getUpdater();
     public void setUpdater(String updater);

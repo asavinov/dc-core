@@ -124,32 +124,57 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
             n.setOperation(OperationType.CALL);
             n.setAction(ActionType.READ);
 
-            ExprNode accessNode = visit(context.access());
-            if (accessAsThisNode) // Represent accessor (after dot) by this node
+            if (context.access().name() != null) // Name of the function - call by-reference
             {
-                if (context.access().name() != null) // Name of the function
+                n.setName(GetName(context.access().name()));
+            }
+            else // Call by-value using a definition of the function (lambda)
+            {
+                context.access().scope();
+                n.setName("lambda"); // Automatically generated name for a unnamed lambda
+            }
+            
+            // Find all parameters and store them in the access node
+            int paramCount = context.access().param().size();
+            for (int i = 0; i < paramCount; i++)
+            {
+                ExprNode param = visit(context.access().param(i));
+                if (param != null)
                 {
-                    n.setName(accessNode.getName());
-                }
-                else // A definition of the function (lambda) is provided instead of name
-                {
-                    context.access().scope();
-                    n.setName("lambda"); // Automatically generated name for a unnamed lambda
+                    n.addChild(param);
                 }
             }
-            else // Access node as a child (it can be named either by real method name or as a special 'method' with the method described represented elsewhere)
-            {
-                n.setName(".");
-                if (accessNode != null)
-                {
-                    n.addChild(accessNode);
-                }
-            }
-
-            // TODO: Read parameters and create nodes for them: context.access().param();
         }
 
         return n; 
+    }
+
+	@Override
+    public ExprNode visitParam(ExprParser.ParamContext context)
+    {
+        ExprNode n = new ExprNode();
+
+        // Determine declared member (constituent, offset, parameter) name
+        String name = GetName(context.name());
+
+        // Determine value assigned to this param (it can be a CALL node, TUPLE node etc.)
+        ExprNode expr = null;
+        if (context.expr() != null)
+        {
+            expr = visit(context.expr());
+        }
+        else if (context.scope() != null)
+        {
+            throw new UnsupportedOperationException("Scopes in method parameters are currently not implemented");
+        }
+
+        n.addChild(expr);
+
+        n.setName(name);
+        n.setOperation(OperationType.TUPLE);
+        n.setAction(ActionType.READ);
+
+        return n;
     }
 
 	@Override
@@ -172,8 +197,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         }
 
         // Determine declared member (constituent, offset, parameter) name
-        ExprNode nameNode = visit(context.name());
-        String name = nameNode.getName();
+        String name = GetName(context.name());
 
         // Determine value assigned to this member (it can be a CALL node, TUPLE node etc.)
         ExprNode expr = null;
@@ -212,17 +236,24 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         n.setOperation(OperationType.VALUE);
         n.setAction(ActionType.READ);
 
-        if (context.DELIMITED_ID() != null)
-        {
-            String name = context.DELIMITED_ID().getText();
-            n.setName(name.substring(1, name.length() - 1)); // Remove delimiters
-        }
-        else
-        {
-            n.setName(context.ID().getText());
-        }
+        n.setName(GetName(context));
 
         return n;
     }
 
+    protected String GetName(ExprParser.NameContext context)
+    {
+        String name;
+        if (context.DELIMITED_ID() != null)
+        {
+            name = context.DELIMITED_ID().getText();
+            name = name.substring(1, name.length() - 1); // Remove delimiters
+        }
+        else
+        {
+            name = context.ID().getText();
+        }
+
+        return name;
+    }
 }
