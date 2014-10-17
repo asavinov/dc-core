@@ -338,4 +338,28 @@ public class CoreTest {
         assertEquals(3, c32.getData().getValue(1));
     }
 
+	@Test
+    public void TableSubsetTest() // Define a filter to get a subset of record from one table
+    {
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        //
+        // Define a new filter-set
+        //
+        ComTable t3 = schema.createTable("Table 3");
+
+        ExprNode ast = BuildExpr("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
+        t3.getDefinition().setWhereExpr(ast);
+        t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
+
+        schema.addTable(t3, t2, null);
+
+        t3.getDefinition().populate();
+        assertEquals(1, t3.getData().getLength());
+        assertEquals(1, t3.getSuperColumn().getData().getValue(0));
+    }
+
 }
