@@ -110,6 +110,21 @@ public class ExprEvaluator implements ComEvaluator {
         outputExpr.resolve(column.getInput().getSchema(), new ArrayList<ComVariable>(Arrays.asList(thisVariable)));
     }
 
+    public ExprEvaluator(ComTable table)
+    {
+        columnData = null;
+
+        // Loop
+        thisCurrent = -1;
+        thisTable = table;
+        thisVariable = new Variable("this", thisTable.getName());
+        thisVariable.setTypeTable(thisTable);
+
+        // Outtput expression
+        outputExpr = table.getDefinition().getWhereExpr();
+        outputExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+    }
+
     public ExprEvaluator()
     {
     }

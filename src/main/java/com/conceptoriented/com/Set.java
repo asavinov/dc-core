@@ -298,12 +298,118 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 
 	@Override
     public ComEvaluator getWhereEvaluator() {
-		throw new UnsupportedOperationException();
+        ComEvaluator evaluator = new ExprEvaluator(this);
+        return evaluator;
 	}
 
 	@Override
 	public void populate() {
-		throw new UnsupportedOperationException();
+        if (getDefinitionType() == TableDefinitionType.FREE)
+        {
+            return; // Nothing to do
+        }
+
+        setLength(0);
+
+        if (getDefinitionType() == TableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)
+        {
+            //
+            // Evaluator for where expression which will be used to check each new record before it is added
+            //
+            ComEvaluator eval = null;
+            if (getDefinition().getWhereExpr() != null)
+            {
+                eval = getWhereEvaluator();
+            }
+
+            //
+            // Find all local greater dimensions to be varied (including the super-dim)
+            //
+            ComColumn[] dims = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new ComColumn[0]);
+            int dimCount = dims.length; // Dimensionality - how many free dimensions
+            Object[] vals = new Object[dimCount]; // A record with values for each free dimension being varied
+
+            //
+            // The current state of the search procedure
+            //
+            int[] lengths = new int[dimCount]; // Size of each dimension being varied (how many offsets in each dimension)
+            for (int i = 0; i < dimCount; i++) lengths[i] = dims[i].getOutput().getData().getLength();
+
+            int[] offsets = new int[dimCount]; // The current point/offset for each dimensions during search
+            for (int i = 0; i < dimCount; i++) offsets[i] = -1;
+
+            int top = -1; // The current level/top where we change the offset. Depth of recursion.
+            do ++top; while (top < dimCount && lengths[top] == 0);
+
+            // Alternative recursive iteration: http://stackoverflow.com/questions/13655299/c-sharp-most-efficient-way-to-iterate-through-multiple-arrays-list
+            while (top >= 0)
+            {
+                if (top == dimCount) // New element is ready. Process it.
+                {
+                    // Initialize a record and append it
+                    for (int i = 0; i < dimCount; i++)
+                    {
+                        vals[i] = offsets[i];
+                    }
+                    int input = append(dims, vals);
+
+                    // Now check if this appended element satisfies the where expression and if not then remove it
+                    if (eval != null)
+                    {
+                        boolean satisfies = true;
+
+                        eval.last();
+                        eval.evaluate();
+                        satisfies = (boolean)eval.getResult();
+
+                        if (!satisfies)
+                        {
+                            setLength(getLength() - 1);
+                        }
+                    }
+
+                    top--;
+                    while (top >= 0 && lengths[top] == 0) // Go up by skipping empty dimensions and reseting 
+                    { offsets[top--] = -1; }
+                }
+                else
+                {
+                    // Find the next valid offset
+                    offsets[top]++;
+
+                    if (offsets[top] < lengths[top]) // Offset chosen
+                    {
+                        do ++top;
+                        while (top < dimCount && lengths[top] == 0); // Go up (forward) by skipping empty dimensions
+                    }
+                    else // Level is finished. Go back.
+                    {
+                        do { offsets[top--] = -1; }
+                        while (top >= 0 && lengths[top] == 0); // Go down (backward) by skipping empty dimensions and reseting 
+                    }
+                }
+            }
+
+        }
+        else if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
+        {
+            ComColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isGenerating()).collect(Collectors.toList()).get(0);
+            ComTable sourceSet = projectDim.getInput();
+            ComTable targetSet = projectDim.getOutput(); // this set
+
+            // Prepare the expression from the mapping
+            ComEvaluator evaluator = projectDim.getDefinition().getEvaluator();
+
+            while (evaluator.next()) 
+            {
+                evaluator.evaluate();
+            }
+        }
+        else
+        {
+    		throw new UnsupportedOperationException("This table definition type is not implemented and cannot be populated.");
+        }
+
 	}
 
 	@Override

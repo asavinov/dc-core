@@ -50,6 +50,9 @@ public class Utils {
         else if (val instanceof Double) {
             return ((Double) val).intValue();
         } 
+        else if (val instanceof Boolean) {
+            return ((Boolean) val) == true ? 1 : 0;
+        } 
         else if (val instanceof String) {
              return Integer.parseInt((String) val);
         } 
@@ -70,6 +73,9 @@ public class Utils {
         else if (val instanceof Double) {
             return ((Double) val).doubleValue();
         } 
+        else if (val instanceof Boolean) {
+            return ((Boolean) val) == true ? 1.0 : 0.0;
+        } 
         else if (val instanceof String) {
              return Double.parseDouble((String) val);
         } 
@@ -79,7 +85,7 @@ public class Utils {
              {
                   return Double.parseDouble(toString);
              }
-             throw new IllegalArgumentException("This Object doesn't represent an int");
+             throw new IllegalArgumentException("This Object doesn't represent a double");
         }
     }
 
@@ -92,11 +98,14 @@ public class Utils {
         else if (val instanceof Double) {
             return ((Double) val) == 0.0 ? false : true;
         } 
+        else if (val instanceof Boolean) {
+            return ((Boolean) val).booleanValue();
+        } 
         else if (val instanceof String) {
              return ((String) val).equals("0") || ((String) val).equals("false") ? false : true;
         } 
         else {
-             throw new IllegalArgumentException("This Object doesn't represent an int");
+             throw new IllegalArgumentException("This Object doesn't represent a boolean");
         }
     }
 

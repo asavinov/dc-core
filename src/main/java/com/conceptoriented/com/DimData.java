@@ -31,25 +31,27 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 		return _length;
 	}
 	@Override
-	public void setLength(int newLength) {
-        if (newLength == _length) return;
+	public void setLength(int value) {
+        if (value == _length) return;
 
         // Ensure that there is enough memory
-        if (newLength > allocatedSize) // Not enough storage for the new element
+        if (value > allocatedSize) // Not enough storage for the new element
         {
-            allocatedSize += incrementSize * ((newLength - allocatedSize) / incrementSize + 1);
+            allocatedSize += incrementSize * ((value - allocatedSize) / incrementSize + 1);
             _cells = java.util.Arrays.copyOf(_cells, allocatedSize); // Resize the storage for values
             _offsets = java.util.Arrays.copyOf(_offsets, allocatedSize); // Resize the index
         }
 
         // Update data and index in the case of increase (append to last) and decrease (delete last)
-        if (newLength > _length)
+        if (value > _length)
         {
-            while (newLength > _length) append(null); // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
+            while (value > _length) append(null); 
+            // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
         }
-        else if (newLength < _length)
+        else if (value < _length)
         {
-            // TODO: remove last elements
+            while (value < _length) remove(_length - 1);
+            // OPTIMIZE: remove last elements directly
         }
 	}
 

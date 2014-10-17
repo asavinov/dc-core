@@ -297,4 +297,45 @@ public class CoreTest {
     }
 
 
+	@Test
+    public void TableProductTest() // Define a new table and populate it
+    {
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t1 = schema.getSubTable("Table 1");
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        //
+        // Define a new product-set
+        //
+        ComTable t3 = schema.createTable("Table 3");
+        t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
+        schema.addTable(t3, null, null);
+
+        ComColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
+        c31.add();
+        ComColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
+        c32.add();
+
+        t3.getDefinition().populate();
+        assertEquals(12, t3.getData().getLength());
+
+        //
+        // Add simple where expression
+        //
+
+        ExprNode ast = BuildExpr("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
+        t3.getDefinition().setWhereExpr(ast);
+
+        t3.getDefinition().populate();
+        assertEquals(4, t3.getData().getLength());
+
+        assertEquals(0, c31.getData().getValue(0));
+        assertEquals(2, c32.getData().getValue(0));
+
+        assertEquals(0, c31.getData().getValue(1));
+        assertEquals(3, c32.getData().getValue(1));
+    }
+
 }
