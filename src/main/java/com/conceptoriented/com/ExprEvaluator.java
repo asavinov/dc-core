@@ -61,18 +61,6 @@ public class ExprEvaluator implements ComEvaluator {
 	}
 
 	@Override
-	public Object evaluateUpdate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean evaluateJoin(Object output) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public Object getResult() {
 		return outputExpr.getResult().getValue();
 	}
@@ -90,7 +78,7 @@ public class ExprEvaluator implements ComEvaluator {
         // Output expression
         if (column.getDefinition().getMapping() != null)
         {
-            if (column.getDefinition().isGenerating())
+            if (column.getDefinition().isAppendData())
             {
                 outputExpr = column.getDefinition().getMapping().BuildExpression(ActionType.APPEND);
             }
@@ -102,6 +90,18 @@ public class ExprEvaluator implements ComEvaluator {
         else if (column.getDefinition().getFormulaExpr() != null)
         {
             outputExpr = column.getDefinition().getFormulaExpr();
+
+            if (column.getDefinition().getDefinitionType() == ColumnDefinitionType.LINK)
+            {
+                // Adjust the expression according to other parameters of the definition
+                if(column.getDefinition().isAppendData()) {
+                    outputExpr.setAction(ActionType.APPEND);
+                }
+                else
+                {
+                    outputExpr.setAction(ActionType.READ);
+                } 
+            }
         }
 
         outputExpr.getResult().setTypeName(column.getOutput().getName());

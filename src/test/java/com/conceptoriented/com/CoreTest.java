@@ -362,4 +362,77 @@ public class CoreTest {
         assertEquals(1, t3.getSuperColumn().getData().getValue(0));
     }
 
+	@Test
+    public void ProjectionTest() // Defining new tables via function projection and populate them
+    {
+        ComSchema schema = createSampleSchema();
+        createSampleData(schema);
+
+        ComTable t2 = schema.getSubTable("Table 2");
+
+        ComColumn c21 = t2.getColumn("Column 21");
+        ComColumn c22 = t2.getColumn("Column 22");
+        ComColumn c23 = t2.getColumn("Column 23");
+
+        //
+        // Project "Table 2" along "Column 21" and get 2 unique records in a new set "Value A" (3 references) and "Value B" (1 reference)
+        //
+        ComTable t3 = schema.createTable("Table 3");
+        t3.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
+        schema.addTable(t3, null, null);
+
+        ComColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
+        c31.add();
+
+        // Create a generating column
+        ComColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
+
+        ExprNode ast = BuildExpr("(( [String] [Column 31] = this.[Column 21] ))"); // Tuple structure corresponds to output table
+        c24.getDefinition().setFormulaExpr(ast);
+        c24.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
+        c24.getDefinition().setAppendData(true);
+
+        c24.add();
+
+        t3.getDefinition().populate();
+
+        assertEquals(2, t3.getData().getLength());
+
+        assertEquals(0, c24.getData().getValue(0));
+        assertEquals(0, c24.getData().getValue(1));
+        assertEquals(0, c24.getData().getValue(2));
+        assertEquals(1, c24.getData().getValue(3));
+
+        //
+        // Defining a combination of "Column 21" and "Column 22" and project with 3 unique records in a new set
+        //
+        ComTable t4 = schema.createTable("Table 4");
+        t4.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
+        schema.addTable(t4, null, null);
+
+        ComColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);
+        c41.add();
+        ComColumn c42 = schema.createColumn("Column 42", t4, c22.getOutput(), true);
+        c42.add();
+
+        // Create generating/import column
+        ComColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
+
+        ExprNode ast2 = BuildExpr("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))"); // Tuple structure corresponds to output table
+        c25.getDefinition().setFormulaExpr(ast2);
+        c25.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
+        c25.getDefinition().setAppendData(true);
+
+        c25.add();
+
+        t4.getDefinition().populate();
+
+        assertEquals(3, t4.getData().getLength());
+
+        assertEquals(0, c25.getData().getValue(0));
+        assertEquals(1, c25.getData().getValue(1));
+        assertEquals(1, c25.getData().getValue(2));
+        assertEquals(2, c25.getData().getValue(3));
+    }
+
 }

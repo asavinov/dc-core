@@ -386,9 +386,13 @@ class ColumnDefinition implements ComColumnDefinition
     // ComColumnDefinition interface
 	//
 
-	protected boolean _generating;
-	public boolean isGenerating() { return _generating; }
-	public void setGenerating(boolean generating) { _generating = generating; }
+	protected boolean _appendData;
+	public boolean isAppendData() { return _appendData; }
+	public void setAppendData(boolean value) { _appendData = value; }
+
+	protected boolean _appendSchema;
+	public boolean isAppendSchema() { return _appendSchema; }
+	public void setAppendSchema(boolean value) { _appendSchema = value; }
 
 	protected ColumnDefinitionType _definitionType;
 	@Override
@@ -459,7 +463,11 @@ class ColumnDefinition implements ComColumnDefinition
         {
             evaluator = new AggrEvaluator(_dim);
         }
-        else if (getDefinitionType() == ColumnDefinitionType.ARITHMETIC || getDefinitionType() == ColumnDefinitionType.LINK)
+        else if (getDefinitionType() == ColumnDefinitionType.ARITHMETIC)
+        {
+            evaluator = new ExprEvaluator(_dim);
+        }
+        else if (getDefinitionType() == ColumnDefinitionType.LINK)
         {
             evaluator = new ExprEvaluator(_dim);
         }
@@ -521,7 +529,7 @@ class ColumnDefinition implements ComColumnDefinition
     {
         _dim = dim;
 
-        _generating = false;
+        _appendData = false;
         _definitionType = ColumnDefinitionType.FREE;
         
         _groupPaths = new ArrayList<DimPath>();

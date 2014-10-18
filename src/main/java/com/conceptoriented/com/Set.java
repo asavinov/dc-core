@@ -273,7 +273,20 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 	}
 	@Override
 	public int append(ExprNode expr) {
-		throw new UnsupportedOperationException();
+
+		for (ComColumn dim : getColumns()) // We must append one value to ALL greater dimensions (possibly null)
+        {
+            ExprNode childExpr = expr.getChild(dim.getName()); // TODO: replace by accessor by dimension reference (has to be resolved in the tuple)
+            Object val = null;
+            if (childExpr != null) // A tuple contains a subset of all dimensions
+            {
+                val = childExpr.getResult().getValue();
+            }
+            dim.getData().append(val);
+        }
+
+        _length++;
+        return getLength() - 1;
 	}
 	
 	//
@@ -393,7 +406,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
         }
         else if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
-            ComColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isGenerating()).collect(Collectors.toList()).get(0);
+            ComColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList()).get(0);
             ComTable sourceSet = projectDim.getInput();
             ComTable targetSet = projectDim.getOutput(); // this set
 

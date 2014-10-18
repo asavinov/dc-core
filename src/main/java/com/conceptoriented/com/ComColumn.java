@@ -89,8 +89,11 @@ interface ComColumnData {
  */
 interface ComColumnDefinition {
 
-	public boolean isGenerating();
-	public void setGenerating(boolean isGenerating);
+	public boolean isAppendData();
+	public void setAppendData(boolean value);
+
+	public boolean isAppendSchema();
+	public void setAppendSchema(boolean value);
 
 	public ColumnDefinitionType getDefinitionType();
 	public void setDefinitionType(ColumnDefinitionType columnDefinitionType);
