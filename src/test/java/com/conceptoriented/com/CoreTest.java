@@ -435,4 +435,13 @@ public class CoreTest {
         assertEquals(2, c25.getData().getValue(3));
     }
 
+	@Test
+    public void CsvTest()
+    {
+        ComSchema schema = createSampleSchema();
+        
+        ComTable table = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\comcsharp\\Test\\Products.csv", true);
+
+        assertEquals(45, table.getData().getLength());
+    }
 }

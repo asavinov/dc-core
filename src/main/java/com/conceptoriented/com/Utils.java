@@ -43,6 +43,32 @@ public class Utils {
         return java.util.Arrays.copyOf(result, size);
     }
 
+    public static boolean isInt32(String[] values) {
+        for (String val : values)
+        {
+        	try {
+                int intValue = Integer.parseInt((String) val);
+        	}
+        	catch(Exception e) {
+        		return false;
+        	}
+        }
+        return true;
+    }
+    
+    public static boolean isDouble(String[] values) {
+        for (String val : values)
+        {
+	    	try {
+	    		double doubleValue = Double.parseDouble((String) val);
+	    	}
+	    	catch(Exception e) {
+	    		return false;
+	    	}
+        }
+        return true;
+    }
+
     public static int toInt32(Object val) {
         if (val instanceof Integer) {
              return ((Integer) val).intValue();

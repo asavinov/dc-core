@@ -1,8 +1,17 @@
 package com.conceptoriented.com;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+
+import com.google.common.io.Files;
 
 public class Schema extends Set implements ComSchema {
 
@@ -98,6 +107,116 @@ public class Schema extends Set implements ComSchema {
 	
     protected void columnDeleted(ComColumn column) {
 		throw new UnsupportedOperationException();
+    }
+	
+    public ComTable createFromCsv(String fileName, boolean hasHeaderRecord) {
+    	
+    	//
+    	// Read schema and sample values which are used to suggest mappings
+    	//
+    	String tableName = "New Table";
+    	List<String> sourceNames = new ArrayList<String>();
+    	List<List<String>> sampleValues = new ArrayList<List<String>>();
+    	List<String> targetTypes = new ArrayList<String>();
+    	List<ComColumn> columns = new ArrayList<ComColumn>();
+
+		try {
+	    	File file = new File(fileName);
+	    	tableName = file.getName();
+	    	tableName = Files.getNameWithoutExtension(tableName);
+	    	
+	    	Reader in = new FileReader(file);
+	    	Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
+
+	    	// Read several lines and collect sample values for suggesting types 
+	    	int recordNumber = 0;
+	    	for (CSVRecord record : records) {
+	    		if(recordNumber == 0) { // Get column names from this record
+	    			for(int i=0; i<record.size(); i++) {
+	    				sampleValues.add(new ArrayList<String>());
+
+	    				if(hasHeaderRecord) {
+	    					sourceNames.add(record.get(i));
+	    				}
+	    				else {
+	    					sourceNames.add("Column " + (i+1));
+			    			sampleValues.get(i).add(record.get(i));
+	    				}
+	    			}
+	    		}
+	    		else { // Get sample values from this record
+	    			for(int i=0; i<record.size(); i++) {
+		    			sampleValues.get(i).add(record.get(i));
+	    			}
+	    		}
+	    	    
+	    	    recordNumber++;
+	    	    if(recordNumber > 10) break;
+	    	}
+	    	
+	    	in.close();
+	    	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//
+		// Recommend target types
+		//
+		for(int i=0; i<sourceNames.size(); i++) {
+            String targetTypeName;
+            if (Utils.isInt32(sampleValues.get(i).toArray(new String[0]))) targetTypeName = "Integer";
+            else if (Utils.isDouble(sampleValues.get(i).toArray(new String[0]))) targetTypeName = "Double";
+            else targetTypeName = "String";
+			
+            targetTypes.add(targetTypeName);
+		}
+    	
+    	//
+    	// Create table with columns according to the mappings and target types
+    	//
+    	ComTable table = this.createTable(tableName);
+
+		for(int i=0; i<sourceNames.size(); i++) {
+            ComColumn column = createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
+            column.add();
+            columns.add(column);
+		}
+
+    	//
+    	// Read data according to the schema
+    	//
+		ComColumn[] columnArray = columns.toArray(new ComColumn[0]);
+		Object[] valueArray = new Object[columnArray.length];
+		try {
+	    	Reader in = new FileReader(fileName);
+	    	Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
+
+	    	// Read several lines and collect sample values for suggesting types 
+	    	int recordNumber = 0;
+	    	for (CSVRecord record : records) {
+	    		if(recordNumber == 0 && hasHeaderRecord) {
+		    	    recordNumber++;
+	    			continue;
+	    		}
+
+	    		for(int i=0; i<record.size(); i++) {
+	    			String value = record.get(i);
+	    			valueArray[i] = value;
+    			}
+	    		
+	    		table.getData().append(columnArray, valueArray);
+	    	    
+	    	    recordNumber++;
+	    	}
+	    	
+	    	in.close();
+	    	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+    	return table;
     }
 	
     protected void createDataTypes() // Create all primitive data types from some specification like Enum, List or XML
