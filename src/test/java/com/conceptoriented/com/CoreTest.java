@@ -36,7 +36,7 @@ public class CoreTest {
     protected ComSchema createSampleSchema()
     {
         // Prepare schema
-        ComSchema schema = new SetTop("My Schema");
+        ComSchema schema = new Schema("My Schema");
 
         // Table 1
         ComTable t1 = schema.createTable("Table 1");

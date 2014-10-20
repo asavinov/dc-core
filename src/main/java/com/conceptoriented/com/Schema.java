@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class SetTop extends Set implements ComSchema {
+public class Schema extends Set implements ComSchema {
 
 	//
 	// ComSchema interface
@@ -134,11 +134,11 @@ public class SetTop extends Set implements ComSchema {
         dim.add();
     }
 
-	public SetTop() {
+	public Schema() {
 		this("");
 	}
 
-	public SetTop(String name) {
+	public Schema(String name) {
 		super(name);
 		
         createDataTypes(); // Generate all predefined primitive sets as subsets
