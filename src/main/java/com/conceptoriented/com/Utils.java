@@ -1,5 +1,8 @@
 package com.conceptoriented.com;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+
 public class Utils {
 
 	public static boolean isNullOrEmpty(String param) { 
@@ -115,6 +118,15 @@ public class Utils {
         }
     }
 
+    public static BigDecimal toDecimal(Object val) {
+        if (val instanceof BigDecimal) {
+             return (BigDecimal)val;
+        } 
+        else {
+            return new BigDecimal(val.toString());
+        } 
+    }
+
     public static boolean toBoolean(Object val) {
     	if(val == null) return false;
     	
@@ -133,6 +145,15 @@ public class Utils {
         else {
              throw new IllegalArgumentException("This Object doesn't represent a boolean");
         }
+    }
+
+    public static Instant toDateTime(Object val) {
+        if (val instanceof Instant) {
+             return ((Instant) val);
+        } 
+        else {
+            return Instant.parse(val.toString());
+        } 
     }
 
 }

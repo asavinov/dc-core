@@ -439,9 +439,46 @@ public class CoreTest {
     public void CsvTest()
     {
         ComSchema schema = createSampleSchema();
-        
-        ComTable table = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\comcsharp\\Test\\Products.csv", true);
+        ComTable doubleType = schema.getPrimitive("Double");
 
-        assertEquals(45, table.getData().getLength());
+        ComTable detailsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\OrderDetails.csv", true);
+        schema.addTable(detailsTable, null, null);
+        ComTable productsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\Products.csv", true);
+        schema.addTable(productsTable, null, null);
+        ComTable categoriesTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\Categories.csv", true);
+        schema.addTable(categoriesTable, null, null);
+        
+        assertEquals(2155, detailsTable.getData().getLength());
+        assertEquals(77, productsTable.getData().getLength());
+        assertEquals(8, categoriesTable.getData().getLength());
+
+        // Define a new arithmetic column: output is a computed primitive value
+        ComColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
+        amountColumn.getDefinition().setFormulaExpr(BuildExpr("[UnitPrice] * [Quantity]"));
+        amountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+        amountColumn.add();
+        amountColumn.getDefinition().evaluate();
+
+        // Define two link column: output is a tuple
+        ComColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
+        productColumn.getDefinition().setFormulaExpr(BuildExpr("(( Integer [ProductID] = [ProductID] ))"));
+        productColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
+        productColumn.add(); 
+        productColumn.getDefinition().evaluate();
+        
+        ComColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
+        categoryColumn.getDefinition().setFormulaExpr(BuildExpr("(( Integer [CategoryID] = [CategoryID] ))"));
+        categoryColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
+        categoryColumn.add();
+        categoryColumn.getDefinition().evaluate();
+    
+        // Define a new aggregation column: output is an aggregation of a group of values
+        ComColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
+        totalAmountColumn.getDefinition().setFormulaExpr(BuildExpr("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)"));
+        totalAmountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
+        totalAmountColumn.add();
+        totalAmountColumn.getDefinition().evaluate();
+
     }
+
 }

@@ -85,7 +85,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         }
         else
         {
-            val = (T)value;
+            val = (T)toThisType(value);
             interval = FindIndexes(val);
 
             if (oldPos < _nullCount) _nullCount--; // If old value is null, then decrease the number of nulls
@@ -116,7 +116,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
             return;
         }
 
-        T val = (T)value;
+        T val = (T)toThisType(value);
         for (int i = 0; i < _length; i++)
         {
             _cells[i] = val;
@@ -156,7 +156,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         }
         else
         {
-            val = (T)value;
+            val = (T)toThisType(value);
             interval = FindIndexes(val);
         }
 
@@ -200,7 +200,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
     public int[] deproject(Object value) { 
         if (value == null || !value.getClass().isArray())
         {
-            return deprojectValue((T)value);
+            return deprojectValue((T)toThisType(value));
         }
         else
         {
@@ -312,6 +312,22 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
     protected int[] deproject(T[] values)
     {
     	throw new UnsupportedOperationException("TODO");
+    }
+    
+    protected Object toThisType(Object value)
+    {
+    	if(_dim == null || _dim.getOutput() == null) return value;
+    	
+    	String type = _dim.getOutput().getName();
+    	switch(type) {
+    	case "Integer" : return Utils.toInt32(value);
+    	case "Double" : return Utils.toDouble(value);
+    	case "Decimal" : return Utils.toDecimal(value);
+    	case "String" : return value.toString();
+    	case "Boolean" : return Utils.toBoolean(value);
+    	case "DateTime" : return Utils.toDateTime(value);
+    	default: return value;
+    	}
     }
 
 	public DimData(ComColumn dim) {

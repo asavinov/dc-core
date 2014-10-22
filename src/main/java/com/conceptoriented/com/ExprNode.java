@@ -316,15 +316,15 @@ public class ExprNode extends TreeNode<ExprNode> {
                 }
                 else if (Utils.sameTableName(targeTypeName, "Integer"))
                 {
-                    getResult().setValue((int)val);
+                    getResult().setValue(Utils.toInt32(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "Double"))
                 {
-                    getResult().setValue((double)val);
+                    getResult().setValue(Utils.toDouble(val));
                 }
                 else if(Utils.sameTableName(targeTypeName, "Decimal"))
                 {
-                    getResult().setValue(new BigDecimal(val.toString()));
+                    getResult().setValue(Utils.toDecimal(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "String"))
                 {
@@ -332,11 +332,11 @@ public class ExprNode extends TreeNode<ExprNode> {
                 }
                 else if (Utils.sameTableName(targeTypeName, "Boolean"))
                 {
-                    getResult().setValue((boolean)val);
+                    getResult().setValue(Utils.toBoolean(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "DateTime"))
                 {
-                    getResult().setValue(Instant.parse(val.toString()));
+                    getResult().setValue(Utils.toDateTime(val));
                 }
                 else
                 {
@@ -468,7 +468,10 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 0.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
+// *****************************
+                	Object v = childNode.item.getResult().getValue();
+                	if(v == null) continue;
+                    double arg = Utils.toDouble(v);
                     if (Double.isNaN(arg)) continue;
                     doubleRes += arg;
                 }
