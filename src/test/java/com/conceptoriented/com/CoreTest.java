@@ -439,6 +439,7 @@ public class CoreTest {
     public void CsvTest()
     {
         ComSchema schema = createSampleSchema();
+        ComTable integerType = schema.getPrimitive("Integer");
         ComTable doubleType = schema.getPrimitive("Double");
 
         ComTable detailsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\OrderDetails.csv", true);
@@ -478,6 +479,16 @@ public class CoreTest {
         totalAmountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalAmountColumn.add();
         totalAmountColumn.getDefinition().evaluate();
+
+        assertEquals(105268.6, totalAmountColumn.getData().getValue(6)); // cells = {286526.94999999995, 113694.75000000001, 177099.09999999995, 251330.5, 100726.8, 178188.80000000002, 105268.6, 141623.09000000003}
+
+        ComColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
+        totalCountColumn.getDefinition().setFormulaExpr(BuildExpr("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)"));
+        totalCountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
+        totalCountColumn.add();
+        totalCountColumn.getDefinition().evaluate();
+
+        assertEquals(136, totalCountColumn.getData().getValue(6)); // cells = {404, 216, 334, 366, 196, 173, 136, 330}
 
     }
 

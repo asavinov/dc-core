@@ -47,8 +47,11 @@ public class Utils {
     }
 
     public static boolean isInt32(String[] values) {
+    	if(values == null) return false;
+    	
         for (String val : values)
         {
+        	if(val == null) continue; // assumption: null is supposed to be a valid number
         	try {
                 int intValue = Integer.parseInt((String) val);
         	}
@@ -60,8 +63,11 @@ public class Utils {
     }
     
     public static boolean isDouble(String[] values) {
-        for (String val : values)
+    	if(values == null) return false;
+
+    	for (String val : values)
         {
+        	if(val == null) continue; // assumption: null is supposed to be a valid number
 	    	try {
 	    		double doubleValue = Double.parseDouble((String) val);
 	    	}
@@ -73,7 +79,10 @@ public class Utils {
     }
 
     public static int toInt32(Object val) {
-        if (val instanceof Integer) {
+    	if(val == null) {
+    		return 0; 
+    	}
+    	else if (val instanceof Integer) {
              return ((Integer) val).intValue();
         } 
         else if (val instanceof Double) {
@@ -96,7 +105,10 @@ public class Utils {
     }
 
     public static double toDouble(Object val) {
-        if (val instanceof Integer) {
+    	if(val == null) {
+    		return 0.0; 
+    	}
+    	else if (val instanceof Integer) {
              return ((Integer) val).doubleValue();
         } 
         else if (val instanceof Double) {
@@ -119,7 +131,10 @@ public class Utils {
     }
 
     public static BigDecimal toDecimal(Object val) {
-        if (val instanceof BigDecimal) {
+    	if(val == null) {
+    		return null; 
+    	}
+    	else if (val instanceof BigDecimal) {
              return (BigDecimal)val;
         } 
         else {
@@ -128,8 +143,9 @@ public class Utils {
     }
 
     public static boolean toBoolean(Object val) {
-    	if(val == null) return false;
-    	
+    	if(val == null) {
+    		return false; 
+    	}
         if (val instanceof Integer) {
              return ((Integer) val) == 0 ? false : true;
         } 
@@ -148,7 +164,10 @@ public class Utils {
     }
 
     public static Instant toDateTime(Object val) {
-        if (val instanceof Instant) {
+    	if(val == null) {
+    		return null; 
+    	}
+    	else if (val instanceof Instant) {
              return ((Instant) val);
         } 
         else {

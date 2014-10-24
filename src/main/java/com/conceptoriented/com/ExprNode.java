@@ -468,10 +468,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 0.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-// *****************************
-                	Object v = childNode.item.getResult().getValue();
-                	if(v == null) continue;
-                    double arg = Utils.toDouble(v);
+                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes += arg;
                 }
