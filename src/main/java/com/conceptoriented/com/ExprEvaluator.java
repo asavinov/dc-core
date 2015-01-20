@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ExprEvaluator implements ComEvaluator {
-
     protected ComColumnData columnData;
 
     // Loop
@@ -19,7 +18,13 @@ public class ExprEvaluator implements ComEvaluator {
     // ComColumnEvaluator interface
     //
 
-	@Override
+    protected Workspace workspace;
+    @Override
+	public Workspace getWorkspace() { return workspace; }
+    @Override
+	public void setWorkspace(Workspace workspace) { this.workspace = workspace; }
+
+    @Override
 	public boolean next() {
         if (thisCurrent < thisTable.getData().getLength()) thisCurrent++;
 
@@ -67,12 +72,14 @@ public class ExprEvaluator implements ComEvaluator {
 
     public ExprEvaluator(ComColumn column)
     {
+        setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
 
         // Loop
         thisCurrent = -1;
         thisTable = column.getInput();
-        thisVariable = new Variable("this", thisTable.getName());
+        thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
+        thisVariable.setTypeSchema(thisTable.getSchema());
         thisVariable.setTypeTable(thisTable);
 
         // Output expression
@@ -104,25 +111,30 @@ public class ExprEvaluator implements ComEvaluator {
             }
         }
 
+        outputExpr.getResult().setSchemaName(column.getOutput().getSchema().getName());
         outputExpr.getResult().setTypeName(column.getOutput().getName());
+        outputExpr.getResult().setTypeSchema(column.getOutput().getSchema());
         outputExpr.getResult().setTypeTable(column.getOutput());
 
-        outputExpr.resolve(column.getInput().getSchema(), new ArrayList<ComVariable>(Arrays.asList(thisVariable)));
+        outputExpr.resolve(workspace, new ArrayList<ComVariable>(Arrays.asList(thisVariable)));
     }
 
     public ExprEvaluator(ComTable table)
     {
+        setWorkspace(table.getSchema().getWorkspace());
         columnData = null;
 
         // Loop
         thisCurrent = -1;
         thisTable = table;
-        thisVariable = new Variable("this", thisTable.getName());
+        thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
+
+        thisVariable.setTypeSchema(thisTable.getSchema());
         thisVariable.setTypeTable(thisTable);
 
         // Outtput expression
         outputExpr = table.getDefinition().getWhereExpr();
-        outputExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+        outputExpr.resolve(workspace, Arrays.asList(thisVariable));
     }
 
     public ExprEvaluator()
@@ -185,6 +197,7 @@ class AggrEvaluator extends ExprEvaluator
 
     public AggrEvaluator(ComColumn column) // Create evaluator from structured definition
     {
+        setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
 
         if (column.getDefinition().getFormulaExpr() == null) // From structured definition (parameters)
@@ -193,28 +206,31 @@ class AggrEvaluator extends ExprEvaluator
             thisCurrent = -1;
             thisTable = column.getDefinition().getFactTable();
 
-            thisVariable = new Variable("this", thisTable.getName());
+            thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
+            thisVariable.setTypeSchema(thisTable.getSchema());
             thisVariable.setTypeTable(thisTable);
 
             // Groups
             groupExpr = ExprNode.createReader(column.getDefinition().getGroupPaths().get(0), true); // Currently only one path is used
             groupExpr = (ExprNode)groupExpr.getRoot();
-            groupExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+            groupExpr.resolve(workspace, Arrays.asList(thisVariable));
 
-            groupVariable = new Variable("this", column.getInput().getName());
+            groupVariable = new Variable(column.getInput().getSchema().getName(), column.getInput().getName(), "this");
+            groupVariable.setTypeSchema(column.getInput().getSchema());
             groupVariable.setTypeTable(column.getInput());
 
             // Measure
             measureExpr = ExprNode.createReader(column.getDefinition().getMeasurePaths().get(0), true);
             measureExpr = (ExprNode)measureExpr.getRoot();
-            measureExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+            measureExpr.resolve(workspace, Arrays.asList(thisVariable));
 
-            measureVariable = new Variable("value", column.getOutput().getName());
+            measureVariable = new Variable(column.getOutput().getSchema().getName(), column.getOutput().getName(), "value");
+            measureVariable.setTypeSchema(column.getOutput().getSchema());
             measureVariable.setTypeTable(column.getOutput());
 
             // Updater/aggregation function
             outputExpr = ExprNode.createUpdater(column, column.getDefinition().getUpdater());
-            outputExpr.resolve(column.getInput().getSchema(), Arrays.asList(groupVariable, measureVariable));
+            outputExpr.resolve(workspace, Arrays.asList(groupVariable, measureVariable));
         }
         else // From expression
         {
@@ -230,30 +246,33 @@ class AggrEvaluator extends ExprEvaluator
             thisCurrent = -1;
             thisTable = column.getInput().getSchema().getSubTable(thisTableName);
 
-            thisVariable = new Variable("this", thisTable.getName());
+            thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
+            thisVariable.setTypeSchema(thisTable.getSchema());
             thisVariable.setTypeTable(thisTable);
 
             // Groups
             ExprNode groupsNode = aggExpr.getChild("groups").getChild(0);
             groupExpr = groupsNode;
-            groupExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+            groupExpr.resolve(workspace, Arrays.asList(thisVariable));
 
-            groupVariable = new Variable("this", column.getInput().getName());
+            groupVariable = new Variable(column.getInput().getSchema().getName(), column.getInput().getName(), "this");
+            groupVariable.setTypeSchema(column.getInput().getSchema());
             groupVariable.setTypeTable(column.getInput());
 
             // Measure
             ExprNode measureNode = aggExpr.getChild("measure").getChild(0);
             measureExpr = measureNode;
-            measureExpr.resolve(thisTable.getSchema(), Arrays.asList(thisVariable));
+            measureExpr.resolve(workspace, Arrays.asList(thisVariable));
 
-            measureVariable = new Variable("value", column.getOutput().getName());
+            measureVariable = new Variable(column.getOutput().getSchema().getName(), column.getOutput().getName(), "value");
+            measureVariable.setTypeSchema(column.getOutput().getSchema());
             measureVariable.setTypeTable(column.getOutput());
 
             // Updater/aggregation function
             ExprNode updaterExpr = aggExpr.getChild("aggregator").getChild(0);
 
             outputExpr = ExprNode.createUpdater(column, updaterExpr.getName());
-            outputExpr.resolve(column.getInput().getSchema(), Arrays.asList(groupVariable, measureVariable));
+            outputExpr.resolve(workspace, Arrays.asList(groupVariable, measureVariable));
         }
     }
 

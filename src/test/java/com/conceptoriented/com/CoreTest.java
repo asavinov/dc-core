@@ -140,10 +140,14 @@ public class CoreTest {
 
 	@Test
 	public void SchemaTest() { // ComColumn. Manually add/remove tables/columns
+        Workspace workspace = new Workspace();
+
         //
         // Prepare schema
         //
         ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
 
         ComTable t1 = schema.getSubTable("Table 1");
         ComTable t2 = schema.getSubTable("Table 2");
@@ -170,10 +174,15 @@ public class CoreTest {
 	@Test
     public void ArithmeticTest() // ComColumnDefinition. Defining new columns and evaluate them
     {
-        //
+        Workspace workspace = new Workspace();
+
+		//
         // Prepare schema and fill data
         //
         ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -205,10 +214,15 @@ public class CoreTest {
 	@Test
     public void LinkTest()
     {
+        Workspace workspace = new Workspace();
+		
         //
         // Prepare schema and fill data
         //
         ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -241,10 +255,15 @@ public class CoreTest {
 	@Test
     public void AggregationTest() // Defining new aggregated columns and evaluate them
     {
+        Workspace workspace = new Workspace();
+		
         //
         // Prepare schema and fill data
         //
         ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -300,7 +319,12 @@ public class CoreTest {
 	@Test
     public void TableProductTest() // Define a new table and populate it
     {
-        ComSchema schema = createSampleSchema();
+        Workspace workspace = new Workspace();
+
+		ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -341,7 +365,12 @@ public class CoreTest {
 	@Test
     public void TableSubsetTest() // Define a filter to get a subset of record from one table
     {
-        ComSchema schema = createSampleSchema();
+        Workspace workspace = new Workspace();
+
+		ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t2 = schema.getSubTable("Table 2");
@@ -365,7 +394,12 @@ public class CoreTest {
 	@Test
     public void ProjectionTest() // Defining new tables via function projection and populate them
     {
+        Workspace workspace = new Workspace();
+
         ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         createSampleData(schema);
 
         ComTable t2 = schema.getSubTable("Table 2");
@@ -438,7 +472,12 @@ public class CoreTest {
 	@Test
     public void CsvTest()
     {
-        ComSchema schema = createSampleSchema();
+        Workspace workspace = new Workspace();
+
+		ComSchema schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+
         ComTable integerType = schema.getPrimitive("Integer");
         ComTable doubleType = schema.getPrimitive("Double");
 

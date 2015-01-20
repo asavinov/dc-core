@@ -1,5 +1,7 @@
 package com.conceptoriented.com;
 
+import com.google.common.base.Strings;
+
 public interface ComVariable {
 
     //
@@ -12,9 +14,16 @@ public interface ComVariable {
     //
     // Type info
     //
+    public String getSchemaName();
+    public void setSchemaName(String schemaName);
 
     public String getTypeName();
     public void setTypeName(String typeName);
+
+    public void resolve(Workspace workspace);
+
+    public ComSchema getTypeSchema();
+    public void setTypeSchema(ComSchema typeSchema);
 
     public ComTable getTypeTable();
     public void setTypeTable(ComTable typeTable);
@@ -51,13 +60,69 @@ class Variable implements ComVariable
 	@Override
     public void getName(String name) { _name = name; }
 
+
+    protected String _schemaName;
+	@Override
+    public String getSchemaName() { return _schemaName; }
+	@Override
+    public void setSchemaName(String value) { _schemaName = value; }
+
     protected String _typeName;
 	@Override
     public String getTypeName() { return _typeName; }
 	@Override
     public void setTypeName(String value) { _typeName = value; }
 
-    protected ComTable _typeTable;
+
+    public void resolve(Workspace workspace) {
+        if (!Strings.isNullOrEmpty(getSchemaName()))
+        {
+            // 1. Resolve schema name
+            setTypeSchema(workspace.getSchema(getSchemaName()));
+
+            if (getTypeSchema() == null) return; // Cannot resolve
+
+            // 2. Resolve table name
+            setTypeTable(getTypeSchema().getSubTable(getTypeName()));
+
+            if (getTypeTable() == null) return; // Cannot resolve
+        }
+        else if (!Strings.isNullOrEmpty(getTypeName())) // No schema name (imcomplete info)
+        {
+            // 1. try to find the table in the mashup 
+            if (workspace.mashup != null)
+            {
+                setTypeTable(workspace.mashup.getSubTable(getTypeName()));
+                if (getTypeTable() != null)
+                {
+                    setTypeSchema(workspace.mashup);
+                    setSchemaName(getTypeSchema().getName()); // We also reconstruct the name
+                    return;
+                }
+            }
+
+            // 2. try to find the table in any other schema
+            for (ComSchema schema : workspace.schemas)
+            {
+                setTypeTable(schema.getSubTable(getTypeName()));
+                if (getTypeTable() != null)
+                {
+                    setTypeSchema(schema);
+                    setSchemaName(getTypeSchema().getName()); // We also reconstruct the name
+                    return;
+                }
+            }
+        }
+    	
+    }
+	
+	protected ComSchema _typeSchema;
+	@Override
+    public ComSchema getTypeSchema() { return _typeSchema; }
+	@Override
+    public void setTypeSchema(ComSchema value) { _typeSchema = value; }
+
+	protected ComTable _typeTable;
 	@Override
     public ComTable getTypeTable() { return _typeTable; }
 	@Override
@@ -91,20 +156,26 @@ class Variable implements ComVariable
         _isNull = true;
     }
 
-    public Variable(String name, String type)
+    public Variable(String schema, String type, String name)
     {
-        _name = name;
+        _schemaName = schema;
         _typeName = type;
+
+        _name = name;
 
         _isNull = true;
         _value = null;
     }
 
-    public Variable(String name, ComTable type)
+    public Variable(ComTable type, String name)
     {
-        _name = name;
+        _schemaName = type.getSchema().getName();
         _typeName = type.getName();
+
+        _typeSchema = type.getSchema();
         _typeTable = type;
+
+        _name = name;
 
         _isNull = true;
         _value = null;

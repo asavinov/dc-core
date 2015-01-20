@@ -62,7 +62,7 @@ public class ExprNode extends TreeNode<ExprNode> {
 		this._result = result;
 	}
 
-    public void resolve(ComSchema schema, List<ComVariable> variables) {
+    public void resolve(Workspace workspace, List<ComVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
         	boolean success;
@@ -93,40 +93,62 @@ public class ExprNode extends TreeNode<ExprNode> {
                 	getResult().setValue(getName());
                 }
             }
-            getResult().setTypeTable(schema.getPrimitive(getResult().getTypeName()));
+
+            getResult().resolve(workspace);
         }
         else if (getOperation() == OperationType.TUPLE)
         {
             //
             // Resolve this (tuples are resolved through the parent which must be resolved before children)
+            // In TUPLE, Name denotes a function from the parent (input) to this node (output) 
             //
-            if (getResult().getTypeTable() == null) // Not resolved yet
+
+    		//
+            // 1. Resolve type table name 
+            //
+            getResult().resolve(workspace);
+
+            //
+            // 2. Resolve Name into a column object (a function from the parent to this node)
+            //
+            ExprNode parentNode = (ExprNode)parent;
+            if (parentNode == null)
             {
-                ExprNode parentNode = (ExprNode)parent;
-                if (parentNode == null)
+                ;
+            }
+            else if (parentNode.getOperation() == OperationType.TUPLE) // This tuple in another tuple
+            {
+                if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
                 {
-                    ;
-                }
-                else if (parentNode.getOperation() == OperationType.TUPLE) // Tuple in another tuple
-                {
-                    if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
+                    ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
+
+                    if (col != null) // Column resolved 
                     {
-                        ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
                         setColumn(col);
-                        getResult().setTypeTable(col.getOutput());
-                        getResult().setTypeName(col.getOutput().getName());
+
+                        // Check and process type information 
+                        if (getResult().getTypeTable() == null)
+                        {
+                        	getResult().setSchemaName(col.getOutput().getSchema().getName());
+                            getResult().setTypeName(col.getOutput().getName());
+                            getResult().setTypeSchema(col.getOutput().getSchema());
+                            getResult().setTypeTable(col.getOutput());
+                        }
+                        else if (getResult().getTypeTable() != col.getOutput())
+                        {
+                            ; // ERROR: Output type of the column must be the same as this node result type
+                        }
+                    }
+                    else // Column not found 
+                    {
+                        // Append a new column (schema change, e.g., if function output structure has to be propagated)
+                        // TODO:
                     }
                 }
-                else // Tuple in some other node, e.g, argument or value
-                {
-                    if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
-                    {
-                        ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
-                        setColumn(col);
-                        getResult().setTypeTable(col.getOutput());
-                        getResult().setTypeName(col.getOutput().getName());
-                    }
-                }
+            }
+            else // This tuple in some other node, e.g, argument or value
+            {
+                ; // Is it a valid situation?
             }
 
             //
@@ -134,27 +156,28 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.item.resolve(schema, variables);
+                childNode.item.resolve(workspace, variables);
             }
         }
         else if (getOperation() == OperationType.CALL)
         {
             //
             // Resolve children (important: before this node because this node uses children)
+            // In CALL, Name denotes a function from children (input) to this node (output) 
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.item.resolve(schema, variables);
+                childNode.item.resolve(workspace, variables);
             }
             
-            // Resolve type name
-            if (!Utils.isNullOrEmpty(getResult().getTypeName()))
-            {
-                getResult().setTypeTable(schema.getSubTable(getResult().getTypeName()));
-            }
+            //
+            // 1. Resolve type table name
+            //
+            getResult().resolve(workspace);
+
 
             //
-            // Resolve this (children must be resolved before parents)
+            // 2. Resolve Name into a column object, variable, procedure or whatever object that will return a result (children must be resolved before)
             //
             ExprNode methodChild = getChild("method"); // Get column name
             ExprNode thisChild = getChild("this"); // Get column lesser set
@@ -168,10 +191,13 @@ public class ExprNode extends TreeNode<ExprNode> {
                 if (varOpt.isPresent()) // Resolved as a variable
                 {
                 	ComVariable var = varOpt.get();
-                    setVariable(var);
 
-                    getResult().setTypeName(var.getTypeName());
+                	getResult().setSchemaName(var.getSchemaName());
+                	getResult().setTypeName(var.getTypeName());
+                    getResult().setTypeSchema(var.getTypeSchema());
                     getResult().setTypeTable(var.getTypeTable());
+
+                    setVariable(var);
                 }
                 else // Cannot resolve as a variable - try resolve as a column name starting from 'this' table and then continue to super tables
                 {
@@ -185,8 +211,12 @@ public class ExprNode extends TreeNode<ExprNode> {
                     thisChild.setOperation(OperationType.CALL);
                     thisChild.setAction(ActionType.READ);
                     thisChild.setName("this");
+
+                    thisChild.getResult().setSchemaName(thisVar.getSchemaName());
                     thisChild.getResult().setTypeName(thisVar.getTypeName());
+                    thisChild.getResult().setTypeSchema(thisVar.getTypeSchema());
                     thisChild.getResult().setTypeTable(thisVar.getTypeTable());
+
                     thisChild.setVariable(thisVar);
 
                     ExprNode path = thisChild;
@@ -229,18 +259,28 @@ public class ExprNode extends TreeNode<ExprNode> {
                         path = superNode;
                     }
 
-                    if (col != null) // Successfully resolved. Store the results.
+                    if (col != null) // Column resolved
                     {
                         setColumn(col);
 
-                        getResult().setTypeName(col.getOutput().getName());
-                        getResult().setTypeTable(col.getOutput());
+                        // Check and process type information 
+                        if (getResult().getTypeTable() == null)
+                        {
+                            getResult().setSchemaName(col.getOutput().getSchema().getName());
+                            getResult().setTypeName(col.getOutput().getName());
+                            getResult().setTypeSchema(col.getOutput().getSchema());
+                            getResult().setTypeTable(col.getOutput());
+                        }
+                        else if (getResult().getTypeTable() != col.getOutput())
+                        {
+                            ; // ERROR: Output type of the column must be the same as this node result type
+                        }
 
                         addChild(path);
                     }
-                    else // Failed to resolve symbol
+                    else // Column not found 
                     {
-                        ; // ERROR: failed to resolve symbol in this and parent contexts
+                        ; // ERROR: failed to resolve symbol 
                     }
                 }
             }
@@ -256,11 +296,30 @@ public class ExprNode extends TreeNode<ExprNode> {
                 {
                     outputChild = getChild(0);
                 }
-                ComColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
-                setColumn(col);
 
-                getResult().setTypeName(col.getOutput().getName());
-                getResult().setTypeTable(col.getOutput());
+                ComColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
+
+                if (col != null) // Column resolved
+                {
+                    setColumn(col);
+
+                    // Check and process type information 
+                    if (getResult().getTypeTable() == null)
+                    {
+                        getResult().setSchemaName(col.getOutput().getSchema().getName());
+                        getResult().setTypeName(col.getOutput().getName());
+                        getResult().setTypeSchema(col.getOutput().getSchema());
+                        getResult().setTypeTable(col.getOutput());
+                    }
+                    else if (getResult().getTypeTable() != col.getOutput())
+                    {
+                        ; // ERROR: Output type of the column must be the same as this node result type
+                    }
+                }
+                else // Column not found 
+                {
+                    ; // ERROR: failed to resolve symbol 
+                }
             }
             else // System procedure or operator (arithmetic, logical etc.)
             {
@@ -268,7 +327,7 @@ public class ExprNode extends TreeNode<ExprNode> {
 
                 // TODO: Derive return type. It is derived from arguments by using type conversion rules
                 getResult().setTypeName("Double");
-                getResult().setTypeTable(schema.getPrimitive(getResult().getTypeName()));
+                getResult().resolve(workspace);
 
                 switch (getAction())
                 {
@@ -591,8 +650,11 @@ public class ExprNode extends TreeNode<ExprNode> {
                 node.setOperation(OperationType.CALL);
                 node.setAction(ActionType.READ);
                 node.setName(seg.getName());
-                node.getResult().setTypeTable(seg.getOutput());
+
+                node.getResult().setSchemaName(seg.getOutput().getSchema().getName());
                 node.getResult().setTypeName(seg.getOutput().getName());
+                node.getResult().setTypeSchema(seg.getOutput().getSchema());
+                node.getResult().setTypeTable(seg.getOutput());
 
                 if (expr != null)
                 {
@@ -614,8 +676,10 @@ public class ExprNode extends TreeNode<ExprNode> {
             thisNode.setOperation(OperationType.CALL);
             thisNode.setAction(ActionType.READ);
 
-            thisNode.getResult().setTypeTable(path.getInput());
+            thisNode.getResult().setSchemaName(path.getInput().getSchema().getName());
             thisNode.getResult().setTypeName(path.getInput().getName());
+            thisNode.getResult().setTypeSchema(path.getInput().getSchema());
+            thisNode.getResult().setTypeTable(path.getInput());
 
             if (expr != null)
             {
@@ -665,8 +729,10 @@ public class ExprNode extends TreeNode<ExprNode> {
         valueNode.setOperation(OperationType.CALL);
         valueNode.setAction(ActionType.READ);
 
-        valueNode.getResult().setTypeTable(column.getOutput());
+        valueNode.getResult().setSchemaName(column.getOutput().getSchema().getName());
         valueNode.getResult().setTypeName(column.getOutput().getName());
+        valueNode.getResult().setTypeSchema(column.getOutput().getSchema());
+        valueNode.getResult().setTypeTable(column.getOutput());
 
         //
         // A node for computing a result (updated) function value from the current value and new value
@@ -676,8 +742,10 @@ public class ExprNode extends TreeNode<ExprNode> {
         expr.setAction(aggregation); // SUM etc.
         expr.setName(column.getName());
 
-        expr.getResult().setTypeTable(column.getOutput());
+        expr.getResult().setSchemaName(column.getOutput().getSchema().getName());
         expr.getResult().setTypeName(column.getOutput().getName());
+        expr.getResult().setTypeSchema(column.getOutput().getSchema());
+        expr.getResult().setTypeTable(column.getOutput());
 
         // Two arguments in child nodes
         expr.addChild(currentValueNode);
@@ -688,7 +756,7 @@ public class ExprNode extends TreeNode<ExprNode> {
 
     public ExprNode()
     {
-        setResult(new Variable("return", "Void"));
+        setResult(new Variable("", "Void", "return"));
     }
 }
 

@@ -2,6 +2,9 @@ package com.conceptoriented.com;
 
 public interface ComSchema extends ComTable {
 	
+	public Workspace getWorkspace();
+	public void setWorkspace(Workspace workspace);
+	
 	public ComTable getPrimitive(String dataType);
 	public ComTable getRoot();
 

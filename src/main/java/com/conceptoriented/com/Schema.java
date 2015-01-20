@@ -19,6 +19,16 @@ public class Schema extends Set implements ComSchema {
 	// ComSchema interface
 	//
 	
+    protected Workspace workspace;
+	@Override
+	public Workspace getWorkspace() {
+		return workspace;
+	}
+	@Override
+	public void setWorkspace(Workspace workspace) {
+		this.workspace = workspace;
+	}
+
 	@Override
 	public ComTable getPrimitive(String dataType) {
 		Optional<ComColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
