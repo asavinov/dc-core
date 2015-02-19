@@ -482,8 +482,8 @@ class ColumnDefinition implements ComColumnDefinition
     // Compute
     //
 
-	@Override
-	public ComEvaluator getEvaluator()
+	// Get an object which is used to compute the function values according to the formula
+	protected ComEvaluator getEvaluator()
     {
         ComEvaluator evaluator = null;
 
@@ -511,8 +511,9 @@ class ColumnDefinition implements ComColumnDefinition
         return evaluator;
     }
 
-	@Override
-	public void initialize() { }
+	private void evaluateBegin() 
+	{ 
+	}
 
 	@Override
     public void evaluate()
@@ -520,14 +521,25 @@ class ColumnDefinition implements ComColumnDefinition
         ComEvaluator evaluator = getEvaluator();
         if (evaluator == null) return;
 
-        while (evaluator.next())
-        {
-            evaluator.evaluate();
-        }
+		try {
+			evaluateBegin();
+			
+			while (evaluator.next())
+	        {
+	            evaluator.evaluate();
+	        }
+		} catch (Exception e) {
+			throw e;
+		}
+		finally {
+			evaluateEnd();
+		}
+        
     }
 
-	@Override
-    public void finish() { }
+    protected void evaluateEnd() 
+    { 
+    }
 
     //
     // Dependencies

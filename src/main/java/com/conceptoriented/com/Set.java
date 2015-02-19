@@ -426,13 +426,8 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
             ComTable sourceSet = projectDim.getInput();
             ComTable targetSet = projectDim.getOutput(); // this set
 
-            // Prepare the expression from the mapping
-            ComEvaluator evaluator = projectDim.getDefinition().getEvaluator();
-
-            while (evaluator.next()) 
-            {
-                evaluator.evaluate();
-            }
+            // Delegate to column evaluation - it will add records from column expression
+            projectDim.getDefinition().evaluate();
         }
         else
         {

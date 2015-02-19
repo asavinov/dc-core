@@ -144,11 +144,7 @@ interface ComColumnDefinition {
     // Compute
     //
 
-	public ComEvaluator getEvaluator(); // Get an object which is used to compute the function values according to the formula
-    
-	public void initialize();
 	public void evaluate();
-	public void finish();
 	
     //
     // Dependencies. The order is important and corresponds to dependency chain

@@ -497,11 +497,11 @@ public class CoreTest {
         ComTable integerType = schema.getPrimitive("Integer");
         ComTable doubleType = schema.getPrimitive("Double");
 
-        ComTable detailsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\OrderDetails.csv", true);
+        ComTable detailsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\OrderDetails.csv", true);
         schema.addTable(detailsTable, null, null);
-        ComTable productsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\Products.csv", true);
+        ComTable productsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\Products.csv", true);
         schema.addTable(productsTable, null, null);
-        ComTable categoriesTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\conceptmix\\Test\\example2\\Categories.csv", true);
+        ComTable categoriesTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\Categories.csv", true);
         schema.addTable(categoriesTable, null, null);
         
         assertEquals(2155, detailsTable.getData().getLength());
