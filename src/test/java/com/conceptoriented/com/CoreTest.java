@@ -18,17 +18,62 @@ package com.conceptoriented.com;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.Test;
 
 public class CoreTest {
 
+	static String detailsTableName = "target/test-classes/example2/OrderDetails.csv";
+	static String productsTableName = "target/test-classes/example2/Products.csv";
+	static String categoriesTableName = "target/test-classes/example2/Categories.csv";
+	
+    @BeforeClass
+    public static void setUpClass() {
+
+		try {
+	    	File testFile = null;
+
+	    	testFile = new File(ClassLoader.getSystemResource("example2/OrderDetails.csv").toURI());
+			detailsTableName = testFile.getAbsolutePath();
+
+	    	testFile = new File(ClassLoader.getSystemResource("example2/Products.csv").toURI());
+	    	productsTableName = testFile.getAbsolutePath();
+
+	    	testFile = new File(ClassLoader.getSystemResource("example2/Categories.csv").toURI());
+	    	categoriesTableName = testFile.getAbsolutePath();
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    }
+	
+    Workspace workspace;
+	ComSchema schema;
+    
+    @Before
+    public void setUp() {
+        workspace = new Workspace();
+
+        //
+        // Prepare schema
+        //
+    	schema = createSampleSchema();
+        workspace.schemas.add(schema);
+        schema.setWorkspace(workspace);
+    }
+    
     protected ExprNode BuildExpr(String str)
     {
         ExprLexer lexer;
@@ -155,16 +200,8 @@ public class CoreTest {
     }
 
 	@Test
-	public void SchemaTest() { // ComColumn. Manually add/remove tables/columns
-        Workspace workspace = new Workspace();
-
-        //
-        // Prepare schema
-        //
-        ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
+	public void SchemaTest() // ComColumn. Manually add/remove tables/columns 
+	{ 
         ComTable t1 = schema.getSubTable("Table 1");
         ComTable t2 = schema.getSubTable("Table 2");
 
@@ -190,15 +227,6 @@ public class CoreTest {
 	@Test
     public void ArithmeticTest() // ComColumnDefinition. Defining new columns and evaluate them
     {
-        Workspace workspace = new Workspace();
-
-		//
-        // Prepare schema and fill data
-        //
-        ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -230,15 +258,6 @@ public class CoreTest {
 	@Test
     public void LinkTest()
     {
-        Workspace workspace = new Workspace();
-		
-        //
-        // Prepare schema and fill data
-        //
-        ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -271,15 +290,6 @@ public class CoreTest {
 	@Test
     public void AggregationTest() // Defining new aggregated columns and evaluate them
     {
-        Workspace workspace = new Workspace();
-		
-        //
-        // Prepare schema and fill data
-        //
-        ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -335,12 +345,6 @@ public class CoreTest {
 	@Test
     public void TableProductTest() // Define a new table and populate it
     {
-        Workspace workspace = new Workspace();
-
-		ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t1 = schema.getSubTable("Table 1");
@@ -381,12 +385,6 @@ public class CoreTest {
 	@Test
     public void TableSubsetTest() // Define a filter to get a subset of record from one table
     {
-        Workspace workspace = new Workspace();
-
-		ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t2 = schema.getSubTable("Table 2");
@@ -410,12 +408,6 @@ public class CoreTest {
 	@Test
     public void ProjectionTest() // Defining new tables via function projection and populate them
     {
-        Workspace workspace = new Workspace();
-
-        ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         createSampleData(schema);
 
         ComTable t2 = schema.getSubTable("Table 2");
@@ -488,20 +480,14 @@ public class CoreTest {
 	@Test
     public void CsvTest()
     {
-        Workspace workspace = new Workspace();
-
-		ComSchema schema = createSampleSchema();
-        workspace.schemas.add(schema);
-        schema.setWorkspace(workspace);
-
         ComTable integerType = schema.getPrimitive("Integer");
         ComTable doubleType = schema.getPrimitive("Double");
 
-        ComTable detailsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\OrderDetails.csv", true);
+        ComTable detailsTable = ((Schema)schema).createFromCsv(detailsTableName, true);
         schema.addTable(detailsTable, null, null);
-        ComTable productsTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\Products.csv", true);
+        ComTable productsTable = ((Schema)schema).createFromCsv(productsTableName, true);
         schema.addTable(productsTable, null, null);
-        ComTable categoriesTable = ((Schema)schema).createFromCsv("C:\\Users\\savinov\\git\\datacommander\\Test\\example2\\Categories.csv", true);
+        ComTable categoriesTable = ((Schema)schema).createFromCsv(categoriesTableName, true);
         schema.addTable(categoriesTable, null, null);
         
         assertEquals(2155, detailsTable.getData().getLength());
@@ -544,7 +530,6 @@ public class CoreTest {
         totalCountColumn.getDefinition().evaluate();
 
         assertEquals(136, totalCountColumn.getData().getValue(6)); // cells = {404, 216, 334, 366, 196, 173, 136, 330}
-
     }
 
 }
