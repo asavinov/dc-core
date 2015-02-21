@@ -5,6 +5,8 @@
     | |_| | (_| | || (_| | |___| (_| | |\/| | |\/| | (_| |   ' | (_| |  __/| |
     |____/ \__,_|\__\__,_|\____|\___/|_|  |_|_|  |_|\__,_|_|\__|\__,_|\___/|_|
 
+	 I N T E G R A T E.            T R A N S F O R M.            A N A L Y Z E.
+
 # DataCommander: Integrate. Transform. Analyze. 
 
 DataCommander is a Java library for data integration, transformation and analysis. 
