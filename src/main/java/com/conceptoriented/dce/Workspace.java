@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
-public class Mapping {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-    public ExprNode BuildExpression(ActionType action) {
-    	throw new UnsupportedOperationException("TODO");
+public class Workspace {
+
+	public List<ComSchema> schemas;
+
+    public ComSchema getSchema(String name)
+    {
+		Optional<ComSchema> ret = schemas.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+		return ret.isPresent() ? ret.get() : null;
     }
-    
+
+    public ComSchema mashup;
+
+    public Workspace()
+    {
+        schemas = new ArrayList<ComSchema>();
+    }
+
 }

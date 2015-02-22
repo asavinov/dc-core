@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
-interface ComEvaluator {
-	public Workspace getWorkspace();
-	public void setWorkspace(Workspace workspace);
+public class Mapping {
 
-	public boolean next(); // True if there exists a next element
-    public boolean first(); // True if there exists a first element (if the set is not empty)
-    public boolean last(); // True if there exists a last element (if the set is not empty)
-
-    public Object evaluate(); // Compute output for the specified intput and write it
-
-    public Object getResult();
+    public ExprNode BuildExpression(ActionType action) {
+    	throw new UnsupportedOperationException("TODO");
+    }
+    
 }

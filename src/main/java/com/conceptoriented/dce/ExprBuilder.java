@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
+
+import com.conceptoriented.dce.ExprBaseVisitor;
+import com.conceptoriented.dce.ExprParser;
 
 public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
 

@@ -14,27 +14,17 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+interface ComEvaluator {
+	public Workspace getWorkspace();
+	public void setWorkspace(Workspace workspace);
 
-public class Workspace {
+	public boolean next(); // True if there exists a next element
+    public boolean first(); // True if there exists a first element (if the set is not empty)
+    public boolean last(); // True if there exists a last element (if the set is not empty)
 
-	public List<ComSchema> schemas;
+    public Object evaluate(); // Compute output for the specified intput and write it
 
-    public ComSchema getSchema(String name)
-    {
-		Optional<ComSchema> ret = schemas.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
-		return ret.isPresent() ? ret.get() : null;
-    }
-
-    public ComSchema mashup;
-
-    public Workspace()
-    {
-        schemas = new ArrayList<ComSchema>();
-    }
-
+    public Object getResult();
 }

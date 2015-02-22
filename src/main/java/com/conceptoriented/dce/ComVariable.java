@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
 import com.google.common.base.Strings;
 

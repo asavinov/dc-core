@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
 import java.io.File;
 import java.io.FileReader;

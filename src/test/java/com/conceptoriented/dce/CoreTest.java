@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.com;
+package com.conceptoriented.dce;
 
 import static org.junit.Assert.*;
 
@@ -27,10 +27,23 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import com.conceptoriented.dce.ExprLexer;
+import com.conceptoriented.dce.ExprParser;
+
+import com.conceptoriented.dce.ColumnDefinitionType;
+import com.conceptoriented.dce.ComColumn;
+import com.conceptoriented.dce.ComSchema;
+import com.conceptoriented.dce.ComTable;
+import com.conceptoriented.dce.DimPath;
+import com.conceptoriented.dce.ExprBuilder;
+import com.conceptoriented.dce.ExprNode;
+import com.conceptoriented.dce.Schema;
+import com.conceptoriented.dce.TableDefinitionType;
+import com.conceptoriented.dce.Workspace;
 
 public class CoreTest {
 
