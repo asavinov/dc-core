@@ -114,6 +114,17 @@ interface ComColumnDefinition {
 	public ColumnDefinitionType getDefinitionType();
 	public void setDefinitionType(ColumnDefinitionType columnDefinitionType);
 	
+    //
+    // COEL (language) representation
+    //
+
+	public String getFormula();
+	public void setFormula(String formula);
+
+    //
+    // Structured (object) representation
+    //
+	
 	public ExprNode getFormulaExpr();
 	public void setFormulaExpr(ExprNode exprNode);
 

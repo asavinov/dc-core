@@ -432,7 +432,28 @@ class ColumnDefinition implements ComColumnDefinition
 	@Override
 	public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
 
-    protected ExprNode _formulaExpr;
+    //
+    // COEL (language) representation
+    //
+
+	protected String _formula;
+	@Override
+    public String getFormula() { return _formula; }
+	@Override
+	public void setFormula(String value) 
+	{ 
+		_formula = value; 
+
+		ExprBuilder exprBuilder = new ExprBuilder();
+		ExprNode expr = exprBuilder.build(_formula);
+		setFormulaExpr(expr);
+	}
+	
+    //
+    // Structured (object) representation
+    //
+	
+	protected ExprNode _formulaExpr;
 	@Override
 	public ExprNode getFormulaExpr() { return _formulaExpr; }
 	@Override

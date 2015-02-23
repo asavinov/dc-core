@@ -16,14 +16,23 @@
 
 package com.conceptoriented.dce;
 
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import com.conceptoriented.dce.ExprBaseVisitor;
+import com.conceptoriented.dce.ExprLexer;
 import com.conceptoriented.dce.ExprParser;
 
 public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
 
     static boolean accessAsThisNode = true; // Design alternative: access node can be represented either as a child or this node
 
-	@Override
+    //
+    // Visitor interface
+    // 
+    
+    @Override
     public ExprNode visitExpr(ExprParser.ExprContext context) 
     {
         ExprNode n = new ExprNode();
@@ -274,5 +283,25 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         }
 
         return name;
+    }
+
+    public ExprNode build(String str)
+    {
+        ExprBuilder builder = this;
+
+        ExprLexer lexer;
+        ExprParser parser;
+        ParseTree tree;
+        String tree_str;
+        ExprNode ast;
+
+        lexer = new ExprLexer(new ANTLRInputStream(str));
+        parser = new ExprParser(new CommonTokenStream(lexer));
+        tree = parser.expr();
+        tree_str = tree.toStringTree(parser);
+
+        ast = builder.visit(tree);
+
+        return ast;
     }
 }

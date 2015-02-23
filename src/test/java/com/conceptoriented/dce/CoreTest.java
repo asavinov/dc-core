@@ -27,12 +27,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import com.conceptoriented.dce.ExprLexer;
-import com.conceptoriented.dce.ExprParser;
 
 import com.conceptoriented.dce.ColumnDefinitionType;
 import com.conceptoriented.dce.ComColumn;
@@ -51,7 +45,9 @@ public class CoreTest {
 	static String productsTableName = "target/test-classes/example2/Products.csv";
 	static String categoriesTableName = "target/test-classes/example2/Categories.csv";
 	
-    @BeforeClass
+    public static ExprBuilder exprBuilder;
+
+	@BeforeClass
     public static void setUpClass() {
 
 		try {
@@ -69,6 +65,8 @@ public class CoreTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		exprBuilder = new ExprBuilder();
     	
     }
 	
@@ -87,26 +85,6 @@ public class CoreTest {
         schema.setWorkspace(workspace);
     }
     
-    protected ExprNode BuildExpr(String str)
-    {
-        ExprLexer lexer;
-        ExprParser parser;
-        ParseTree tree;
-        String tree_str;
-        ExprNode ast;
-
-        ExprBuilder builder = new ExprBuilder();
-
-        lexer = new ExprLexer(new ANTLRInputStream(str));
-        parser = new ExprParser(new CommonTokenStream(lexer));
-        tree = parser.expr();
-        tree_str = tree.toStringTree(parser);
-
-        ast = builder.visit(tree);
-
-        return ast;
-    }
-
     protected ComSchema createSampleSchema()
     {
         // Prepare schema
@@ -255,8 +233,7 @@ public class CoreTest {
         ComColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
 
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
-        ExprNode ast = BuildExpr("([Column 11]+10.0) * this.[Column 13]"); // ConceptScript source code: "[Decimal] [Column 15] <body of expression>"
-        c15.getDefinition().setFormulaExpr(ast);
+        c15.getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
         
         c15.add();
 
@@ -286,8 +263,7 @@ public class CoreTest {
         ComColumn link = schema.createColumn("Column Link", t2, t1, false);
 
         link.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
-        ExprNode ast = BuildExpr("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))"); // Tuple structure corresponds to output table
-        link.getDefinition().setFormulaExpr(ast);
+        link.getDefinition().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
 
         link.add();
 
@@ -341,8 +317,7 @@ public class CoreTest {
         ComColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
         c16.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
 
-        ExprNode ast = BuildExpr("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
-        c16.getDefinition().setFormulaExpr(ast);
+        c16.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
 
         c16.add();
 
@@ -382,7 +357,7 @@ public class CoreTest {
         // Add simple where expression
         //
 
-        ExprNode ast = BuildExpr("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
+        ExprNode ast = exprBuilder.build("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
         t3.getDefinition().setWhereExpr(ast);
 
         t3.getDefinition().populate();
@@ -407,7 +382,7 @@ public class CoreTest {
         //
         ComTable t3 = schema.createTable("Table 3");
 
-        ExprNode ast = BuildExpr("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
+        ExprNode ast = exprBuilder.build("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
         t3.getDefinition().setWhereExpr(ast);
         t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
 
@@ -442,8 +417,7 @@ public class CoreTest {
         // Create a generating column
         ComColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
 
-        ExprNode ast = BuildExpr("(( [String] [Column 31] = this.[Column 21] ))"); // Tuple structure corresponds to output table
-        c24.getDefinition().setFormulaExpr(ast);
+        c24.getDefinition().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
         c24.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         c24.getDefinition().setAppendData(true);
 
@@ -473,8 +447,7 @@ public class CoreTest {
         // Create generating/import column
         ComColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
 
-        ExprNode ast2 = BuildExpr("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))"); // Tuple structure corresponds to output table
-        c25.getDefinition().setFormulaExpr(ast2);
+        c25.getDefinition().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
         c25.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         c25.getDefinition().setAppendData(true);
 
@@ -509,27 +482,27 @@ public class CoreTest {
 
         // Define a new arithmetic column: output is a computed primitive value
         ComColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
-        amountColumn.getDefinition().setFormulaExpr(BuildExpr("[UnitPrice] * [Quantity]"));
+        amountColumn.getDefinition().setFormula("[UnitPrice] * [Quantity]");
         amountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         amountColumn.add();
         amountColumn.getDefinition().evaluate();
 
         // Define two link column: output is a tuple
         ComColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
-        productColumn.getDefinition().setFormulaExpr(BuildExpr("(( Integer [ProductID] = [ProductID] ))"));
+        productColumn.getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
         productColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         productColumn.add(); 
         productColumn.getDefinition().evaluate();
         
         ComColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
-        categoryColumn.getDefinition().setFormulaExpr(BuildExpr("(( Integer [CategoryID] = [CategoryID] ))"));
+        categoryColumn.getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
         categoryColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         categoryColumn.add();
         categoryColumn.getDefinition().evaluate();
     
         // Define a new aggregation column: output is an aggregation of a group of values
         ComColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
-        totalAmountColumn.getDefinition().setFormulaExpr(BuildExpr("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)"));
+        totalAmountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
         totalAmountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalAmountColumn.add();
         totalAmountColumn.getDefinition().evaluate();
@@ -537,7 +510,7 @@ public class CoreTest {
         assertEquals(105268.6, totalAmountColumn.getData().getValue(6)); // cells = {286526.94999999995, 113694.75000000001, 177099.09999999995, 251330.5, 100726.8, 178188.80000000002, 105268.6, 141623.09000000003}
 
         ComColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
-        totalCountColumn.getDefinition().setFormulaExpr(BuildExpr("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)"));
+        totalCountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
         totalCountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalCountColumn.add();
         totalCountColumn.getDefinition().evaluate();
