@@ -16,6 +16,9 @@
 
 package com.conceptoriented.dce;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -38,6 +41,14 @@ public class ExprNode extends TreeNode<ExprNode> {
     	_operation = value;
     }
     
+	protected String _nameSpace;
+	public String getNameSpace() {
+		return _nameSpace;
+	}
+	public void setNameSpace(String value) {
+		this._nameSpace = value;
+	}
+	
 	protected String _name;
 	public String getName() {
 		return _name;
@@ -60,6 +71,14 @@ public class ExprNode extends TreeNode<ExprNode> {
 	}
 	public void setVariable(ComVariable variable) {
 		this._variable = variable;
+	}
+
+    protected Method _method;
+    public Method getMethod() {
+		return _method;
+	}
+	public void setMethod(Method value) {
+		this._method = value;
 	}
 
 	protected ActionType _action;
@@ -199,7 +218,37 @@ public class ExprNode extends TreeNode<ExprNode> {
             ExprNode thisChild = getChild("this"); // Get column lesser set
             int childCount = children.size();
 
-            if (childCount == 0) // Resolve variable (or add a child this variable assuming that it has been omitted)
+            if( !Utils.isNullOrEmpty(getNameSpace()) ) // External name space (java call, c# call etc.) 
+            {
+            	String className = getNameSpace().trim();
+            	if(getNameSpace().startsWith("call:")) 
+            	{
+            		className = className.substring(5).trim();
+            	}
+            	Class<?> clazz = null;
+            	try {
+            		clazz = Class.forName(className);
+            	} catch (ClassNotFoundException e) { 
+            		e.printStackTrace();
+            	}
+
+            	String methodName = getName();
+            	Method[]  methods = null;
+            	methods = clazz.getMethods();
+            	for(Method m : methods) {
+            		if(!m.getName().equals(methodName)) continue;
+            		if(Modifier.isStatic(m.getModifiers())) {
+            			if(m.getParameterCount() != childCount) continue;
+            		}
+            		else {
+            			if(m.getParameterCount() + 1 != childCount) continue;
+            		}
+
+            		setMethod(m);
+            		break;
+            	}
+            }	
+            else if (childCount == 0) // Resolve variable (or add a child this variable assuming that it has been omitted)
             {
                 // Try to resolve as a variable (including this variable). If success then finish.
             	Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
@@ -469,6 +518,9 @@ public class ExprNode extends TreeNode<ExprNode> {
             int intRes;
             double doubleRes;
             boolean boolRes = false;
+            Object objRes = null;
+
+            int childCount = children.size();
 
             if (getAction() == ActionType.READ)
             {
@@ -630,6 +682,38 @@ public class ExprNode extends TreeNode<ExprNode> {
                 boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getResult().getValue());
                 boolRes = arg1 || arg2;
                 getResult().setValue(boolRes);
+            }
+            else if (getAction() == ActionType.PROCEDURE)
+            {
+            	Class<?>[] types = getMethod().getParameterTypes();
+            	
+            	Object thisObj = null;
+            	Object[] args = null;
+
+				// Preparing parameters for the procedure
+            	if(Modifier.isStatic(getMethod().getModifiers())) {
+	            	args = new Object[childCount]; 
+	            	for(int i=0; i<childCount; i++) {
+	            		args[i] = ((ExprNode)children.get(i)).getResult().getValue();
+	            	}
+				}
+				else {
+	            	if(childCount > 0) thisObj = ((ExprNode)children.get(0)).getResult().getValue();
+
+	            	args = new Object[childCount - 1]; 
+	            	for(int i=0; i<childCount-1; i++) {
+	            		args[i] = ((ExprNode)children.get(i+1)).getResult().getValue();
+	            	}
+				}
+				
+            	// Dynamic invocation
+				try {
+					objRes = getMethod().invoke(thisObj, args);
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
+            	
+                getResult().setValue(objRes);
             }
             else // Some procedure. Find its API specification or retrieve via reflection
             {

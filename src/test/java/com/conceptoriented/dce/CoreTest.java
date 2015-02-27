@@ -67,7 +67,6 @@ public class CoreTest {
 		}
 		
 		exprBuilder = new ExprBuilder();
-    	
     }
 	
     Workspace workspace;
@@ -246,6 +245,52 @@ public class CoreTest {
     }
 
 	@Test
+    public void NativeFunctionTest() // Call native function in column definition
+    {
+        createSampleData(schema);
+
+        ComTable t1 = schema.getSubTable("Table 1");
+
+        ComColumn c11 = t1.getColumn("Column 11");
+        ComColumn c12 = t1.getColumn("Column 12");
+        ComColumn c13 = t1.getColumn("Column 13");
+        ComColumn c14 = t1.getColumn("Column 14");
+
+        //
+        // Define a derived column with a definition
+        //
+        ComColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
+
+        c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+        c15.getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
+        
+        c15.add();
+
+        // Evaluate column
+        c15.getDefinition().evaluate();
+
+        assertEquals("0", c15.getData().getValue(0));
+        assertEquals("1", c15.getData().getValue(1));
+        assertEquals("2", c15.getData().getValue(2));
+
+        //
+        // Define a derived column with a definition
+        //
+        ComColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+        c16.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+
+        c16.getDefinition().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
+
+        c16.add();
+
+        c16.getDefinition().evaluate();
+
+        assertEquals(4.0, c16.getData().getValue(0));
+        assertEquals(1.0, c16.getData().getValue(1));
+        assertEquals(27.0, c16.getData().getValue(2));
+    }
+	
+	@Test
     public void LinkTest()
     {
         createSampleData(schema);
@@ -328,7 +373,6 @@ public class CoreTest {
         assertEquals(283.0, c16.getData().getValue(1));
         assertEquals(0.0, c16.getData().getValue(2));
     }
-
 
 	@Test
     public void TableProductTest() // Define a new table and populate it
@@ -463,7 +507,7 @@ public class CoreTest {
         assertEquals(2, c25.getData().getValue(3));
     }
 
-	@Test
+    @Test
     public void CsvTest()
     {
         ComTable integerType = schema.getPrimitive("Integer");

@@ -11,7 +11,7 @@
 
 DataCommander is a Java library for data integration, transformation and analysis. 
 
-DataCommander is based on a novel approach to data modeling, called the concept-oriented model of data (COM). This model has been developed by Alexandr Savinov and more information about it can including publications be found on [its side](http://conceptoriented.org). 
+DataCommander is based on a novel approach to data modeling, called the concept-oriented model of data (COM). This model has been developed by Alexandr Savinov and more information about it can including publications be found on [this site](http://conceptoriented.org). 
 
 DataCommander allows for loading data from different sources and then defining (potentially highly complicated) data mashups. By a data mashup we mean a new data that is derived from the input data sources by applying various transformations. In this sense, it pursues the same goal as conventional query languages (like SQL) and data transformation languages (like Pig Latin). The following features either distinguish DataCommander from other approaches or make it unique: 
 

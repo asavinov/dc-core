@@ -112,6 +112,27 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         {
             n = visit(context.expr(0)); // Skip
         }
+        else if (context.getChild(0).getText().equals("call:")) // Native method call
+        {
+            n.setOperation(OperationType.CALL);
+            n.setAction(ActionType.PROCEDURE);
+            
+            String className = context.className.getText();
+            n.setNameSpace(className); // Non-empty name space is an indication of a native method
+
+            String methodName = context.methodName.getText(); 
+            n.setName(methodName); 
+
+            int argCount = context.expr().size();
+            for (int i = 0; i < argCount; i++)
+            {
+                ExprNode arg = visit(context.expr(i));
+                if (arg != null)
+                {
+                    n.addChild(arg);
+                }
+            }
+        }
         else if (context.getChild(0).getText().equals("((") || context.getChild(0).getText().equals("TUPLE")) // Tuple
         {
             n.setOperation(OperationType.TUPLE);
@@ -210,11 +231,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
     {
         // Determine declared (output, returned) type of the member
         String type;
-        if (context.type().prim_set() != null)
-        {
-            type = context.type().prim_set().getText();
-        }
-        else if (context.type().DELIMITED_ID() != null)
+    	if (context.type().DELIMITED_ID() != null)
         {
             type = context.type().DELIMITED_ID().getText();
             type = type.substring(1, type.length() - 1); // Remove delimiters
