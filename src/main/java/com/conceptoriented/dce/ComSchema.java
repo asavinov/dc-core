@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,25 +17,25 @@
 package com.conceptoriented.dce;
 
 public interface ComSchema extends ComTable {
-	
-	public Workspace getWorkspace();
-	public void setWorkspace(Workspace workspace);
-	
-	public ComTable getPrimitive(String dataType);
-	public ComTable getRoot();
+
+    public Workspace getWorkspace();
+    public void setWorkspace(Workspace workspace);
+
+    public ComTable getPrimitive(String dataType);
+    public ComTable getRoot();
 
     // Table factory
 
-	public ComTable createTable(String name);
-	public ComTable addTable(ComTable table, ComTable parent, String superName);
-	public void deleteTable(ComTable table);
-	public void renameTable(ComTable table, String newName);
+    public ComTable createTable(String name);
+    public ComTable addTable(ComTable table, ComTable parent, String superName);
+    public void deleteTable(ComTable table);
+    public void renameTable(ComTable table, String newName);
 
     // Column factory
 
-	public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey);
-	public void deleteColumn(ComColumn column);
-	public void renameColumn(ComColumn column, String newName);
+    public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey);
+    public void deleteColumn(ComColumn column);
+    public void renameColumn(ComColumn column, String newName);
 }
 
 enum ComDataType

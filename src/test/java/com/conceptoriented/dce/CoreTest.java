@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,37 +41,37 @@ import com.conceptoriented.dce.Workspace;
 
 public class CoreTest {
 
-	static String detailsTableName = "target/test-classes/example2/OrderDetails.csv";
-	static String productsTableName = "target/test-classes/example2/Products.csv";
-	static String categoriesTableName = "target/test-classes/example2/Categories.csv";
-	
+    static String detailsTableName = "target/test-classes/example2/OrderDetails.csv";
+    static String productsTableName = "target/test-classes/example2/Products.csv";
+    static String categoriesTableName = "target/test-classes/example2/Categories.csv";
+
     public static ExprBuilder exprBuilder;
 
-	@BeforeClass
+    @BeforeClass
     public static void setUpClass() {
 
-		try {
-	    	File testFile = null;
+        try {
+            File testFile = null;
 
-	    	testFile = new File(ClassLoader.getSystemResource("example2/OrderDetails.csv").toURI());
-			detailsTableName = testFile.getAbsolutePath();
+            testFile = new File(ClassLoader.getSystemResource("example2/OrderDetails.csv").toURI());
+            detailsTableName = testFile.getAbsolutePath();
 
-	    	testFile = new File(ClassLoader.getSystemResource("example2/Products.csv").toURI());
-	    	productsTableName = testFile.getAbsolutePath();
+            testFile = new File(ClassLoader.getSystemResource("example2/Products.csv").toURI());
+            productsTableName = testFile.getAbsolutePath();
 
-	    	testFile = new File(ClassLoader.getSystemResource("example2/Categories.csv").toURI());
-	    	categoriesTableName = testFile.getAbsolutePath();
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		exprBuilder = new ExprBuilder();
+            testFile = new File(ClassLoader.getSystemResource("example2/Categories.csv").toURI());
+            categoriesTableName = testFile.getAbsolutePath();
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        exprBuilder = new ExprBuilder();
     }
-	
+
     Workspace workspace;
-	ComSchema schema;
-    
+    ComSchema schema;
+
     @Before
     public void setUp() {
         workspace = new Workspace();
@@ -79,11 +79,11 @@ public class CoreTest {
         //
         // Prepare schema
         //
-    	schema = createSampleSchema();
+        schema = createSampleSchema();
         workspace.schemas.add(schema);
         schema.setWorkspace(workspace);
     }
-    
+
     protected ComSchema createSampleSchema()
     {
         // Prepare schema
@@ -189,9 +189,9 @@ public class CoreTest {
         t2.getData().append(cols, vals);
     }
 
-	@Test
-	public void SchemaTest() // ComColumn. Manually add/remove tables/columns 
-	{ 
+    @Test
+    public void SchemaTest() // ComColumn. Manually add/remove tables/columns
+    {
         ComTable t1 = schema.getSubTable("Table 1");
         ComTable t2 = schema.getSubTable("Table 2");
 
@@ -212,9 +212,9 @@ public class CoreTest {
         // Test path enumerator
         //var pathEnum = new PathEnumerator(t2, t1, DimensionType.IDENTITY_ENTITY);
         //Assert.AreEqual(1, pathEnum.Count());
-	}
+    }
 
-	@Test
+    @Test
     public void ArithmeticTest() // ComColumnDefinition. Defining new columns and evaluate them
     {
         createSampleData(schema);
@@ -233,7 +233,7 @@ public class CoreTest {
 
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
-        
+
         c15.add();
 
         // Evaluate column
@@ -244,7 +244,7 @@ public class CoreTest {
         assertEquals(1200.0, c15.getData().getValue(2));
     }
 
-	@Test
+    @Test
     public void NativeFunctionTest() // Call native function in column definition
     {
         createSampleData(schema);
@@ -263,7 +263,7 @@ public class CoreTest {
 
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
-        
+
         c15.add();
 
         // Evaluate column
@@ -289,8 +289,8 @@ public class CoreTest {
         assertEquals(1.0, c16.getData().getValue(1));
         assertEquals(27.0, c16.getData().getValue(2));
     }
-	
-	@Test
+
+    @Test
     public void LinkTest()
     {
         createSampleData(schema);
@@ -321,7 +321,7 @@ public class CoreTest {
         assertEquals(2, link.getData().getValue(2));
     }
 
-	@Test
+    @Test
     public void AggregationTest() // Defining new aggregated columns and evaluate them
     {
         createSampleData(schema);
@@ -374,7 +374,7 @@ public class CoreTest {
         assertEquals(0.0, c16.getData().getValue(2));
     }
 
-	@Test
+    @Test
     public void TableProductTest() // Define a new table and populate it
     {
         createSampleData(schema);
@@ -414,7 +414,7 @@ public class CoreTest {
         assertEquals(3, c32.getData().getValue(1));
     }
 
-	@Test
+    @Test
     public void TableSubsetTest() // Define a filter to get a subset of record from one table
     {
         createSampleData(schema);
@@ -437,7 +437,7 @@ public class CoreTest {
         assertEquals(1, t3.getSuperColumn().getData().getValue(0));
     }
 
-	@Test
+    @Test
     public void ProjectionTest() // Defining new tables via function projection and populate them
     {
         createSampleData(schema);
@@ -519,7 +519,7 @@ public class CoreTest {
         schema.addTable(productsTable, null, null);
         ComTable categoriesTable = ((Schema)schema).createFromCsv(categoriesTableName, true);
         schema.addTable(categoriesTable, null, null);
-        
+
         assertEquals(2155, detailsTable.getData().getLength());
         assertEquals(77, productsTable.getData().getLength());
         assertEquals(8, categoriesTable.getData().getLength());
@@ -535,15 +535,15 @@ public class CoreTest {
         ComColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
         productColumn.getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
         productColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
-        productColumn.add(); 
+        productColumn.add();
         productColumn.getDefinition().evaluate();
-        
+
         ComColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
         categoryColumn.getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
         categoryColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         categoryColumn.add();
         categoryColumn.getDefinition().evaluate();
-    
+
         // Define a new aggregation column: output is an aggregation of a group of values
         ComColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
         totalAmountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");

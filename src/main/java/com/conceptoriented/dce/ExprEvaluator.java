@@ -36,36 +36,36 @@ public class ExprEvaluator implements ComEvaluator {
 
     protected Workspace workspace;
     @Override
-	public Workspace getWorkspace() { return workspace; }
+    public Workspace getWorkspace() { return workspace; }
     @Override
-	public void setWorkspace(Workspace workspace) { this.workspace = workspace; }
+    public void setWorkspace(Workspace workspace) { this.workspace = workspace; }
 
     @Override
-	public boolean next() {
+    public boolean next() {
         if (thisCurrent < thisTable.getData().getLength()) thisCurrent++;
 
         if (thisCurrent < thisTable.getData().getLength()) return true;
         else return false;
-	}
+    }
 
-	@Override
-	public boolean first() {
+    @Override
+    public boolean first() {
         thisCurrent = 0;
 
         if (thisCurrent < thisTable.getData().getLength()) return true;
         else return false;
-	}
+    }
 
-	@Override
-	public boolean last() {
+    @Override
+    public boolean last() {
         thisCurrent = thisTable.getData().getLength() - 1;
 
         if (thisCurrent >= 0) return true;
         else return false;
-	}
+    }
 
-	@Override
-	public Object evaluate() {
+    @Override
+    public Object evaluate() {
         // Use input value to evaluate the expression
         thisVariable.setValue(thisCurrent);
 
@@ -79,12 +79,12 @@ public class ExprEvaluator implements ComEvaluator {
         }
 
         return outputExpr.getResult().getValue();
-	}
+    }
 
-	@Override
-	public Object getResult() {
-		return outputExpr.getResult().getValue();
-	}
+    @Override
+    public Object getResult() {
+        return outputExpr.getResult().getValue();
+    }
 
     public ExprEvaluator(ComColumn column)
     {
@@ -123,7 +123,7 @@ public class ExprEvaluator implements ComEvaluator {
                 else
                 {
                     outputExpr.setAction(ActionType.READ);
-                } 
+                }
             }
         }
 
@@ -182,7 +182,7 @@ class AggrEvaluator extends ExprEvaluator
     //
     // ComColumnEvaluator interface
     //
-	@Override
+    @Override
     public Object evaluate()
     {
         //

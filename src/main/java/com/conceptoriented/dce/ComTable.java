@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,41 +19,41 @@ package com.conceptoriented.dce;
 import java.util.List;
 
 /**
- * Describes one table. 
- * 
+ * Describes one table.
+ *
  * @author savinov
  *
  */
 public interface ComTable {
 
-	public String getName();
-	public void setName(String name);
-	
-	public boolean isPrimitive();
+    public String getName();
+    public void setName(String name);
+
+    public boolean isPrimitive();
 
     //
     // Outputs
     //
-	public List<ComColumn> getColumns();
+    public List<ComColumn> getColumns();
 
-	public ComColumn getSuperColumn();
-	public ComTable getSuperTable();
-	public ComSchema getSchema();
+    public ComColumn getSuperColumn();
+    public ComTable getSuperTable();
+    public ComSchema getSchema();
 
     //
     // Inputs
     //
-	public List<ComColumn> getInputColumns();
+    public List<ComColumn> getInputColumns();
 
-	public List<ComColumn> getSubColumns();
-	public List<ComTable> getSubTables();
-	public List<ComTable> getAllSubTables();
+    public List<ComColumn> getSubColumns();
+    public List<ComTable> getSubTables();
+    public List<ComTable> getAllSubTables();
 
     //
     // Poset relation
     //
 
-	boolean isSubTable(ComTable parent); // Is subset of the specified table
+    boolean isSubTable(ComTable parent); // Is subset of the specified table
     boolean isInput(ComTable set); // Is lesser than the specified table
     boolean isLeast(); // Has no inputs
     boolean isGreatest(); // Has no outputs
@@ -65,20 +65,20 @@ public interface ComTable {
     ComTable getTable(String name); // TODO: Greater table/type - not subtable
     ComTable getSubTable(String name); // Subtable
 
-	public ComTableData getData();
-	public ComTableDefinition getDefinition();
+    public ComTableData getData();
+    public ComTableDefinition getDefinition();
 }
 
 /**
- * Working with data in the table.   
- * 
+ * Working with data in the table.
+ *
  * @author savinov
  *
  */
 interface ComTableData {
 
-	public int getLength();
-	public void setLength(int length);
+    public int getLength();
+    public void setLength(int length);
 
     //
     // Value methods (convenience, probably should be removed and replaced by manual access to dimensions)
@@ -105,8 +105,8 @@ interface ComTableData {
 }
 
 /**
- * Defines data in a table. 
- * 
+ * Defines data in a table.
+ *
  * @author savinov
  *
  */

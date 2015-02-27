@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,70 +21,70 @@ import java.time.Instant;
 
 public class Dim implements ComColumn {
 
-	//
-	// ComColumn interface
-	//
+    //
+    // ComColumn interface
+    //
 
-	protected String _name;
-	@Override
-	public String getName() {
-		return _name;
-	}
-	@Override
-	public void setName(String value) {
-		this._name = value;
-	}
+    protected String _name;
+    @Override
+    public String getName() {
+        return _name;
+    }
+    @Override
+    public void setName(String value) {
+        this._name = value;
+    }
 
-	protected boolean _key;
-	@Override
-	public boolean isKey() {
-		return _key;
-	}
-	@Override
-	public void setKey(boolean value) {
-		_key = value;
-	}
+    protected boolean _key;
+    @Override
+    public boolean isKey() {
+        return _key;
+    }
+    @Override
+    public void setKey(boolean value) {
+        _key = value;
+    }
 
-	protected boolean _super;
-	@Override
-	public boolean isSuper() {
-		return _super;
-	}
-	public void setSuper(boolean value) {
-		_super = value;
-	}
+    protected boolean _super;
+    @Override
+    public boolean isSuper() {
+        return _super;
+    }
+    public void setSuper(boolean value) {
+        _super = value;
+    }
 
-	@Override
-	public boolean isPrimitive() {
-		return _output == null ? false : _output.isPrimitive();
-	}
+    @Override
+    public boolean isPrimitive() {
+        return _output == null ? false : _output.isPrimitive();
+    }
 
-	protected ComTable _input;
-	@Override
-	public ComTable getInput() {
-		return _input;
-	}
-	@Override
-	public void setInput(ComTable value) {
+    protected ComTable _input;
+    @Override
+    public ComTable getInput() {
+        return _input;
+    }
+    @Override
+    public void setInput(ComTable value) {
         if (_input == value) return;
-        _input = value; 
-	}
+        _input = value;
+    }
 
-	protected ComTable _output;
-	@Override
-	public ComTable getOutput() {
-		return _output;
-	}
-	@Override
-	public void setOutput(ComTable value) {
+    protected ComTable _output;
+    @Override
+    public ComTable getOutput() {
+        return _output;
+    }
+    @Override
+    public void setOutput(ComTable value) {
         if (_output == value) return;
         _output = value;
         _data = CreateColumnData(_output, this);
-	}
+    }
 
-	@Override
-	public void add() {
-		assert _input != null && _output != null; 
+    @Override
+    public void add() {
+        assert _input != null && _output != null;
 
         if (_super) // Only one super-dim per table can exist
         {
@@ -96,33 +96,33 @@ public class Dim implements ComColumn {
 
         if (_output != null) _output.getInputColumns().add(this);
         if (_input != null) _input.getColumns().add(this);
-	}
+    }
 
-	@Override
-	public void remove() {
-		assert _input != null && _output != null; 
+    @Override
+    public void remove() {
+        assert _input != null && _output != null;
 
         if (_output != null) _output.getInputColumns().remove(this);
         if (_input != null) _input.getColumns().remove(this);
-	}
+    }
 
-	protected ComColumnData _data;
-	@Override
-	public ComColumnData getData() {
-		return _data;
-	}
+    protected ComColumnData _data;
+    @Override
+    public ComColumnData getData() {
+        return _data;
+    }
 
-	protected ComColumnDefinition _definition;
-	@Override
-	public ComColumnDefinition getDefinition() {
-		return _definition;
-	}
+    protected ComColumnDefinition _definition;
+    @Override
+    public ComColumnDefinition getDefinition() {
+        return _definition;
+    }
 
-	public static ComColumnData CreateColumnData(ComTable type, ComColumn column)
+    public static ComColumnData CreateColumnData(ComTable type, ComColumn column)
     {
         ComColumnData colData = new DimEmpty();
 
-        
+
         if (type == null || Utils.isNullOrEmpty(type.getName()))
         {
         }
@@ -169,9 +169,9 @@ public class Dim implements ComColumn {
         {
             colData = new DimData<Integer>(column);
         }
-        
+
         /*
-		ComDataType dataType = output.getDataType();
+        ComDataType dataType = output.getDataType();
         if(dataType == ComDataType.Void) {
         }
         else if(dataType == ComDataType.Top) {
@@ -179,77 +179,77 @@ public class Dim implements ComColumn {
         else if(dataType == ComDataType.Bottom) {
         }
         else if(dataType == ComDataType.Root) {
-        	_data = new DimData<Integer>(this, dataType);
+            _data = new DimData<Integer>(this, dataType);
         }
         else if(dataType == ComDataType.Integer) {
-        	_data = new DimData<Integer>(this, dataType);
+            _data = new DimData<Integer>(this, dataType);
         }
         else if(dataType == ComDataType.Double) {
-        	_data = new DimData<Double>(this, dataType);
+            _data = new DimData<Double>(this, dataType);
         }
         else if(dataType == ComDataType.Decimal) {
-        	_data = new DimData<BigDecimal>(this, dataType);
+            _data = new DimData<BigDecimal>(this, dataType);
         }
         else if(dataType == ComDataType.String) {
-        	_data = new DimData<String>(this, dataType);
+            _data = new DimData<String>(this, dataType);
         }
         else if(dataType == ComDataType.Boolean) {
-        	_data = new DimData<Boolean>(this, dataType);
+            _data = new DimData<Boolean>(this, dataType);
         }
         else if(dataType == ComDataType.DateTime) {
-        	_data = new DimData<Instant>(this, dataType);
+            _data = new DimData<Instant>(this, dataType);
         }
-		*/
+         */
 
         return colData;
     }
 
-	//
-	// Constructors
-	//
+    //
+    // Constructors
+    //
 
     public Dim(Dim dim) {
         this();
 
-    	setName(dim.getName());
+        setName(dim.getName());
 
-    	setKey(dim.isKey());
+        setKey(dim.isKey());
 
-    	setInput(dim.getInput());
-    	setOutput(dim.getOutput());
+        setInput(dim.getInput());
+        setOutput(dim.getOutput());
 
-    	_data = CreateColumnData(_output, this);
-    	_definition = new ColumnDefinition(this);
-    	// TODO: Copy definition
+        _data = CreateColumnData(_output, this);
+        _definition = new ColumnDefinition(this);
+        // TODO: Copy definition
     }
 
     public Dim(ComTable set) { // Empty dimension
-    	this("", set, set);
-	}
+        this("", set, set);
+    }
 
     public Dim() {
         this("");
     }
-    
+
     public Dim(String name) {
         this(name, null, null);
     }
-    
+
     public Dim(String name, ComTable input, ComTable output) {
         this(name, input, output, false, false);
     }
 
-	public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
-		this._name = name;
+    public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
+        this._name = name;
 
-		this._key = isKey;
-		this._super = isSuper;
+        this._key = isKey;
+        this._super = isSuper;
 
-		this._input = input;
-		this._output = output;
+        this._input = input;
+        this._output = output;
 
-		_data = CreateColumnData(output, this);
+        _data = CreateColumnData(output, this);
         _definition = new ColumnDefinition(this);
-	}
-	
+    }
+
 }

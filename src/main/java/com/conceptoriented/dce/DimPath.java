@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,19 +22,19 @@ import java.util.List;
 public class DimPath extends Dim {
 
     protected List<ComColumn> segments;
-	public List<ComColumn> getSegments() {
-		return segments;
-	}
-	public void setSegments(List<ComColumn> segments) {
-		this.segments = segments;
-	}
+    public List<ComColumn> getSegments() {
+        return segments;
+    }
+    public void setSegments(List<ComColumn> segments) {
+        this.segments = segments;
+    }
 
 
 
 
 
-	
-	public DimPath() {
+
+    public DimPath() {
         segments = new ArrayList<ComColumn>();
     }
 
@@ -49,7 +49,7 @@ public class DimPath extends Dim {
         segments = new ArrayList<ComColumn>();
     }
 
-	public DimPath(ComColumn seg) {
+    public DimPath(ComColumn seg) {
         this();
 
         if (seg == null) return;
@@ -59,7 +59,7 @@ public class DimPath extends Dim {
         setOutput(segments.get(segments.size() - 1).getOutput());
     }
 
-	public DimPath(List<ComColumn> segs) {
+    public DimPath(List<ComColumn> segs) {
         this();
 
         if(segs == null || segs.size() == 0) return;
@@ -69,13 +69,13 @@ public class DimPath extends Dim {
         setOutput(segments.get(segments.size() - 1).getOutput());
     }
 
-	public DimPath(DimPath path) {
+    public DimPath(DimPath path) {
         super(path);
         segments = new ArrayList<ComColumn>();
         segments.addAll(path.getSegments());
     }
 
-	public DimPath(String name, ComTable input, ComTable output) {
+    public DimPath(String name, ComTable input, ComTable output) {
         super(name, input, output);
         segments = new ArrayList<ComColumn>();
     }

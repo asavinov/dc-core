@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,10 @@
 package com.conceptoriented.dce;
 
 interface ComEvaluator {
-	public Workspace getWorkspace();
-	public void setWorkspace(Workspace workspace);
+    public Workspace getWorkspace();
+    public void setWorkspace(Workspace workspace);
 
-	public boolean next(); // True if there exists a next element
+    public boolean next(); // True if there exists a next element
     public boolean first(); // True if there exists a first element (if the set is not empty)
     public boolean last(); // True if there exists a last element (if the set is not empty)
 

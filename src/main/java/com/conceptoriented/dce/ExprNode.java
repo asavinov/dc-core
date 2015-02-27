@@ -29,83 +29,83 @@ public class ExprNode extends TreeNode<ExprNode> {
     public ExprNode getChild(int child) { return (ExprNode)children.get(child).item; }
     public ExprNode getChild(String name)
     {
-    	Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> x.item.getName().equals(name)).findAny();
-    	return child.isPresent() ? child.get().item : null;
+        Optional<TreeNode<ExprNode>> child = children.stream().filter(x -> x.item.getName().equals(name)).findAny();
+        return child.isPresent() ? child.get().item : null;
     }
 
-	protected OperationType _operation;
+    protected OperationType _operation;
     public OperationType getOperation() {
-    	return _operation;
+        return _operation;
     }
     public void setOperation(OperationType value) {
-    	_operation = value;
+        _operation = value;
     }
-    
-	protected String _nameSpace;
-	public String getNameSpace() {
-		return _nameSpace;
-	}
-	public void setNameSpace(String value) {
-		this._nameSpace = value;
-	}
-	
-	protected String _name;
-	public String getName() {
-		return _name;
-	}
-	public void setName(String name) {
-		this._name = name;
-	}
-	
+
+    protected String _nameSpace;
+    public String getNameSpace() {
+        return _nameSpace;
+    }
+    public void setNameSpace(String value) {
+        this._nameSpace = value;
+    }
+
+    protected String _name;
+    public String getName() {
+        return _name;
+    }
+    public void setName(String name) {
+        this._name = name;
+    }
+
     protected ComColumn _column;
     public ComColumn getColumn() {
-		return _column;
-	}
-	public void setColumn(ComColumn column) {
-		this._column = column;
-	}
+        return _column;
+    }
+    public void setColumn(ComColumn column) {
+        this._column = column;
+    }
 
-	public ComVariable _variable;
+    public ComVariable _variable;
     public ComVariable getVariable() {
-		return _variable;
-	}
-	public void setVariable(ComVariable variable) {
-		this._variable = variable;
-	}
+        return _variable;
+    }
+    public void setVariable(ComVariable variable) {
+        this._variable = variable;
+    }
 
     protected Method _method;
     public Method getMethod() {
-		return _method;
-	}
-	public void setMethod(Method value) {
-		this._method = value;
-	}
+        return _method;
+    }
+    public void setMethod(Method value) {
+        this._method = value;
+    }
 
-	protected ActionType _action;
-	public ActionType getAction() {
-		return _action;
-	}
-	public void setAction(ActionType value) {
-		this._action = value;
-	}
+    protected ActionType _action;
+    public ActionType getAction() {
+        return _action;
+    }
+    public void setAction(ActionType value) {
+        this._action = value;
+    }
 
     public ComVariable _result;
-	public ComVariable getResult() {
-		return _result;
-	}
-	public void setResult(ComVariable result) {
-		this._result = result;
-	}
+    public ComVariable getResult() {
+        return _result;
+    }
+    public void setResult(ComVariable result) {
+        this._result = result;
+    }
 
     public void resolve(Workspace workspace, List<ComVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
-        	boolean success;
+            boolean success;
             int intValue = 0;
             double doubleValue = 0.0;
 
             //
-            // Resolve string into object and store in the result. Derive the type from the format. 
+            // Resolve string into object and store in the result. Derive the type from the format.
             //
             success = true;
             try { intValue = Integer.parseInt(getName()); } catch (NumberFormatException e) { success = false; }
@@ -119,13 +119,13 @@ public class ExprNode extends TreeNode<ExprNode> {
                 try { doubleValue = Double.parseDouble(getName()); } catch (NumberFormatException e) { success = false; }
                 if (success)
                 {
-                	getResult().setTypeName("Double");
-                	getResult().setValue(doubleValue);
+                    getResult().setTypeName("Double");
+                    getResult().setValue(doubleValue);
                 }
                 else // Cannot parse means string
                 {
-                	getResult().setTypeName("String");
-                	getResult().setValue(getName());
+                    getResult().setTypeName("String");
+                    getResult().setValue(getName());
                 }
             }
 
@@ -135,11 +135,11 @@ public class ExprNode extends TreeNode<ExprNode> {
         {
             //
             // Resolve this (tuples are resolved through the parent which must be resolved before children)
-            // In TUPLE, Name denotes a function from the parent (input) to this node (output) 
+            // In TUPLE, Name denotes a function from the parent (input) to this node (output)
             //
 
-    		//
-            // 1. Resolve type table name 
+            //
+            // 1. Resolve type table name
             //
             getResult().resolve(workspace);
 
@@ -157,14 +157,14 @@ public class ExprNode extends TreeNode<ExprNode> {
                 {
                     ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
 
-                    if (col != null) // Column resolved 
+                    if (col != null) // Column resolved
                     {
                         setColumn(col);
 
-                        // Check and process type information 
+                        // Check and process type information
                         if (getResult().getTypeTable() == null)
                         {
-                        	getResult().setSchemaName(col.getOutput().getSchema().getName());
+                            getResult().setSchemaName(col.getOutput().getSchema().getName());
                             getResult().setTypeName(col.getOutput().getName());
                             getResult().setTypeSchema(col.getOutput().getSchema());
                             getResult().setTypeTable(col.getOutput());
@@ -174,7 +174,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                             ; // ERROR: Output type of the column must be the same as this node result type
                         }
                     }
-                    else // Column not found 
+                    else // Column not found
                     {
                         // Append a new column (schema change, e.g., if function output structure has to be propagated)
                         // TODO:
@@ -198,13 +198,13 @@ public class ExprNode extends TreeNode<ExprNode> {
         {
             //
             // Resolve children (important: before this node because this node uses children)
-            // In CALL, Name denotes a function from children (input) to this node (output) 
+            // In CALL, Name denotes a function from children (input) to this node (output)
             //
             for (TreeNode<ExprNode> childNode : children)
             {
                 childNode.item.resolve(workspace, variables);
             }
-            
+
             //
             // 1. Resolve type table name
             //
@@ -218,47 +218,47 @@ public class ExprNode extends TreeNode<ExprNode> {
             ExprNode thisChild = getChild("this"); // Get column lesser set
             int childCount = children.size();
 
-            if( !Utils.isNullOrEmpty(getNameSpace()) ) // External name space (java call, c# call etc.) 
+            if( !Utils.isNullOrEmpty(getNameSpace()) ) // External name space (java call, c# call etc.)
             {
-            	String className = getNameSpace().trim();
-            	if(getNameSpace().startsWith("call:")) 
-            	{
-            		className = className.substring(5).trim();
-            	}
-            	Class<?> clazz = null;
-            	try {
-            		clazz = Class.forName(className);
-            	} catch (ClassNotFoundException e) { 
-            		e.printStackTrace();
-            	}
+                String className = getNameSpace().trim();
+                if(getNameSpace().startsWith("call:"))
+                {
+                    className = className.substring(5).trim();
+                }
+                Class<?> clazz = null;
+                try {
+                    clazz = Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
 
-            	String methodName = getName();
-            	Method[]  methods = null;
-            	methods = clazz.getMethods();
-            	for(Method m : methods) {
-            		if(!m.getName().equals(methodName)) continue;
-            		if(Modifier.isStatic(m.getModifiers())) {
-            			if(m.getParameterCount() != childCount) continue;
-            		}
-            		else {
-            			if(m.getParameterCount() + 1 != childCount) continue;
-            		}
+                String methodName = getName();
+                Method[]  methods = null;
+                methods = clazz.getMethods();
+                for(Method m : methods) {
+                    if(!m.getName().equals(methodName)) continue;
+                    if(Modifier.isStatic(m.getModifiers())) {
+                        if(m.getParameterCount() != childCount) continue;
+                    }
+                    else {
+                        if(m.getParameterCount() + 1 != childCount) continue;
+                    }
 
-            		setMethod(m);
-            		break;
-            	}
-            }	
+                    setMethod(m);
+                    break;
+                }
+            }
             else if (childCount == 0) // Resolve variable (or add a child this variable assuming that it has been omitted)
             {
                 // Try to resolve as a variable (including this variable). If success then finish.
-            	Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
+                Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
 
                 if (varOpt.isPresent()) // Resolved as a variable
                 {
-                	ComVariable var = varOpt.get();
+                    ComVariable var = varOpt.get();
 
-                	getResult().setSchemaName(var.getSchemaName());
-                	getResult().setTypeName(var.getTypeName());
+                    getResult().setSchemaName(var.getSchemaName());
+                    getResult().setTypeName(var.getTypeName());
                     getResult().setTypeSchema(var.getTypeSchema());
                     getResult().setTypeTable(var.getTypeTable());
 
@@ -269,8 +269,8 @@ public class ExprNode extends TreeNode<ExprNode> {
                     //
                     // Start from 'this' node bound to 'this' variable
                     //
-                	Optional<ComVariable> thisVarOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), "this")).findAny();
-                	ComVariable thisVar = thisVarOpt.get();
+                    Optional<ComVariable> thisVarOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), "this")).findAny();
+                    ComVariable thisVar = thisVarOpt.get();
 
                     thisChild = new ExprNode();
                     thisChild.setOperation(OperationType.CALL);
@@ -328,7 +328,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                     {
                         setColumn(col);
 
-                        // Check and process type information 
+                        // Check and process type information
                         if (getResult().getTypeTable() == null)
                         {
                             getResult().setSchemaName(col.getOutput().getSchema().getName());
@@ -343,9 +343,9 @@ public class ExprNode extends TreeNode<ExprNode> {
 
                         addChild(path);
                     }
-                    else // Column not found 
+                    else // Column not found
                     {
-                        ; // ERROR: failed to resolve symbol 
+                        ; // ERROR: failed to resolve symbol
                     }
                 }
             }
@@ -368,7 +368,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 {
                     setColumn(col);
 
-                    // Check and process type information 
+                    // Check and process type information
                     if (getResult().getTypeTable() == null)
                     {
                         getResult().setSchemaName(col.getOutput().getSchema().getName());
@@ -381,9 +381,9 @@ public class ExprNode extends TreeNode<ExprNode> {
                         ; // ERROR: Output type of the column must be the same as this node result type
                     }
                 }
-                else // Column not found 
+                else // Column not found
                 {
-                    ; // ERROR: failed to resolve symbol 
+                    ; // ERROR: failed to resolve symbol
                 }
             }
             else // System procedure or operator (arithmetic, logical etc.)
@@ -434,7 +434,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 String targeTypeName = getResult().getTypeTable().getName();
 
                 // Copy result from the child expression and convert it to this node type
-                if (val instanceof String && Utils.isNullOrEmpty((String)val)) 
+                if (val instanceof String && Utils.isNullOrEmpty((String)val))
                 {
                     getResult().setValue(null);
                 }
@@ -524,7 +524,7 @@ public class ExprNode extends TreeNode<ExprNode> {
 
             if (getAction() == ActionType.READ)
             {
-            	/*
+                /*
                 if (this instanceof CsvExprNode) // It is easier to do it here rather than (correctly) in the extension
                 {
                     // Find current Row object
@@ -547,9 +547,9 @@ public class ExprNode extends TreeNode<ExprNode> {
                     Object output = input[attributeName];
                     getResult().setValue(output);
                 }
-                else 
+                else
                 */
-            	if (getColumn() != null) 
+                if (getColumn() != null)
                 {
                     ExprNode prevOutput = getChild(0);
                     int input = (int)prevOutput.getResult().getValue();
@@ -566,7 +566,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             {
             }
             //
-            // MUL, DIV, ADD, SUB, 
+            // MUL, DIV, ADD, SUB,
             //
             else if (getAction() == ActionType.MUL)
             {
@@ -685,34 +685,34 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
             else if (getAction() == ActionType.PROCEDURE)
             {
-            	Class<?>[] types = getMethod().getParameterTypes();
-            	
-            	Object thisObj = null;
-            	Object[] args = null;
+                Class<?>[] types = getMethod().getParameterTypes();
 
-				// Preparing parameters for the procedure
-            	if(Modifier.isStatic(getMethod().getModifiers())) {
-	            	args = new Object[childCount]; 
-	            	for(int i=0; i<childCount; i++) {
-	            		args[i] = ((ExprNode)children.get(i)).getResult().getValue();
-	            	}
-				}
-				else {
-	            	if(childCount > 0) thisObj = ((ExprNode)children.get(0)).getResult().getValue();
+                Object thisObj = null;
+                Object[] args = null;
 
-	            	args = new Object[childCount - 1]; 
-	            	for(int i=0; i<childCount-1; i++) {
-	            		args[i] = ((ExprNode)children.get(i+1)).getResult().getValue();
-	            	}
-				}
-				
-            	// Dynamic invocation
-				try {
-					objRes = getMethod().invoke(thisObj, args);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					e.printStackTrace();
-				}
-            	
+                // Preparing parameters for the procedure
+                if(Modifier.isStatic(getMethod().getModifiers())) {
+                    args = new Object[childCount];
+                    for(int i=0; i<childCount; i++) {
+                        args[i] = ((ExprNode)children.get(i)).getResult().getValue();
+                    }
+                }
+                else {
+                    if(childCount > 0) thisObj = ((ExprNode)children.get(0)).getResult().getValue();
+
+                    args = new Object[childCount - 1];
+                    for(int i=0; i<childCount-1; i++) {
+                        args[i] = ((ExprNode)children.get(i+1)).getResult().getValue();
+                    }
+                }
+
+                // Dynamic invocation
+                try {
+                    objRes = getMethod().invoke(thisObj, args);
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
                 getResult().setValue(objRes);
             }
             else // Some procedure. Find its API specification or retrieve via reflection
@@ -721,14 +721,14 @@ public class ExprNode extends TreeNode<ExprNode> {
         }
     }
 
-    
-    public static ExprNode createReader(DimPath path, boolean withThisVariable) 
+
+    public static ExprNode createReader(DimPath path, boolean withThisVariable)
     {
         ExprNode expr = null;
 
-        if(false) 
+        if(false)
         {
-        	
+
         }
         /*
         if (path.Input.Schema is SetTopCsv) // Access via column index
@@ -883,7 +883,7 @@ enum ActionType
 {
     // Variable or column or tuple
     READ, // Read accossor or getter. Read value from a variable/function or find a surrogate for a tuple. Normally used in method parameters.
-    WRITE, // Assignment, write accessor or setter. Write value to an existing variable/function (do nothing if it does not exist). Normally is used for assignment. 
+    WRITE, // Assignment, write accessor or setter. Write value to an existing variable/function (do nothing if it does not exist). Normally is used for assignment.
     UPDATE, // Update value by applying some operation. Normally is used for affecting directly a target rather than loading it, changing and then storing.
     APPEND, // Append a value if it does not exist and write it if does exist. The same as write except that a new element can be added
     INSERT, // The same as append except that a position is specified

@@ -19,7 +19,7 @@ package com.conceptoriented.dce;
 public class Mapping {
 
     public ExprNode BuildExpression(ActionType action) {
-    	throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO");
     }
-    
+
 }

@@ -30,10 +30,10 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
 
     //
     // Visitor interface
-    // 
-    
+    //
+
     @Override
-    public ExprNode visitExpr(ExprParser.ExprContext context) 
+    public ExprNode visitExpr(ExprParser.ExprContext context)
     {
         ExprNode n = new ExprNode();
 
@@ -116,12 +116,12 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         {
             n.setOperation(OperationType.CALL);
             n.setAction(ActionType.PROCEDURE);
-            
+
             String className = context.className.getText();
             n.setNameSpace(className); // Non-empty name space is an indication of a native method
 
-            String methodName = context.methodName.getText(); 
-            n.setName(methodName); 
+            String methodName = context.methodName.getText();
+            n.setName(methodName);
 
             int argCount = context.expr().size();
             for (int i = 0; i < argCount; i++)
@@ -182,7 +182,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
                 context.access().scope();
                 n.setName("lambda"); // Automatically generated name for a unnamed lambda
             }
-            
+
             // Find all parameters and store them in the access node
             int paramCount = context.access().param().size();
             for (int i = 0; i < paramCount; i++)
@@ -195,10 +195,10 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
             }
         }
 
-        return n; 
+        return n;
     }
 
-	@Override
+    @Override
     public ExprNode visitParam(ExprParser.ParamContext context)
     {
         ExprNode n = new ExprNode();
@@ -226,12 +226,12 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         return n;
     }
 
-	@Override
-    public ExprNode visitMember(ExprParser.MemberContext context) 
+    @Override
+    public ExprNode visitMember(ExprParser.MemberContext context)
     {
         // Determine declared (output, returned) type of the member
         String type;
-    	if (context.type().DELIMITED_ID() != null)
+        if (context.type().DELIMITED_ID() != null)
         {
             type = context.type().DELIMITED_ID().getText();
             type = type.substring(1, type.length() - 1); // Remove delimiters
@@ -271,11 +271,11 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         n.setOperation(OperationType.TUPLE);
         n.setAction(ActionType.READ);
 
-        return n; 
+        return n;
     }
 
-	@Override
-    public ExprNode visitName(ExprParser.NameContext context) 
+    @Override
+    public ExprNode visitName(ExprParser.NameContext context)
     {
         ExprNode n = new ExprNode();
         n.setOperation(OperationType.VALUE);

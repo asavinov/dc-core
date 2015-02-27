@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DimData<T extends Comparable<T>> implements ComColumnData {
 
-	protected ComColumn _dim;
+    protected ComColumn _dim;
 
     private T[] _cells; // Each cell contains a T value in arbitrary original order
     private int[] _offsets; // Each cell contains an offset to an element in cells in ascending or descending order
@@ -36,18 +36,18 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
     protected int allocatedSize; // How many elements (maximum) fit into the allocated memory
 
     protected boolean _autoindex = true ;// If true then index will be automatically maintained. If false then indexing has to be done manually.
-    
-	//
-	// ComColumnData interface
-	//
 
-	protected int _length;
+    //
+    // ComColumnData interface
+    //
+
+    protected int _length;
     @Override
-	public int getLength() {
-		return _length;
-	}
-	@Override
-	public void setLength(int value) {
+    public int getLength() {
+        return _length;
+    }
+    @Override
+    public void setLength(int value) {
         if (value == _length) return;
 
         // Ensure that there is enough memory
@@ -61,7 +61,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         // Update data and index in the case of increase (append to last) and decrease (delete last)
         if (value > _length)
         {
-            while (value > _length) append(null); 
+            while (value > _length) append(null);
             // OPTIMIZE: Instead of appending individual values, write a method for appending an interval of offset (with default value)
         }
         else if (value < _length)
@@ -69,24 +69,24 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
             while (value < _length) remove(_length - 1);
             // OPTIMIZE: remove last elements directly
         }
-	}
+    }
 
-	@Override
-	public boolean isNull(int input) {
+    @Override
+    public boolean isNull(int input) {
         // For non-nullable storage, use the index to find if this cell is in the null interval of the index (beginning)
         int pos = FindIndex(input);
         return pos < _nullCount;
         // For nullable storage: simply check the value (actually this method is not needed for nullable storage because the user can compare the values returned from GetValue)
         // return EqualityComparer<T>.Default.Equals(_nullValue, _cells[offset]);
-	}
+    }
 
-	@Override
-	public Object getValue(int input) {
-		return _cells[input];
-	}
+    @Override
+    public Object getValue(int input) {
+        return _cells[input];
+    }
 
-	@Override
-	public void setValue(int input, Object value) {
+    @Override
+    public void setValue(int input, Object value) {
         T val = null;
         int oldPos = FindIndex(input); // Old sorted position of the cell we are going to change
         int[] interval;
@@ -113,19 +113,19 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
         if (pos > oldPos)
         {
-        	System.arraycopy(_offsets, oldPos + 1, _offsets, oldPos, (pos - 1) - oldPos); // Shift backward by overwriting old
+            System.arraycopy(_offsets, oldPos + 1, _offsets, oldPos, (pos - 1) - oldPos); // Shift backward by overwriting old
             _offsets[pos - 1] = input;
         }
         else if (pos < oldPos)
         {
-        	System.arraycopy(_offsets, pos, _offsets, pos + 1, oldPos - pos); // Shift forward by overwriting old pos
+            System.arraycopy(_offsets, pos, _offsets, pos + 1, oldPos - pos); // Shift forward by overwriting old pos
             _offsets[pos] = input;
         }
 
         _cells[input] = val;
-	}
-	@Override
-	public void setValue(Object value) {
+    }
+    @Override
+    public void setValue(Object value) {
         if (value == null)
         {
             nullify();
@@ -140,15 +140,15 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         }
 
         _nullCount = 0;
-	}
+    }
 
-	@Override
+    @Override
     public void nullify() // Reset values and index to initial state (all nulls)
     {
         throw new UnsupportedOperationException();
     }
 
-	@Override
+    @Override
     public void append(Object value)
     {
         // Ensure that there is enough memory
@@ -178,25 +178,25 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
         pos = interval[1]; // New value has the largest offset and hence is inserted after the end of the interval of values
 
-    	System.arraycopy(_offsets, pos, _offsets, pos + 1, _length - pos); // Free an index element by shifting other elements forward
+        System.arraycopy(_offsets, pos, _offsets, pos + 1, _length - pos); // Free an index element by shifting other elements forward
 
         _cells[_length] = val;
         _offsets[pos] = _length;
         _length = _length + 1;
     }
 
-	@Override
+    @Override
     public void insert(int input, Object value)
     {
         throw new UnsupportedOperationException();
     }
 
-	@Override
+    @Override
     public void remove(int input)
     {
         int pos = FindIndex(input);
 
-    	System.arraycopy(_offsets, pos + 1, _offsets, pos, _length - pos - 1); // Remove this index element by shifting all next elements backward
+        System.arraycopy(_offsets, pos + 1, _offsets, pos, _length - pos - 1); // Remove this index element by shifting all next elements backward
 
         // If it was null value then decrease also their count
         if (pos < _nullCount)
@@ -208,12 +208,12 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
     }
 
     @Override
-    public Object project(int[] offsets) { 
+    public Object project(int[] offsets) {
         throw new UnsupportedOperationException();
-	}
+    }
 
     @Override
-    public int[] deproject(Object value) { 
+    public int[] deproject(Object value) {
         if (value == null || !value.getClass().isArray())
         {
             return deprojectValue((T)toThisType(value));
@@ -222,24 +222,24 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         {
             return deproject((T[])value);
         }
-	} 
+    }
 
     //
-	// Index methods
-	//
+    // Index methods
+    //
 
     private int FindIndex(int offset) // Find an index for an offset of a cell (rather than a value in this cell)
     {
         // A value can be stored at many different offsets while one offset has always one index and therefore a single valueis returned rather than an interval.
 
         // First, we try to find it in the null interval
-    	
-    	int pos = java.util.Arrays.binarySearch(_offsets, 0, _nullCount, offset);
+
+        int pos = java.util.Arrays.binarySearch(_offsets, 0, _nullCount, offset);
         if (pos >= 0 && pos < _nullCount) return pos; // It is null
-        
+
         // Second, try to find it as a value (find the value area and then find the offset in the value interval)
         int[] indexes = FindIndexes(_cells[offset]);
-    	pos = java.util.Arrays.binarySearch(_offsets, indexes[0], indexes[1], offset);
+        pos = java.util.Arrays.binarySearch(_offsets, indexes[0], indexes[1], offset);
         if (pos >= indexes[0] && pos < indexes[1]) return pos;
 
         return -1; // Not found (error - all valid offset must be present in the index)
@@ -251,7 +251,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         // min is inclusive and max is exclusive
         // min<max - the value is found between [min,max)
         // min=max - the value is not found, min=max is the position where it has to be inserted
-        // min=length - the value has to be appended (and is not found, so min=max) 
+        // min=length - the value has to be appended (and is not found, so min=max)
 
         // Alternative: Array.BinarySearch<T>(mynumbers, value) or  BinarySearch<T>(T[], Int32, Int32, T) - search in range
         // Comparer<T> comparer = Comparer<T>.Default;
@@ -289,7 +289,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         // Optimization: such search is not efficient - it is simple scan. One option would be use binary serach within interval [first, mid] and [mid, last]
         for (first = mid; first >= _nullCount && value.equals(_cells[_offsets[first]]); first--)
             ;
-        for (last = mid; last < _length && value.equals(_cells[_offsets[last]]); last++) 
+        for (last = mid; last < _length && value.equals(_cells[_offsets[last]]); last++)
             ;
 
         return new int[] { first+1, last };
@@ -327,26 +327,26 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
 
     protected int[] deproject(T[] values)
     {
-    	throw new UnsupportedOperationException("TODO");
-    }
-    
-    protected Object toThisType(Object value)
-    {
-    	if(_dim == null || _dim.getOutput() == null) return value;
-    	
-    	String type = _dim.getOutput().getName();
-    	switch(type) {
-    	case "Integer" : return Utils.toInt32(value);
-    	case "Double" : return Utils.toDouble(value);
-    	case "Decimal" : return Utils.toDecimal(value);
-    	case "String" : return value.toString();
-    	case "Boolean" : return Utils.toBoolean(value);
-    	case "DateTime" : return Utils.toDateTime(value);
-    	default: return value;
-    	}
+        throw new UnsupportedOperationException("TODO");
     }
 
-	public DimData(ComColumn dim) {
+    protected Object toThisType(Object value)
+    {
+        if(_dim == null || _dim.getOutput() == null) return value;
+
+        String type = _dim.getOutput().getName();
+        switch(type) {
+        case "Integer" : return Utils.toInt32(value);
+        case "Double" : return Utils.toDouble(value);
+        case "Decimal" : return Utils.toDecimal(value);
+        case "String" : return value.toString();
+        case "Boolean" : return Utils.toBoolean(value);
+        case "DateTime" : return Utils.toDateTime(value);
+        default: return value;
+        }
+    }
+
+    public DimData(ComColumn dim) {
         // TODO: Check if output (greater) set is of correct type
 
         _dim = dim;
@@ -354,7 +354,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         _length = 0;
         allocatedSize = initialSize;
         _cells = (T[]) new Comparable[allocatedSize];
-        // _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize); // DOES NOT WORK because we do not know generic type at run-time: 
+        // _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize); // DOES NOT WORK because we do not know generic type at run-time:
         _offsets = new int[allocatedSize];
 
         _nullCount = _length;
@@ -364,7 +364,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         // Initialize what representative value will be used instead of nulls
         _nullValue = null;
         // JavaNote: Java does not have primitive generics (we have only object references) and also does not store generic info at run-time
-	}
+    }
 }
 
 class DimEmpty implements ComColumnData
@@ -407,108 +407,108 @@ class DimEmpty implements ComColumnData
     public Object project(int[] offsets) { return null; }
 
     @Override
-    public int[] deproject(Object value) { return null; } // Or empty array 
+    public int[] deproject(Object value) { return null; } // Or empty array
 }
 
-class ColumnDefinition implements ComColumnDefinition 
+class ColumnDefinition implements ComColumnDefinition
 {
-	protected ComColumn _dim;
+    protected ComColumn _dim;
 
-	//
+    //
     // ComColumnDefinition interface
-	//
+    //
 
-	protected boolean _appendData;
-	public boolean isAppendData() { return _appendData; }
-	public void setAppendData(boolean value) { _appendData = value; }
+    protected boolean _appendData;
+    public boolean isAppendData() { return _appendData; }
+    public void setAppendData(boolean value) { _appendData = value; }
 
-	protected boolean _appendSchema;
-	public boolean isAppendSchema() { return _appendSchema; }
-	public void setAppendSchema(boolean value) { _appendSchema = value; }
+    protected boolean _appendSchema;
+    public boolean isAppendSchema() { return _appendSchema; }
+    public void setAppendSchema(boolean value) { _appendSchema = value; }
 
-	protected ColumnDefinitionType _definitionType;
-	@Override
+    protected ColumnDefinitionType _definitionType;
+    @Override
     public ColumnDefinitionType getDefinitionType() { return _definitionType; }
-	@Override
-	public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
+    @Override
+    public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
 
     //
     // COEL (language) representation
     //
 
-	protected String _formula;
-	@Override
+    protected String _formula;
+    @Override
     public String getFormula() { return _formula; }
-	@Override
-	public void setFormula(String value) 
-	{ 
-		_formula = value; 
+    @Override
+    public void setFormula(String value)
+    {
+        _formula = value;
 
-		ExprBuilder exprBuilder = new ExprBuilder();
-		ExprNode expr = exprBuilder.build(_formula);
-		setFormulaExpr(expr);
-	}
-	
+        ExprBuilder exprBuilder = new ExprBuilder();
+        ExprNode expr = exprBuilder.build(_formula);
+        setFormulaExpr(expr);
+    }
+
     //
     // Structured (object) representation
     //
-	
-	protected ExprNode _formulaExpr;
-	@Override
-	public ExprNode getFormulaExpr() { return _formulaExpr; }
-	@Override
-	public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
+
+    protected ExprNode _formulaExpr;
+    @Override
+    public ExprNode getFormulaExpr() { return _formulaExpr; }
+    @Override
+    public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
 
     protected Mapping _mapping;
-	@Override
-	public Mapping getMapping() { return _mapping; }
-	@Override
-	public void setMapping(Mapping value) { _mapping = value; }
+    @Override
+    public Mapping getMapping() { return _mapping; }
+    @Override
+    public void setMapping(Mapping value) { _mapping = value; }
 
     protected ExprNode _whereExpr;
-	@Override
-	public ExprNode getWhereExpr() { return _whereExpr; }
-	@Override
-	public void setWhereExpr(ExprNode value) { _whereExpr = value; }
+    @Override
+    public ExprNode getWhereExpr() { return _whereExpr; }
+    @Override
+    public void setWhereExpr(ExprNode value) { _whereExpr = value; }
 
     //
     // Aggregation
     //
 
     protected ComTable _factTable;
-	@Override
-	public ComTable getFactTable() { return _factTable; } 
-	@Override
-	public void setFactTable(ComTable value) { _factTable = value; } 
+    @Override
+    public ComTable getFactTable() { return _factTable; }
+    @Override
+    public void setFactTable(ComTable value) { _factTable = value; }
 
-	protected List<DimPath> _groupPaths;
-	@Override
+    protected List<DimPath> _groupPaths;
+    @Override
     public List<DimPath> getGroupPaths() { return _groupPaths; }
-	@Override
+    @Override
     public void setGroupPaths(List<DimPath> value) { _groupPaths = value; }
 
     protected List<DimPath> _measurePaths;
-	@Override
+    @Override
     public List<DimPath> getMeasurePaths() { return _measurePaths; }
-	@Override
+    @Override
     public void setMeasurePaths(List<DimPath> value) { _measurePaths = value; }
 
-	protected String _updater;
-	@Override
+    protected String _updater;
+    @Override
     public String getUpdater() { return _updater; }
-	@Override
+    @Override
     public void setUpdater(String value) { _updater = value; }
 
     //
     // Compute
     //
 
-	// Get an object which is used to compute the function values according to the formula
-	protected ComEvaluator getEvaluator()
+    // Get an object which is used to compute the function values according to the formula
+    protected ComEvaluator getEvaluator()
     {
         ComEvaluator evaluator = null;
 
-        if (getDefinitionType() == ColumnDefinitionType.FREE) 
+        if (getDefinitionType() == ColumnDefinitionType.FREE)
         {
             ; // Nothing to do
         }
@@ -526,40 +526,40 @@ class ColumnDefinition implements ComColumnDefinition
         }
         else
         {
-        	throw new UnsupportedOperationException("This type of column definition is not implemented.");
+            throw new UnsupportedOperationException("This type of column definition is not implemented.");
         }
 
         return evaluator;
     }
 
-	private void evaluateBegin() 
-	{ 
-	}
+    private void evaluateBegin()
+    {
+    }
 
-	@Override
+    @Override
     public void evaluate()
     {
         ComEvaluator evaluator = getEvaluator();
         if (evaluator == null) return;
 
-		try {
-			evaluateBegin();
-			
-			while (evaluator.next())
-	        {
-	            evaluator.evaluate();
-	        }
-		} catch (Exception e) {
-			throw e;
-		}
-		finally {
-			evaluateEnd();
-		}
-        
+        try {
+            evaluateBegin();
+
+            while (evaluator.next())
+            {
+                evaluator.evaluate();
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        finally {
+            evaluateEnd();
+        }
+
     }
 
-    protected void evaluateEnd() 
-    { 
+    protected void evaluateEnd()
+    {
     }
 
     //
@@ -568,26 +568,26 @@ class ColumnDefinition implements ComColumnDefinition
 
     public List<Dim> dependencies;
 
-	@Override
+    @Override
     public List<ComTable> usesTables(boolean recursive) // This element depends upon
     {
-    	throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO");
     }
-	@Override
+    @Override
     public List<ComTable> isUsedInTables(boolean recursive) // Dependants
     {
-    	throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO");
     }
 
-	@Override
+    @Override
     public List<ComColumn> usesColumns(boolean recursive) // This element depends upon
     {
-    	throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO");
     }
-	@Override
+    @Override
     public List<ComColumn> isUsedInColumns(boolean recursive) // Dependants
     {
-    	throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("TODO");
     }
 
     public ColumnDefinition(ComColumn dim)
@@ -596,7 +596,7 @@ class ColumnDefinition implements ComColumnDefinition
 
         _appendData = false;
         _definitionType = ColumnDefinitionType.FREE;
-        
+
         _groupPaths = new ArrayList<DimPath>();
         _measurePaths = new ArrayList<DimPath>();
 

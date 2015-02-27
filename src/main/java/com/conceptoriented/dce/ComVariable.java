@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,22 +71,22 @@ class Variable implements ComVariable
     //
 
     protected String _name;
-	@Override
+    @Override
     public String getName() { return _name; }
-	@Override
+    @Override
     public void getName(String name) { _name = name; }
 
 
     protected String _schemaName;
-	@Override
+    @Override
     public String getSchemaName() { return _schemaName; }
-	@Override
+    @Override
     public void setSchemaName(String value) { _schemaName = value; }
 
     protected String _typeName;
-	@Override
+    @Override
     public String getTypeName() { return _typeName; }
-	@Override
+    @Override
     public void setTypeName(String value) { _typeName = value; }
 
 
@@ -105,7 +105,7 @@ class Variable implements ComVariable
         }
         else if (!Strings.isNullOrEmpty(getTypeName())) // No schema name (imcomplete info)
         {
-            // 1. try to find the table in the mashup 
+            // 1. try to find the table in the mashup
             if (workspace.mashup != null)
             {
                 setTypeTable(workspace.mashup.getSubTable(getTypeName()));
@@ -129,30 +129,30 @@ class Variable implements ComVariable
                 }
             }
         }
-    	
+
     }
-	
-	protected ComSchema _typeSchema;
-	@Override
+
+    protected ComSchema _typeSchema;
+    @Override
     public ComSchema getTypeSchema() { return _typeSchema; }
-	@Override
+    @Override
     public void setTypeSchema(ComSchema value) { _typeSchema = value; }
 
-	protected ComTable _typeTable;
-	@Override
+    protected ComTable _typeTable;
+    @Override
     public ComTable getTypeTable() { return _typeTable; }
-	@Override
+    @Override
     public void setTypeTable(ComTable value) { _typeTable = value; }
 
-	@Override
+    @Override
     public boolean isNull() { return _isNull; }
 
-	@Override
+    @Override
     public Object getValue() {
         return _isNull ? null : _value;
     }
 
-	@Override
+    @Override
     public void setValue(Object value) {
         if (value == null)
         {
@@ -166,7 +166,7 @@ class Variable implements ComVariable
         }
     }
 
-	@Override
+    @Override
     public void nullify()
     {
         _isNull = true;
