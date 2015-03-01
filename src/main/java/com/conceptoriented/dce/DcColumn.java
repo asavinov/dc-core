@@ -16,7 +16,6 @@
 
 package com.conceptoriented.dce;
 
-import java.util.List;
 
 /**
  * Describes one column.
@@ -57,115 +56,6 @@ public interface DcColumn {
     //
     public DcColumnData getData();
     public DcColumnDefinition getDefinition();
-
-}
-
-/**
- * Storage methods for working with function data like reading and writing function output values for the specified inputs.
- *
- * @author savinov
- *
- */
-interface DcColumnData {
-
-    public int getLength();
-    public void setLength(int length);
-
-    //
-    // Untyped methods. Default conversion will be done according to the function type.
-    //
-    public boolean isNull(int input);
-
-    public Object getValue(int input);
-    public void setValue(int input, Object value);
-    public void setValue(Object value);
-
-    public void nullify();
-
-    public void append(Object value);
-
-    public void insert(int input, Object value);
-
-    public void remove(int input);
-
-    //
-    // Project/de-project
-    //
-
-    Object project(int[] offsets);
-    int[] deproject(Object value);
-
-}
-
-/**
- * Describes and computes one function in terms of other functions.
- *
- * @author savinov
- *
- */
-interface DcColumnDefinition {
-
-    public boolean isAppendData();
-    public void setAppendData(boolean value);
-
-    public boolean isAppendSchema();
-    public void setAppendSchema(boolean value);
-
-    public ColumnDefinitionType getDefinitionType();
-    public void setDefinitionType(ColumnDefinitionType columnDefinitionType);
-
-    //
-    // COEL (language) representation
-    //
-
-    public String getFormula();
-    public void setFormula(String formula);
-
-    //
-    // Structured (object) representation
-    //
-
-    public ExprNode getFormulaExpr();
-    public void setFormulaExpr(ExprNode exprNode);
-
-    public Mapping getMapping();
-    public void setMapping(Mapping mapping);
-
-    public ExprNode getWhereExpr();
-    public void setWhereExpr(ExprNode exprNode);
-
-    //
-    // Aggregation
-    //
-
-    public DcTable getFactTable();
-    public void setFactTable(DcTable table);
-
-    public List<DimPath> getGroupPaths();
-    public void setGroupPaths(List<DimPath> groupPaths);
-
-    public List<DimPath> getMeasurePaths();
-    public void setMeasurePaths(List<DimPath> measurePaths);
-
-    public String getUpdater();
-    public void setUpdater(String updater);
-
-
-    //
-    // Compute
-    //
-
-    public void evaluate();
-
-    //
-    // Dependencies. The order is important and corresponds to dependency chain
-    //
-
-    List<DcTable> usesTables(boolean recursive); // This element depends upon
-    List<DcTable> isUsedInTables(boolean recursive); // Dependants
-
-    List<DcColumn> usesColumns(boolean recursive); // This element depends upon
-    List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 
 }
 
