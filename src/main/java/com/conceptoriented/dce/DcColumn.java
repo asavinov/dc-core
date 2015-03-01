@@ -24,7 +24,7 @@ import java.util.List;
  * @author savinov
  *
  */
-public interface ComColumn {
+public interface DcColumn {
 
     public String getName();
     public void setName(String name);
@@ -43,11 +43,11 @@ public interface ComColumn {
     //
     // Input and output
     //
-    public ComTable getInput();
-    public void setInput(ComTable input);
+    public DcTable getInput();
+    public void setInput(DcTable input);
 
-    public ComTable getOutput();
-    public void setOutput(ComTable output);
+    public DcTable getOutput();
+    public void setOutput(DcTable output);
 
     public void add();
     public void remove();
@@ -55,8 +55,8 @@ public interface ComColumn {
     //
     // Data and definition objects
     //
-    public ComColumnData getData();
-    public ComColumnDefinition getDefinition();
+    public DcColumnData getData();
+    public DcColumnDefinition getDefinition();
 
 }
 
@@ -66,7 +66,7 @@ public interface ComColumn {
  * @author savinov
  *
  */
-interface ComColumnData {
+interface DcColumnData {
 
     public int getLength();
     public void setLength(int length);
@@ -103,7 +103,7 @@ interface ComColumnData {
  * @author savinov
  *
  */
-interface ComColumnDefinition {
+interface DcColumnDefinition {
 
     public boolean isAppendData();
     public void setAppendData(boolean value);
@@ -138,8 +138,8 @@ interface ComColumnDefinition {
     // Aggregation
     //
 
-    public ComTable getFactTable();
-    public void setFactTable(ComTable table);
+    public DcTable getFactTable();
+    public void setFactTable(DcTable table);
 
     public List<DimPath> getGroupPaths();
     public void setGroupPaths(List<DimPath> groupPaths);
@@ -161,11 +161,11 @@ interface ComColumnDefinition {
     // Dependencies. The order is important and corresponds to dependency chain
     //
 
-    List<ComTable> usesTables(boolean recursive); // This element depends upon
-    List<ComTable> isUsedInTables(boolean recursive); // Dependants
+    List<DcTable> usesTables(boolean recursive); // This element depends upon
+    List<DcTable> isUsedInTables(boolean recursive); // Dependants
 
-    List<ComColumn> usesColumns(boolean recursive); // This element depends upon
-    List<ComColumn> isUsedInColumns(boolean recursive); // Dependants
+    List<DcColumn> usesColumns(boolean recursive); // This element depends upon
+    List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 
 }
 

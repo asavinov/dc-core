@@ -16,7 +16,7 @@
 
 package com.conceptoriented.dce;
 
-interface ComEvaluator {
+interface DcIterator {
     public Workspace getWorkspace();
     public void setWorkspace(Workspace workspace);
 

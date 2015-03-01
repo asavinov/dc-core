@@ -21,11 +21,11 @@ import java.util.List;
 
 public class DimPath extends Dim {
 
-    protected List<ComColumn> segments;
-    public List<ComColumn> getSegments() {
+    protected List<DcColumn> segments;
+    public List<DcColumn> getSegments() {
         return segments;
     }
-    public void setSegments(List<ComColumn> segments) {
+    public void setSegments(List<DcColumn> segments) {
         this.segments = segments;
     }
 
@@ -35,10 +35,10 @@ public class DimPath extends Dim {
 
 
     public DimPath() {
-        segments = new ArrayList<ComColumn>();
+        segments = new ArrayList<DcColumn>();
     }
 
-    public DimPath(ComTable set) {
+    public DimPath(DcTable set) {
         this();
         setInput(set);
         setOutput(set);
@@ -46,10 +46,10 @@ public class DimPath extends Dim {
 
     public DimPath(String name) {
         super(name);
-        segments = new ArrayList<ComColumn>();
+        segments = new ArrayList<DcColumn>();
     }
 
-    public DimPath(ComColumn seg) {
+    public DimPath(DcColumn seg) {
         this();
 
         if (seg == null) return;
@@ -59,7 +59,7 @@ public class DimPath extends Dim {
         setOutput(segments.get(segments.size() - 1).getOutput());
     }
 
-    public DimPath(List<ComColumn> segs) {
+    public DimPath(List<DcColumn> segs) {
         this();
 
         if(segs == null || segs.size() == 0) return;
@@ -71,13 +71,13 @@ public class DimPath extends Dim {
 
     public DimPath(DimPath path) {
         super(path);
-        segments = new ArrayList<ComColumn>();
+        segments = new ArrayList<DcColumn>();
         segments.addAll(path.getSegments());
     }
 
-    public DimPath(String name, ComTable input, ComTable output) {
+    public DimPath(String name, DcTable input, DcTable output) {
         super(name, input, output);
-        segments = new ArrayList<ComColumn>();
+        segments = new ArrayList<DcColumn>();
     }
 
 }

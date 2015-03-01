@@ -24,7 +24,7 @@ import java.util.List;
  * @author savinov
  *
  */
-public interface ComTable {
+public interface DcTable {
 
     public String getName();
     public void setName(String name);
@@ -34,39 +34,39 @@ public interface ComTable {
     //
     // Outputs
     //
-    public List<ComColumn> getColumns();
+    public List<DcColumn> getColumns();
 
-    public ComColumn getSuperColumn();
-    public ComTable getSuperTable();
-    public ComSchema getSchema();
+    public DcColumn getSuperColumn();
+    public DcTable getSuperTable();
+    public DcSchema getSchema();
 
     //
     // Inputs
     //
-    public List<ComColumn> getInputColumns();
+    public List<DcColumn> getInputColumns();
 
-    public List<ComColumn> getSubColumns();
-    public List<ComTable> getSubTables();
-    public List<ComTable> getAllSubTables();
+    public List<DcColumn> getSubColumns();
+    public List<DcTable> getSubTables();
+    public List<DcTable> getAllSubTables();
 
     //
     // Poset relation
     //
 
-    boolean isSubTable(ComTable parent); // Is subset of the specified table
-    boolean isInput(ComTable set); // Is lesser than the specified table
+    boolean isSubTable(DcTable parent); // Is subset of the specified table
+    boolean isInput(DcTable set); // Is lesser than the specified table
     boolean isLeast(); // Has no inputs
     boolean isGreatest(); // Has no outputs
 
     //
     // Names
     //
-    ComColumn getColumn(String name); // Greater column
-    ComTable getTable(String name); // TODO: Greater table/type - not subtable
-    ComTable getSubTable(String name); // Subtable
+    DcColumn getColumn(String name); // Greater column
+    DcTable getTable(String name); // TODO: Greater table/type - not subtable
+    DcTable getSubTable(String name); // Subtable
 
-    public ComTableData getData();
-    public ComTableDefinition getDefinition();
+    public DcTableData getData();
+    public DcTableDefinition getDefinition();
 }
 
 /**
@@ -75,7 +75,7 @@ public interface ComTable {
  * @author savinov
  *
  */
-interface ComTableData {
+interface DcTableData {
 
     public int getLength();
     public void setLength(int length);
@@ -91,8 +91,8 @@ interface ComTableData {
     // Tuple (flat record) methods: append, insert, remove, read, write.
     //
 
-    int find(ComColumn[] dims, Object[] values);
-    int append(ComColumn[] dims, Object[] values);
+    int find(DcColumn[] dims, Object[] values);
+    int append(DcColumn[] dims, Object[] values);
     void remove(int input);
 
     //
@@ -110,7 +110,7 @@ interface ComTableData {
  * @author savinov
  *
  */
-interface ComTableDefinition
+interface DcTableDefinition
 {
     TableDefinitionType getDefinitionType();
     void setDefinitionType(TableDefinitionType value);
@@ -121,7 +121,7 @@ interface ComTableDefinition
     ExprNode getOrderbyExp();
     void setOrderbyExp(ExprNode value);
 
-    ComEvaluator getWhereEvaluator();
+    DcIterator getWhereEvaluator();
 
     void populate();
 
@@ -130,11 +130,11 @@ interface ComTableDefinition
     //
     // Dependencies. The order is important and corresponds to dependency chain
     //
-    List<ComTable> usesTables(boolean recursive); // This element depends upon
-    List<ComTable> isUsedInTables(boolean recursive); // Dependants
+    List<DcTable> usesTables(boolean recursive); // This element depends upon
+    List<DcTable> isUsedInTables(boolean recursive); // Dependants
 
-    List<ComColumn> usesColumns(boolean recursive); // This element depends upon
-    List<ComColumn> isUsedInColumns(boolean recursive); // Dependants
+    List<DcColumn> usesColumns(boolean recursive); // This element depends upon
+    List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 }
 
 enum TableDefinitionType // Specific types of table formula
@@ -142,6 +142,6 @@ enum TableDefinitionType // Specific types of table formula
     FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
     ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
     PROJECTION, // Table gets its elements from (unique) outputs of some function
-    PRODUCT, // Table contains all combinations of its greater (key) sets satsifying the constraints
+    PRODUCT, // Table contains all combinations of its greater (key) sets satisfying the constraints
     FILTER, // Tables contains a subset of elements from its super-set
 }

@@ -16,29 +16,29 @@
 
 package com.conceptoriented.dce;
 
-public interface ComSchema extends ComTable {
+public interface DcSchema extends DcTable {
 
     public Workspace getWorkspace();
     public void setWorkspace(Workspace workspace);
 
-    public ComTable getPrimitive(String dataType);
-    public ComTable getRoot();
+    public DcTable getPrimitive(String dataType);
+    public DcTable getRoot();
 
     // Table factory
 
-    public ComTable createTable(String name);
-    public ComTable addTable(ComTable table, ComTable parent, String superName);
-    public void deleteTable(ComTable table);
-    public void renameTable(ComTable table, String newName);
+    public DcTable createTable(String name);
+    public DcTable addTable(DcTable table, DcTable parent, String superName);
+    public void deleteTable(DcTable table);
+    public void renameTable(DcTable table, String newName);
 
     // Column factory
 
-    public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey);
-    public void deleteColumn(ComColumn column);
-    public void renameColumn(ComColumn column, String newName);
+    public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey);
+    public void deleteColumn(DcColumn column);
+    public void renameColumn(DcColumn column, String newName);
 }
 
-enum ComDataType
+enum DcDataType
 {
     // Built-in types in C#: http://msdn.microsoft.com/en-us/library/vstudio/ya5y69ds.aspx
     Void, // Null, Nothing, Empty no value. Can be equivalent to Top.

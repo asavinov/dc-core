@@ -19,7 +19,7 @@ package com.conceptoriented.dce;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public class Dim implements ComColumn {
+public class Dim implements DcColumn {
 
     //
     // ComColumn interface
@@ -59,24 +59,24 @@ public class Dim implements ComColumn {
         return _output == null ? false : _output.isPrimitive();
     }
 
-    protected ComTable _input;
+    protected DcTable _input;
     @Override
-    public ComTable getInput() {
+    public DcTable getInput() {
         return _input;
     }
     @Override
-    public void setInput(ComTable value) {
+    public void setInput(DcTable value) {
         if (_input == value) return;
         _input = value;
     }
 
-    protected ComTable _output;
+    protected DcTable _output;
     @Override
-    public ComTable getOutput() {
+    public DcTable getOutput() {
         return _output;
     }
     @Override
-    public void setOutput(ComTable value) {
+    public void setOutput(DcTable value) {
         if (_output == value) return;
         _output = value;
         _data = CreateColumnData(_output, this);
@@ -106,21 +106,21 @@ public class Dim implements ComColumn {
         if (_input != null) _input.getColumns().remove(this);
     }
 
-    protected ComColumnData _data;
+    protected DcColumnData _data;
     @Override
-    public ComColumnData getData() {
+    public DcColumnData getData() {
         return _data;
     }
 
-    protected ComColumnDefinition _definition;
+    protected DcColumnDefinition _definition;
     @Override
-    public ComColumnDefinition getDefinition() {
+    public DcColumnDefinition getDefinition() {
         return _definition;
     }
 
-    public static ComColumnData CreateColumnData(ComTable type, ComColumn column)
+    public static DcColumnData CreateColumnData(DcTable type, DcColumn column)
     {
-        ComColumnData colData = new DimEmpty();
+        DcColumnData colData = new DimEmpty();
 
 
         if (type == null || Utils.isNullOrEmpty(type.getName()))
@@ -223,7 +223,7 @@ public class Dim implements ComColumn {
         // TODO: Copy definition
     }
 
-    public Dim(ComTable set) { // Empty dimension
+    public Dim(DcTable set) { // Empty dimension
         this("", set, set);
     }
 
@@ -235,11 +235,11 @@ public class Dim implements ComColumn {
         this(name, null, null);
     }
 
-    public Dim(String name, ComTable input, ComTable output) {
+    public Dim(String name, DcTable input, DcTable output) {
         this(name, input, output, false, false);
     }
 
-    public Dim(String name, ComTable input, ComTable output, boolean isKey, boolean isSuper) {
+    public Dim(String name, DcTable input, DcTable output, boolean isKey, boolean isSuper) {
         this._name = name;
 
         this._key = isKey;

@@ -18,7 +18,7 @@ package com.conceptoriented.dce;
 
 import com.google.common.base.Strings;
 
-public interface ComVariable {
+public interface DcVariable {
 
     //
     // Variable name (strictly speaking, it should belong to a different interface)
@@ -38,11 +38,11 @@ public interface ComVariable {
 
     public void resolve(Workspace workspace);
 
-    public ComSchema getTypeSchema();
-    public void setTypeSchema(ComSchema typeSchema);
+    public DcSchema getTypeSchema();
+    public void setTypeSchema(DcSchema typeSchema);
 
-    public ComTable getTypeTable();
-    public void setTypeTable(ComTable typeTable);
+    public DcTable getTypeTable();
+    public void setTypeTable(DcTable typeTable);
 
     //
     // Variable data. Analogous to the column data interface but without input argument
@@ -60,7 +60,7 @@ public interface ComVariable {
     //
 }
 
-class Variable implements ComVariable
+class Variable implements DcVariable
 {
     protected boolean _isNull;
     Object _value;
@@ -118,7 +118,7 @@ class Variable implements ComVariable
             }
 
             // 2. try to find the table in any other schema
-            for (ComSchema schema : workspace.schemas)
+            for (DcSchema schema : workspace.schemas)
             {
                 setTypeTable(schema.getSubTable(getTypeName()));
                 if (getTypeTable() != null)
@@ -132,17 +132,17 @@ class Variable implements ComVariable
 
     }
 
-    protected ComSchema _typeSchema;
+    protected DcSchema _typeSchema;
     @Override
-    public ComSchema getTypeSchema() { return _typeSchema; }
+    public DcSchema getTypeSchema() { return _typeSchema; }
     @Override
-    public void setTypeSchema(ComSchema value) { _typeSchema = value; }
+    public void setTypeSchema(DcSchema value) { _typeSchema = value; }
 
-    protected ComTable _typeTable;
+    protected DcTable _typeTable;
     @Override
-    public ComTable getTypeTable() { return _typeTable; }
+    public DcTable getTypeTable() { return _typeTable; }
     @Override
-    public void setTypeTable(ComTable value) { _typeTable = value; }
+    public void setTypeTable(DcTable value) { _typeTable = value; }
 
     @Override
     public boolean isNull() { return _isNull; }
@@ -183,7 +183,7 @@ class Variable implements ComVariable
         _value = null;
     }
 
-    public Variable(ComTable type, String name)
+    public Variable(DcTable type, String name)
     {
         _schemaName = type.getSchema().getName();
         _typeName = type.getName();

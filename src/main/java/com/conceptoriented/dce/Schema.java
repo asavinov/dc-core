@@ -29,7 +29,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.google.common.io.Files;
 
-public class Schema extends Set implements ComSchema {
+public class Schema extends Set implements DcSchema {
 
     //
     // ComSchema interface
@@ -46,26 +46,26 @@ public class Schema extends Set implements ComSchema {
     }
 
     @Override
-    public ComTable getPrimitive(String dataType) {
-        Optional<ComColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
+    public DcTable getPrimitive(String dataType) {
+        Optional<DcColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
         return col.isPresent() ? col.get().getInput() : null;
     }
 
     @Override
-    public ComTable getRoot() {
+    public DcTable getRoot() {
         return getPrimitive("Root");
     }
 
     // Table factory
 
     @Override
-    public ComTable createTable(String name) {
-        ComTable table = new Set(name);
+    public DcTable createTable(String name) {
+        DcTable table = new Set(name);
         return table;
     }
 
     @Override
-    public ComTable addTable(ComTable table, ComTable parent, String superName) {
+    public DcTable addTable(DcTable table, DcTable parent, String superName) {
         if (parent == null)
         {
             parent = getRoot();
@@ -83,22 +83,22 @@ public class Schema extends Set implements ComSchema {
     }
 
     @Override
-    public void deleteTable(ComTable table) {
-        List<ComColumn> toRemove;
-        toRemove = new ArrayList<ComColumn>(table.getInputColumns());
-        for (ComColumn col : toRemove)
+    public void deleteTable(DcTable table) {
+        List<DcColumn> toRemove;
+        toRemove = new ArrayList<DcColumn>(table.getInputColumns());
+        for (DcColumn col : toRemove)
         {
             col.remove();
         }
-        toRemove = new ArrayList<ComColumn>(table.getColumns());
-        for (ComColumn col : toRemove)
+        toRemove = new ArrayList<DcColumn>(table.getColumns());
+        for (DcColumn col : toRemove)
         {
             col.remove();
         }
     }
 
     @Override
-    public void renameTable(ComTable table, String newName) {
+    public void renameTable(DcTable table, String newName) {
         tableRenamed(table, newName); // Rename with propagation
         table.setName(newName);
     }
@@ -106,36 +106,36 @@ public class Schema extends Set implements ComSchema {
     // Column factory
 
     @Override
-    public ComColumn createColumn(String name, ComTable input, ComTable output, boolean isKey) {
+    public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey) {
 
-        ComColumn dim = new Dim(name, input, output, isKey, false);
+        DcColumn dim = new Dim(name, input, output, isKey, false);
 
         return dim;
     }
     @Override
-    public void deleteColumn(ComColumn column) {
+    public void deleteColumn(DcColumn column) {
         columnDeleted(column);
         column.remove();
     }
     @Override
-    public void renameColumn(ComColumn column, String newName) {
+    public void renameColumn(DcColumn column, String newName) {
         columnRenamed(column, newName); // Rename with propagation
         column.setName(newName);
     }
 
-    protected void columnRenamed(ComColumn column, String newName) {
+    protected void columnRenamed(DcColumn column, String newName) {
         throw new UnsupportedOperationException();
     }
 
-    protected void tableRenamed(ComTable table, String newName) {
+    protected void tableRenamed(DcTable table, String newName) {
         throw new UnsupportedOperationException();
     }
 
-    protected void columnDeleted(ComColumn column) {
+    protected void columnDeleted(DcColumn column) {
         throw new UnsupportedOperationException();
     }
 
-    public ComTable createFromCsv(String fileName, boolean hasHeaderRecord) {
+    public DcTable createFromCsv(String fileName, boolean hasHeaderRecord) {
 
         //
         // Read schema and sample values which are used to suggest mappings
@@ -144,7 +144,7 @@ public class Schema extends Set implements ComSchema {
         List<String> sourceNames = new ArrayList<String>();
         List<List<String>> sampleValues = new ArrayList<List<String>>();
         List<String> targetTypes = new ArrayList<String>();
-        List<ComColumn> columns = new ArrayList<ComColumn>();
+        List<DcColumn> columns = new ArrayList<DcColumn>();
 
         try {
             File file = new File(fileName);
@@ -201,10 +201,10 @@ public class Schema extends Set implements ComSchema {
         //
         // Create table with columns according to the mappings and target types
         //
-        ComTable table = this.createTable(tableName);
+        DcTable table = this.createTable(tableName);
 
         for(int i=0; i<sourceNames.size(); i++) {
-            ComColumn column = createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
+            DcColumn column = createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
             column.add();
             columns.add(column);
         }
@@ -212,7 +212,7 @@ public class Schema extends Set implements ComSchema {
         //
         // Read data according to the schema
         //
-        ComColumn[] columnArray = columns.toArray(new ComColumn[0]);
+        DcColumn[] columnArray = columns.toArray(new DcColumn[0]);
         Object[] valueArray = new Object[columnArray.length];
         try {
             Reader in = new FileReader(fileName);

@@ -22,19 +22,19 @@ import java.util.Optional;
 
 public class Workspace {
 
-    public List<ComSchema> schemas;
+    public List<DcSchema> schemas;
 
-    public ComSchema getSchema(String name)
+    public DcSchema getSchema(String name)
     {
-        Optional<ComSchema> ret = schemas.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+        Optional<DcSchema> ret = schemas.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
 
-    public ComSchema mashup;
+    public DcSchema mashup;
 
     public Workspace()
     {
-        schemas = new ArrayList<ComSchema>();
+        schemas = new ArrayList<DcSchema>();
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class Set implements ComTable, ComTableData, ComTableDefinition {
+public class Set implements DcTable, DcTableData, DcTableDefinition {
 
     //
     // ComTable interface
@@ -39,55 +39,55 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 
     @Override
     public boolean isPrimitive() {
-        return getSuperTable() instanceof ComSchema; // If its super-set is Top
+        return getSuperTable() instanceof DcSchema; // If its super-set is Top
     }
 
     // Outputs
 
-    protected List<ComColumn> greaterDims;
+    protected List<DcColumn> greaterDims;
     @Override
-    public List<ComColumn> getColumns() {
+    public List<DcColumn> getColumns() {
         return greaterDims;
     }
     @Override
-    public ComColumn getSuperColumn() {
-        Optional<ComColumn> ret = greaterDims.stream().filter(x -> x.isSuper()).findAny();
+    public DcColumn getSuperColumn() {
+        Optional<DcColumn> ret = greaterDims.stream().filter(x -> x.isSuper()).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
-    public ComTable getSuperTable() {
+    public DcTable getSuperTable() {
         return getSuperColumn() != null ? getSuperColumn().getOutput() : null;
     }
     @Override
-    public ComSchema getSchema() {
-        ComTable t = this;
+    public DcSchema getSchema() {
+        DcTable t = this;
         while(t.getSuperColumn() != null) t = t.getSuperColumn().getOutput();
-        return (ComSchema)t;
+        return (DcSchema)t;
     }
 
     // Inputs
 
-    protected List<ComColumn> lesserDims;
+    protected List<DcColumn> lesserDims;
     @Override
-    public List<ComColumn> getInputColumns() {
+    public List<DcColumn> getInputColumns() {
         return lesserDims;
     }
     @Override
-    public List<ComColumn> getSubColumns() {
+    public List<DcColumn> getSubColumns() {
         return lesserDims.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
     }
     @Override
-    public List<ComTable> getSubTables() {
+    public List<DcTable> getSubTables() {
         return getSubColumns().stream().map(x -> x.getInput()).collect(Collectors.toList());
     }
     @Override
-    public List<ComTable> getAllSubTables() {
-        List<ComTable> result = new ArrayList<ComTable>();
+    public List<DcTable> getAllSubTables() {
+        List<DcTable> result = new ArrayList<DcTable>();
         result.addAll(getSubTables());
         int count = result.size();
         for (int i = 0; i < count; i++)
         {
-            List<ComTable> subsets = result.get(i).getAllSubTables();
+            List<DcTable> subsets = result.get(i).getAllSubTables();
             if (subsets == null || subsets.size() == 0)
             {
                 continue;
@@ -101,15 +101,15 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     // Poset relation
 
     @Override
-    public boolean isSubTable(ComTable parent) { // Is subset of the specified table
-        for (ComTable set = this; set != null; set = set.getSuperTable())
+    public boolean isSubTable(DcTable parent) { // Is subset of the specified table
+        for (DcTable set = this; set != null; set = set.getSuperTable())
         {
             if (set == parent) return true;
         }
         return false;
     }
     @Override
-    public boolean isInput(ComTable set) { // Is lesser than the specified table
+    public boolean isInput(DcTable set) { // Is lesser than the specified table
         throw new UnsupportedOperationException("TODO");
     }
     @Override
@@ -125,33 +125,33 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     // Name methods
 
     @Override
-    public ComColumn getColumn(String name) { // Greater column
-        Optional<ComColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+    public DcColumn getColumn(String name) { // Greater column
+        Optional<DcColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
-    public ComTable getTable(String name) { // TODO: Greater table/type - not subtable
-        Optional<ComColumn> ret = lesserDims.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
+    public DcTable getTable(String name) { // TODO: Greater table/type - not subtable
+        Optional<DcColumn> ret = lesserDims.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get().getInput() : null;
     }
     @Override
-    public ComTable getSubTable(String name) { // Subtable
+    public DcTable getSubTable(String name) { // Subtable
         if(getName().equalsIgnoreCase(name)) return this;
 
-        for(ComColumn c : getSubColumns()) {
-            ComTable t = c.getInput().getSubTable(name);
+        for(DcColumn c : getSubColumns()) {
+            DcTable t = c.getInput().getSubTable(name);
             if(t != null) return t;
         }
         return null;
     }
 
     @Override
-    public ComTableData getData() {
+    public DcTableData getData() {
         return this;
     }
 
     @Override
-    public ComTableDefinition getDefinition() {
+    public DcTableDefinition getDefinition() {
         return this;
     }
 
@@ -167,7 +167,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     @Override
     public void setLength(int value) {
         _length = value;
-        for (ComColumn col : getColumns())
+        for (DcColumn col : getColumns())
         {
             col.getData().setLength(value);
         }
@@ -177,19 +177,19 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 
     @Override
     public Object getValue(String name, int offset) {
-        ComColumn col = getColumn(name);
+        DcColumn col = getColumn(name);
         return col.getData().getValue(offset);
     }
     @Override
     public void setValue(String name, int offset, Object value) {
-        ComColumn col = getColumn(name);
+        DcColumn col = getColumn(name);
         col.getData().setValue(offset, value);
     }
 
     // Tuple methods
 
     @Override
-    public int find(ComColumn[] dims, Object[] values) {
+    public int find(DcColumn[] dims, Object[] values) {
         int[] result = java.util.stream.IntStream.range(0, getLength()).toArray(); // All elements of this set (can be quite long)
 
         boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
@@ -220,7 +220,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
         }
     }
     @Override
-    public int append(ComColumn[] dims, Object[] values) {
+    public int append(DcColumn[] dims, Object[] values) {
         for (int i = 0; i < dims.length; i++)
         {
             dims[i].getData().append(values[i]);
@@ -231,7 +231,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     }
     @Override
     public void remove(int input) {
-        for (ComColumn col : getColumns())
+        for (DcColumn col : getColumns())
         {
             col.getData().remove(input);
         }
@@ -247,11 +247,11 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
 
         boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
 
-        List<ComColumn> dims = new ArrayList<ComColumn>();
+        List<DcColumn> dims = new ArrayList<DcColumn>();
         dims.addAll(getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()));
         dims.addAll(getColumns().stream().filter(x -> !x.isKey()).collect(Collectors.toList()));
 
-        for (ComColumn dim : dims) // OPTIMIZE: the order of dimensions matters (use statistics, first dimensins with better filtering). Also, first identity dimensions.
+        for (DcColumn dim : dims) // OPTIMIZE: the order of dimensions matters (use statistics, first dimensins with better filtering). Also, first identity dimensions.
         {
             ExprNode childExpr = expr.getChild(dim.getName());
             if (childExpr != null)
@@ -290,7 +290,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     @Override
     public int append(ExprNode expr) {
 
-        for (ComColumn dim : getColumns()) // We must append one value to ALL greater dimensions (possibly null)
+        for (DcColumn dim : getColumns()) // We must append one value to ALL greater dimensions (possibly null)
         {
             ExprNode childExpr = expr.getChild(dim.getName()); // TODO: replace by accessor by dimension reference (has to be resolved in the tuple)
             Object val = null;
@@ -326,8 +326,8 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     public void setOrderbyExp(ExprNode value) { _orderbyExp = value; }
 
     @Override
-    public ComEvaluator getWhereEvaluator() {
-        ComEvaluator evaluator = new ExprEvaluator(this);
+    public DcIterator getWhereEvaluator() {
+        DcIterator evaluator = new ExprEvaluator(this);
         return evaluator;
     }
 
@@ -345,7 +345,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
             //
             // Evaluator for where expression which will be used to check each new record before it is added
             //
-            ComEvaluator eval = null;
+            DcIterator eval = null;
             if (getDefinition().getWhereExpr() != null)
             {
                 eval = getWhereEvaluator();
@@ -354,7 +354,7 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
             //
             // Find all local greater dimensions to be varied (including the super-dim)
             //
-            ComColumn[] dims = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new ComColumn[0]);
+            DcColumn[] dims = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new DcColumn[0]);
             int dimCount = dims.length; // Dimensionality - how many free dimensions
             Object[] vals = new Object[dimCount]; // A record with values for each free dimension being varied
 
@@ -422,9 +422,9 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
         }
         else if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
-            ComColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList()).get(0);
-            ComTable sourceSet = projectDim.getInput();
-            ComTable targetSet = projectDim.getOutput(); // this set
+            DcColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList()).get(0);
+            DcTable sourceSet = projectDim.getInput();
+            DcTable targetSet = projectDim.getOutput(); // this set
 
             // Delegate to column evaluation - it will add records from column expression
             projectDim.getDefinition().evaluate();
@@ -444,20 +444,20 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     // Dependencies. The order is important and corresponds to dependency chain
 
     @Override
-    public List<ComTable> usesTables(boolean recursive) { // This element depends upon
+    public List<DcTable> usesTables(boolean recursive) { // This element depends upon
         throw new UnsupportedOperationException();
     }
     @Override
-    public List<ComTable> isUsedInTables(boolean recursive) { // Dependants
+    public List<DcTable> isUsedInTables(boolean recursive) { // Dependants
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<ComColumn> usesColumns(boolean recursive) { // This element depends upon
+    public List<DcColumn> usesColumns(boolean recursive) { // This element depends upon
         throw new UnsupportedOperationException();
     }
     @Override
-    public List<ComColumn> isUsedInColumns(boolean recursive) { // Dependants
+    public List<DcColumn> isUsedInColumns(boolean recursive) { // Dependants
         throw new UnsupportedOperationException();
     }
 
@@ -473,8 +473,8 @@ public class Set implements ComTable, ComTableData, ComTableDefinition {
     {
         this.name = name;
 
-        greaterDims = new ArrayList<ComColumn>();
-        lesserDims = new ArrayList<ComColumn>();
+        greaterDims = new ArrayList<DcColumn>();
+        lesserDims = new ArrayList<DcColumn>();
 
         setDefinitionType(TableDefinitionType.FREE);
     }

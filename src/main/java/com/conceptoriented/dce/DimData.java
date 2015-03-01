@@ -19,9 +19,9 @@ package com.conceptoriented.dce;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DimData<T extends Comparable<T>> implements ComColumnData {
+public class DimData<T extends Comparable<T>> implements DcColumnData {
 
-    protected ComColumn _dim;
+    protected DcColumn _dim;
 
     private T[] _cells; // Each cell contains a T value in arbitrary original order
     private int[] _offsets; // Each cell contains an offset to an element in cells in ascending or descending order
@@ -346,7 +346,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
         }
     }
 
-    public DimData(ComColumn dim) {
+    public DimData(DcColumn dim) {
         // TODO: Check if output (greater) set is of correct type
 
         _dim = dim;
@@ -367,7 +367,7 @@ public class DimData<T extends Comparable<T>> implements ComColumnData {
     }
 }
 
-class DimEmpty implements ComColumnData
+class DimEmpty implements DcColumnData
 {
 
     protected int _length;
@@ -410,9 +410,9 @@ class DimEmpty implements ComColumnData
     public int[] deproject(Object value) { return null; } // Or empty array
 }
 
-class ColumnDefinition implements ComColumnDefinition
+class ColumnDefinition implements DcColumnDefinition
 {
-    protected ComColumn _dim;
+    protected DcColumn _dim;
 
     //
     // ComColumnDefinition interface
@@ -475,11 +475,11 @@ class ColumnDefinition implements ComColumnDefinition
     // Aggregation
     //
 
-    protected ComTable _factTable;
+    protected DcTable _factTable;
     @Override
-    public ComTable getFactTable() { return _factTable; }
+    public DcTable getFactTable() { return _factTable; }
     @Override
-    public void setFactTable(ComTable value) { _factTable = value; }
+    public void setFactTable(DcTable value) { _factTable = value; }
 
     protected List<DimPath> _groupPaths;
     @Override
@@ -504,9 +504,9 @@ class ColumnDefinition implements ComColumnDefinition
     //
 
     // Get an object which is used to compute the function values according to the formula
-    protected ComEvaluator getEvaluator()
+    protected DcIterator getEvaluator()
     {
-        ComEvaluator evaluator = null;
+        DcIterator evaluator = null;
 
         if (getDefinitionType() == ColumnDefinitionType.FREE)
         {
@@ -539,7 +539,7 @@ class ColumnDefinition implements ComColumnDefinition
     @Override
     public void evaluate()
     {
-        ComEvaluator evaluator = getEvaluator();
+        DcIterator evaluator = getEvaluator();
         if (evaluator == null) return;
 
         try {
@@ -569,28 +569,28 @@ class ColumnDefinition implements ComColumnDefinition
     public List<Dim> dependencies;
 
     @Override
-    public List<ComTable> usesTables(boolean recursive) // This element depends upon
+    public List<DcTable> usesTables(boolean recursive) // This element depends upon
     {
         throw new UnsupportedOperationException("TODO");
     }
     @Override
-    public List<ComTable> isUsedInTables(boolean recursive) // Dependants
+    public List<DcTable> isUsedInTables(boolean recursive) // Dependants
     {
         throw new UnsupportedOperationException("TODO");
     }
 
     @Override
-    public List<ComColumn> usesColumns(boolean recursive) // This element depends upon
+    public List<DcColumn> usesColumns(boolean recursive) // This element depends upon
     {
         throw new UnsupportedOperationException("TODO");
     }
     @Override
-    public List<ComColumn> isUsedInColumns(boolean recursive) // Dependants
+    public List<DcColumn> isUsedInColumns(boolean recursive) // Dependants
     {
         throw new UnsupportedOperationException("TODO");
     }
 
-    public ColumnDefinition(ComColumn dim)
+    public ColumnDefinition(DcColumn dim)
     {
         _dim = dim;
 

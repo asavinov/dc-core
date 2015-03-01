@@ -19,13 +19,13 @@ package com.conceptoriented.dce;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ExprEvaluator implements ComEvaluator {
-    protected ComColumnData columnData;
+public class ExprEvaluator implements DcIterator {
+    protected DcColumnData columnData;
 
     // Loop
     protected int thisCurrent;
-    protected ComTable thisTable;
-    protected ComVariable thisVariable; // Stores current input (offset in a local set or reference to the current DataRow)
+    protected DcTable thisTable;
+    protected DcVariable thisVariable; // Stores current input (offset in a local set or reference to the current DataRow)
 
     // Output expression
     protected ExprNode outputExpr; // Can contain more specific nodes OledbExprNode to access attributes in DataRow
@@ -86,7 +86,7 @@ public class ExprEvaluator implements ComEvaluator {
         return outputExpr.getResult().getValue();
     }
 
-    public ExprEvaluator(ComColumn column)
+    public ExprEvaluator(DcColumn column)
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
@@ -132,10 +132,10 @@ public class ExprEvaluator implements ComEvaluator {
         outputExpr.getResult().setTypeSchema(column.getOutput().getSchema());
         outputExpr.getResult().setTypeTable(column.getOutput());
 
-        outputExpr.resolve(workspace, new ArrayList<ComVariable>(Arrays.asList(thisVariable)));
+        outputExpr.resolve(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
     }
 
-    public ExprEvaluator(ComTable table)
+    public ExprEvaluator(DcTable table)
     {
         setWorkspace(table.getSchema().getWorkspace());
         columnData = null;
@@ -169,11 +169,11 @@ class AggrEvaluator extends ExprEvaluator
     // base::thisVariable stores current fact in the loop table. is used by group expr and meausre expr
 
     // Groups
-    protected ComVariable groupVariable; // Stores current group (input for the aggregated function)
+    protected DcVariable groupVariable; // Stores current group (input for the aggregated function)
     protected ExprNode groupExpr; // Returns a group this fact belongs to, is stored in the group variable
 
     // Measure
-    protected ComVariable measureVariable; // Stores new value (output for the aggregated function)
+    protected DcVariable measureVariable; // Stores new value (output for the aggregated function)
     protected ExprNode measureExpr; // Returns a new value to be aggregated with the old value, is stored in the measure variable
 
     // Updater/aggregation function
@@ -211,7 +211,7 @@ class AggrEvaluator extends ExprEvaluator
         return outputExpr.getResult().getValue();
     }
 
-    public AggrEvaluator(ComColumn column) // Create evaluator from structured definition
+    public AggrEvaluator(DcColumn column) // Create evaluator from structured definition
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();

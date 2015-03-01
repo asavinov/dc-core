@@ -29,9 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.conceptoriented.dce.ColumnDefinitionType;
-import com.conceptoriented.dce.ComColumn;
-import com.conceptoriented.dce.ComSchema;
-import com.conceptoriented.dce.ComTable;
+import com.conceptoriented.dce.DcColumn;
+import com.conceptoriented.dce.DcSchema;
+import com.conceptoriented.dce.DcTable;
 import com.conceptoriented.dce.DimPath;
 import com.conceptoriented.dce.ExprBuilder;
 import com.conceptoriented.dce.ExprNode;
@@ -70,7 +70,7 @@ public class CoreTest {
     }
 
     Workspace workspace;
-    ComSchema schema;
+    DcSchema schema;
 
     @Before
     public void setUp() {
@@ -84,53 +84,53 @@ public class CoreTest {
         schema.setWorkspace(workspace);
     }
 
-    protected ComSchema createSampleSchema()
+    protected DcSchema createSampleSchema()
     {
         // Prepare schema
-        ComSchema schema = new Schema("My Schema");
+        DcSchema schema = new Schema("My Schema");
 
         // Table 1
-        ComTable t1 = schema.createTable("Table 1");
+        DcTable t1 = schema.createTable("Table 1");
         schema.addTable(t1, schema.getRoot(), null);
 
-        ComColumn c11 = schema.createColumn("Column 11", t1, schema.getPrimitive("Integer"), true);
+        DcColumn c11 = schema.createColumn("Column 11", t1, schema.getPrimitive("Integer"), true);
         c11.add();
-        ComColumn c12 = schema.createColumn("Column 12", t1, schema.getPrimitive("String"), true);
+        DcColumn c12 = schema.createColumn("Column 12", t1, schema.getPrimitive("String"), true);
         c12.add();
-        ComColumn c13 = schema.createColumn("Column 13", t1, schema.getPrimitive("Double"), false);
+        DcColumn c13 = schema.createColumn("Column 13", t1, schema.getPrimitive("Double"), false);
         c13.add();
-        ComColumn c14 = schema.createColumn("Column 14", t1, schema.getPrimitive("Decimal"), false);
+        DcColumn c14 = schema.createColumn("Column 14", t1, schema.getPrimitive("Decimal"), false);
         c14.add();
 
         // Table 2
-        ComTable t2 = schema.createTable("Table 2");
+        DcTable t2 = schema.createTable("Table 2");
         schema.addTable(t2, schema.getRoot(), null);
 
-        ComColumn c21 = schema.createColumn("Column 21", t2, schema.getPrimitive("String"), true);
+        DcColumn c21 = schema.createColumn("Column 21", t2, schema.getPrimitive("String"), true);
         c21.add();
-        ComColumn c22 = schema.createColumn("Column 22", t2, schema.getPrimitive("Integer"), true);
+        DcColumn c22 = schema.createColumn("Column 22", t2, schema.getPrimitive("Integer"), true);
         c22.add();
-        ComColumn c23 = schema.createColumn("Column 23", t2, schema.getPrimitive("Double"), false);
+        DcColumn c23 = schema.createColumn("Column 23", t2, schema.getPrimitive("Double"), false);
         c23.add();
-        ComColumn c24 = schema.createColumn("Table 1", t2, t1, false);
+        DcColumn c24 = schema.createColumn("Table 1", t2, t1, false);
         c24.add();
 
         return schema;
     }
 
-    protected void createSampleData(ComSchema schema)
+    protected void createSampleData(DcSchema schema)
     {
         //
         // Fill sample data in "Table 1"
         //
-        ComTable t1 = schema.getSubTable("Table 1");
+        DcTable t1 = schema.getSubTable("Table 1");
 
-        ComColumn c11 = t1.getColumn("Column 11");
-        ComColumn c12 = t1.getColumn("Column 12");
-        ComColumn c13 = t1.getColumn("Column 13");
-        ComColumn c14 = t1.getColumn("Column 14");
+        DcColumn c11 = t1.getColumn("Column 11");
+        DcColumn c12 = t1.getColumn("Column 12");
+        DcColumn c13 = t1.getColumn("Column 13");
+        DcColumn c14 = t1.getColumn("Column 14");
 
-        ComColumn[] cols = new ComColumn[] { c11, c12, c13, c14 };
+        DcColumn[] cols = new DcColumn[] { c11, c12, c13, c14 };
         Object[] vals = new Object[4];
 
         vals[0] = 20;
@@ -154,14 +154,14 @@ public class CoreTest {
         //
         // Fill sample data in "Table 2"
         //
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t2 = schema.getSubTable("Table 2");
 
-        ComColumn c21 = t2.getColumn("Column 21");
-        ComColumn c22 = t2.getColumn("Column 22");
-        ComColumn c23 = t2.getColumn("Column 23");
-        ComColumn c24 = t2.getColumn("Table 1");
+        DcColumn c21 = t2.getColumn("Column 21");
+        DcColumn c22 = t2.getColumn("Column 22");
+        DcColumn c23 = t2.getColumn("Column 23");
+        DcColumn c24 = t2.getColumn("Table 1");
 
-        cols = new ComColumn[] { c21, c22, c23, c24 };
+        cols = new DcColumn[] { c21, c22, c23, c24 };
         vals = new Object[4];
 
         vals[0] = "Value A";
@@ -192,8 +192,8 @@ public class CoreTest {
     @Test
     public void SchemaTest() // ComColumn. Manually add/remove tables/columns
     {
-        ComTable t1 = schema.getSubTable("Table 1");
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t1 = schema.getSubTable("Table 1");
+        DcTable t2 = schema.getSubTable("Table 2");
 
         // Finding by name and check various properties provided by the schema
         assertEquals(schema.getPrimitive("Decimal").getName(), "Decimal");
@@ -219,17 +219,17 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t1 = schema.getSubTable("Table 1");
+        DcTable t1 = schema.getSubTable("Table 1");
 
-        ComColumn c11 = t1.getColumn("Column 11");
-        ComColumn c12 = t1.getColumn("Column 12");
-        ComColumn c13 = t1.getColumn("Column 13");
-        ComColumn c14 = t1.getColumn("Column 14");
+        DcColumn c11 = t1.getColumn("Column 11");
+        DcColumn c12 = t1.getColumn("Column 12");
+        DcColumn c13 = t1.getColumn("Column 13");
+        DcColumn c14 = t1.getColumn("Column 14");
 
         //
         // Define a derived column with a definition
         //
-        ComColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+        DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
 
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
@@ -249,17 +249,17 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t1 = schema.getSubTable("Table 1");
+        DcTable t1 = schema.getSubTable("Table 1");
 
-        ComColumn c11 = t1.getColumn("Column 11");
-        ComColumn c12 = t1.getColumn("Column 12");
-        ComColumn c13 = t1.getColumn("Column 13");
-        ComColumn c14 = t1.getColumn("Column 14");
+        DcColumn c11 = t1.getColumn("Column 11");
+        DcColumn c12 = t1.getColumn("Column 12");
+        DcColumn c13 = t1.getColumn("Column 13");
+        DcColumn c14 = t1.getColumn("Column 14");
 
         //
         // Define a derived column with a definition
         //
-        ComColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
+        DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
 
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
@@ -276,7 +276,7 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        ComColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+        DcColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
         c16.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
 
         c16.getDefinition().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
@@ -295,17 +295,17 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t1 = schema.getSubTable("Table 1");
-        ComColumn c11 = t1.getColumn("Column 11"); // 20, 10, 30
+        DcTable t1 = schema.getSubTable("Table 1");
+        DcColumn c11 = t1.getColumn("Column 11"); // 20, 10, 30
 
-        ComTable t2 = schema.getSubTable("Table 2");
-        ComColumn c22 = t2.getColumn("Column 22"); // 20, 30, 30, 30
+        DcTable t2 = schema.getSubTable("Table 2");
+        DcColumn c22 = t2.getColumn("Column 22"); // 20, 30, 30, 30
 
         //
         // Define a derived column with a definition
         //
 
-        ComColumn link = schema.createColumn("Column Link", t2, t1, false);
+        DcColumn link = schema.createColumn("Column Link", t2, t1, false);
 
         link.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         link.getDefinition().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
@@ -326,17 +326,17 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t1 = schema.getSubTable("Table 1");
+        DcTable t1 = schema.getSubTable("Table 1");
 
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t2 = schema.getSubTable("Table 2");
 
-        ComColumn c23 = t2.getColumn("Column 23");
-        ComColumn c24 = t2.getColumn("Table 1");
+        DcColumn c23 = t2.getColumn("Column 23");
+        DcColumn c24 = t2.getColumn("Table 1");
 
         //
         // Define aggregated column
         //
-        ComColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
         c15.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
 
         c15.getDefinition().setFactTable(t2); // Fact table
@@ -359,7 +359,7 @@ public class CoreTest {
         //
         // Aggregation via a syntactic formula
         //
-        ComColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
         c16.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
 
         c16.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
@@ -379,19 +379,19 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t1 = schema.getSubTable("Table 1");
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t1 = schema.getSubTable("Table 1");
+        DcTable t2 = schema.getSubTable("Table 2");
 
         //
         // Define a new product-set
         //
-        ComTable t3 = schema.createTable("Table 3");
+        DcTable t3 = schema.createTable("Table 3");
         t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
         schema.addTable(t3, null, null);
 
-        ComColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
+        DcColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
         c31.add();
-        ComColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
+        DcColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
         c32.add();
 
         t3.getDefinition().populate();
@@ -419,12 +419,12 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t2 = schema.getSubTable("Table 2");
 
         //
         // Define a new filter-set
         //
-        ComTable t3 = schema.createTable("Table 3");
+        DcTable t3 = schema.createTable("Table 3");
 
         ExprNode ast = exprBuilder.build("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
         t3.getDefinition().setWhereExpr(ast);
@@ -442,24 +442,24 @@ public class CoreTest {
     {
         createSampleData(schema);
 
-        ComTable t2 = schema.getSubTable("Table 2");
+        DcTable t2 = schema.getSubTable("Table 2");
 
-        ComColumn c21 = t2.getColumn("Column 21");
-        ComColumn c22 = t2.getColumn("Column 22");
-        ComColumn c23 = t2.getColumn("Column 23");
+        DcColumn c21 = t2.getColumn("Column 21");
+        DcColumn c22 = t2.getColumn("Column 22");
+        DcColumn c23 = t2.getColumn("Column 23");
 
         //
         // Project "Table 2" along "Column 21" and get 2 unique records in a new set "Value A" (3 references) and "Value B" (1 reference)
         //
-        ComTable t3 = schema.createTable("Table 3");
+        DcTable t3 = schema.createTable("Table 3");
         t3.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
         schema.addTable(t3, null, null);
 
-        ComColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
+        DcColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
         c31.add();
 
         // Create a generating column
-        ComColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
+        DcColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
 
         c24.getDefinition().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
         c24.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
@@ -479,17 +479,17 @@ public class CoreTest {
         //
         // Defining a combination of "Column 21" and "Column 22" and project with 3 unique records in a new set
         //
-        ComTable t4 = schema.createTable("Table 4");
+        DcTable t4 = schema.createTable("Table 4");
         t4.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
         schema.addTable(t4, null, null);
 
-        ComColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);
+        DcColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);
         c41.add();
-        ComColumn c42 = schema.createColumn("Column 42", t4, c22.getOutput(), true);
+        DcColumn c42 = schema.createColumn("Column 42", t4, c22.getOutput(), true);
         c42.add();
 
         // Create generating/import column
-        ComColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
+        DcColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
 
         c25.getDefinition().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
         c25.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
@@ -510,14 +510,14 @@ public class CoreTest {
     @Test
     public void CsvTest()
     {
-        ComTable integerType = schema.getPrimitive("Integer");
-        ComTable doubleType = schema.getPrimitive("Double");
+        DcTable integerType = schema.getPrimitive("Integer");
+        DcTable doubleType = schema.getPrimitive("Double");
 
-        ComTable detailsTable = ((Schema)schema).createFromCsv(detailsTableName, true);
+        DcTable detailsTable = ((Schema)schema).createFromCsv(detailsTableName, true);
         schema.addTable(detailsTable, null, null);
-        ComTable productsTable = ((Schema)schema).createFromCsv(productsTableName, true);
+        DcTable productsTable = ((Schema)schema).createFromCsv(productsTableName, true);
         schema.addTable(productsTable, null, null);
-        ComTable categoriesTable = ((Schema)schema).createFromCsv(categoriesTableName, true);
+        DcTable categoriesTable = ((Schema)schema).createFromCsv(categoriesTableName, true);
         schema.addTable(categoriesTable, null, null);
 
         assertEquals(2155, detailsTable.getData().getLength());
@@ -525,27 +525,27 @@ public class CoreTest {
         assertEquals(8, categoriesTable.getData().getLength());
 
         // Define a new arithmetic column: output is a computed primitive value
-        ComColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
+        DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
         amountColumn.getDefinition().setFormula("[UnitPrice] * [Quantity]");
         amountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         amountColumn.add();
         amountColumn.getDefinition().evaluate();
 
         // Define two link column: output is a tuple
-        ComColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
+        DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
         productColumn.getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
         productColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         productColumn.add();
         productColumn.getDefinition().evaluate();
 
-        ComColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
+        DcColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
         categoryColumn.getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
         categoryColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         categoryColumn.add();
         categoryColumn.getDefinition().evaluate();
 
         // Define a new aggregation column: output is an aggregation of a group of values
-        ComColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
+        DcColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
         totalAmountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
         totalAmountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalAmountColumn.add();
@@ -553,7 +553,7 @@ public class CoreTest {
 
         assertEquals(105268.6, totalAmountColumn.getData().getValue(6)); // cells = {286526.94999999995, 113694.75000000001, 177099.09999999995, 251330.5, 100726.8, 178188.80000000002, 105268.6, 141623.09000000003}
 
-        ComColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
+        DcColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
         totalCountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
         totalCountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalCountColumn.add();

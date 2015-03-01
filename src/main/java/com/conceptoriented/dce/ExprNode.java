@@ -57,19 +57,19 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._name = name;
     }
 
-    protected ComColumn _column;
-    public ComColumn getColumn() {
+    protected DcColumn _column;
+    public DcColumn getColumn() {
         return _column;
     }
-    public void setColumn(ComColumn column) {
+    public void setColumn(DcColumn column) {
         this._column = column;
     }
 
-    public ComVariable _variable;
-    public ComVariable getVariable() {
+    public DcVariable _variable;
+    public DcVariable getVariable() {
         return _variable;
     }
-    public void setVariable(ComVariable variable) {
+    public void setVariable(DcVariable variable) {
         this._variable = variable;
     }
 
@@ -89,15 +89,15 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._action = value;
     }
 
-    public ComVariable _result;
-    public ComVariable getResult() {
+    public DcVariable _result;
+    public DcVariable getResult() {
         return _result;
     }
-    public void setResult(ComVariable result) {
+    public void setResult(DcVariable result) {
         this._result = result;
     }
 
-    public void resolve(Workspace workspace, List<ComVariable> variables) {
+    public void resolve(Workspace workspace, List<DcVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
             boolean success;
@@ -155,7 +155,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             {
                 if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
                 {
-                    ComColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
+                    DcColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
 
                     if (col != null) // Column resolved
                     {
@@ -251,11 +251,11 @@ public class ExprNode extends TreeNode<ExprNode> {
             else if (childCount == 0) // Resolve variable (or add a child this variable assuming that it has been omitted)
             {
                 // Try to resolve as a variable (including this variable). If success then finish.
-                Optional<ComVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
+                Optional<DcVariable> varOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), getName())).findAny();
 
                 if (varOpt.isPresent()) // Resolved as a variable
                 {
-                    ComVariable var = varOpt.get();
+                    DcVariable var = varOpt.get();
 
                     getResult().setSchemaName(var.getSchemaName());
                     getResult().setTypeName(var.getTypeName());
@@ -269,8 +269,8 @@ public class ExprNode extends TreeNode<ExprNode> {
                     //
                     // Start from 'this' node bound to 'this' variable
                     //
-                    Optional<ComVariable> thisVarOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), "this")).findAny();
-                    ComVariable thisVar = thisVarOpt.get();
+                    Optional<DcVariable> thisVarOpt = variables.stream().filter(v -> Utils.sameColumnName(v.getName(), "this")).findAny();
+                    DcVariable thisVar = thisVarOpt.get();
 
                     thisChild = new ExprNode();
                     thisChild.setOperation(OperationType.CALL);
@@ -285,8 +285,8 @@ public class ExprNode extends TreeNode<ExprNode> {
                     thisChild.setVariable(thisVar);
 
                     ExprNode path = thisChild;
-                    ComTable contextTable = thisChild.getResult().getTypeTable();
-                    ComColumn col = null;
+                    DcTable contextTable = thisChild.getResult().getTypeTable();
+                    DcColumn col = null;
 
                     while (contextTable != null)
                     {
@@ -303,7 +303,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                         //
                         // Iterator. Find super-column in the current context (where we have just failed to resolve the name)
                         //
-                        ComColumn superColumn = contextTable.getSuperColumn();
+                        DcColumn superColumn = contextTable.getSuperColumn();
                         contextTable = contextTable.getSuperTable();
 
                         if (contextTable == null || contextTable == contextTable.getSchema().getRoot())
@@ -362,7 +362,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                     outputChild = getChild(0);
                 }
 
-                ComColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
+                DcColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
 
                 if (col != null) // Column resolved
                 {
@@ -744,7 +744,7 @@ public class ExprNode extends TreeNode<ExprNode> {
         {
             for (int i = path.getSegments().size() - 1; i >= 0; i--)
             {
-                ComColumn seg = path.getSegments().get(i);
+                DcColumn seg = path.getSegments().get(i);
 
                 ExprNode node = new ExprNode();
                 node.setOperation(OperationType.CALL);
@@ -791,12 +791,12 @@ public class ExprNode extends TreeNode<ExprNode> {
         return expr;
     }
 
-    public static ExprNode createReader(ComColumn column, boolean withThisVariable)
+    public static ExprNode createReader(DcColumn column, boolean withThisVariable)
     {
         return createReader(new DimPath(column), withThisVariable);
     }
 
-    public static ExprNode createUpdater(ComColumn column, String aggregationFunction)
+    public static ExprNode createUpdater(DcColumn column, String aggregationFunction)
     {
         ActionType aggregation;
         if (aggregationFunction.equals("COUNT"))
