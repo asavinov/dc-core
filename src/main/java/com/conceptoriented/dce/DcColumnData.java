@@ -11,6 +11,13 @@ public interface DcColumnData {
     public int getLength();
     public void setLength(int length);
 
+    public boolean isAutoIndex();
+    public void setAutoIndex(boolean value);
+
+    public boolean isIndexed();
+
+    public void reindex();
+
     //
     // Untyped methods. Default conversion will be done according to the function type.
     //

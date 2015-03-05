@@ -28,3 +28,11 @@ It loads data into memory and queries it repeatedly column-wise much faster than
 * DataCommander evaluates data in columns by using dependencies derived from column definitions. It makes it similar to functional approach because the whole model is represented as a number of column and table definitions depending on each other and evaluating a column triggers computations of other columns. 
 
 * DataCommander can be viewed as an analogue of classical spreadsheets where columns are defined in terms of other columns (in different tables) rather than cells being defined in terms of other cells. 
+
+## More Information
+
+More information about Data Commander can be found on the project web site: <http://www.conceptoriented.com>.
+
+## License
+
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)

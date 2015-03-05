@@ -11,6 +11,12 @@ public interface DcTableData {
     public int getLength();
     public void setLength(int length);
 
+    public void setAutoIndex(boolean value);
+
+    public boolean isIndexed();
+
+    public void reindex();
+
     //
     // Value methods (convenience, probably should be removed and replaced by manual access to dimensions)
     //

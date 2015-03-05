@@ -173,6 +173,28 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         }
     }
 
+    @Override
+    public void setAutoIndex(boolean value) {
+        for(DcColumn column : getColumns()) {
+            column.getData().setAutoIndex(value);
+        }
+    }
+
+    @Override
+    public boolean isIndexed() {
+        for(DcColumn column : getColumns()) {
+            if(!column.getData().isIndexed()) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void reindex() {
+        for(DcColumn column : getColumns()) {
+            column.getData().reindex();
+        }
+    }
+
     // Value methods
 
     @Override
@@ -327,7 +349,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
 
     @Override
     public DcIterator getWhereEvaluator() {
-        DcIterator evaluator = new ExprEvaluator(this);
+        DcIterator evaluator = new ExprIterator(this);
         return evaluator;
     }
 

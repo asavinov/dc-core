@@ -19,7 +19,7 @@ package com.conceptoriented.dce;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ExprEvaluator implements DcIterator {
+public class ExprIterator implements DcIterator {
     protected DcColumnData columnData;
 
     // Loop
@@ -86,7 +86,7 @@ public class ExprEvaluator implements DcIterator {
         return outputExpr.getResult().getValue();
     }
 
-    public ExprEvaluator(DcColumn column)
+    public ExprIterator(DcColumn column)
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
@@ -135,7 +135,7 @@ public class ExprEvaluator implements DcIterator {
         outputExpr.resolve(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
     }
 
-    public ExprEvaluator(DcTable table)
+    public ExprIterator(DcTable table)
     {
         setWorkspace(table.getSchema().getWorkspace());
         columnData = null;
@@ -153,13 +153,13 @@ public class ExprEvaluator implements DcIterator {
         outputExpr.resolve(workspace, Arrays.asList(thisVariable));
     }
 
-    public ExprEvaluator()
+    public ExprIterator()
     {
     }
 }
 
 
-class AggrEvaluator extends ExprEvaluator
+class AggrIterator extends ExprIterator
 {
     // base::columnData is the aggregated function to be computed
 
@@ -211,7 +211,7 @@ class AggrEvaluator extends ExprEvaluator
         return outputExpr.getResult().getValue();
     }
 
-    public AggrEvaluator(DcColumn column) // Create evaluator from structured definition
+    public AggrIterator(DcColumn column) // Create evaluator from structured definition
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();

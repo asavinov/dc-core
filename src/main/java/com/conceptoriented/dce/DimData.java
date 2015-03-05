@@ -30,8 +30,8 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
     private T _nullValue; // It is what is written in cell instead of null if null is not supported by the type. If null is supported then null is stored (instead, we can use NullValue=null).
 
     // Memory management parameters for instances (used by extensions and in future will be removed from this class).
-    protected static int initialSize = 1024 * 8; // In elements
-    protected static int incrementSize = 1024; // In elements
+    protected static int initialSize = 1024 * 10; // In elements
+    protected static int incrementSize = 1024 * 2; // In elements
 
     protected int allocatedSize; // How many elements (maximum) fit into the allocated memory
 
@@ -71,6 +71,48 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         }
     }
 
+    protected boolean _autoIndexing;
+    @Override
+    public boolean isAutoIndex() {
+        return _autoIndexing;
+    }
+    @Override
+    public void setAutoIndex(boolean value) {
+        _autoIndexing = value;
+    }
+
+    protected boolean _indexed;
+    @Override
+    public boolean isIndexed() {
+        return _indexed;
+    }
+
+    @Override
+    public void reindex() {
+        // Index sort in Java: http://stackoverflow.com/questions/951848/java-array-sort-quick-way-to-get-a-sorted-list-of-indices-of-an-array
+        Integer[] tempIndex = new Integer[_length];
+
+        // Reset offsets before sorting (so it will be completely new sort)
+        for (int i = 0; i < _length; i++)
+        {
+            tempIndex[i] = i; // Now each offset represents (references) an element of the function (from domain) but they are unsorted
+        }
+
+        java.util.Arrays.sort(tempIndex, _nullCount, _length, new java.util.Comparator<Integer>() {
+            @Override
+            public int compare(final Integer o1, final Integer o2) {
+                return _cells[o1].compareTo(_cells[o2]);
+            }
+            });
+
+        for (int i = 0; i < _length; i++)
+        {
+            _offsets[i] = tempIndex[i];
+        }
+
+        _indexed = true;
+    }
+
     @Override
     public boolean isNull(int input) {
         // For non-nullable storage, use the index to find if this cell is in the null interval of the index (beginning)
@@ -88,9 +130,10 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
     @Override
     public void setValue(int input, Object value) {
         T val = null;
-        int oldPos = FindIndex(input); // Old sorted position of the cell we are going to change
         int[] interval;
         int pos = -1; // New sorted position for this cell
+
+        int oldPos = FindIndex(input); // Old sorted position of the cell we are going to change
 
         if (value == null)
         {
@@ -173,7 +216,14 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         else
         {
             val = (T)toThisType(value);
-            interval = FindIndexes(val);
+
+            if(isAutoIndex()) {
+                interval = FindIndexes(val);
+            }
+            else {
+                interval = new int[] {_length-1, _length};
+                _indexed = false;
+            }
         }
 
         pos = interval[1]; // New value has the largest offset and hence is inserted after the end of the interval of values
@@ -352,6 +402,8 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         _dim = dim;
 
         _length = 0;
+        _autoIndexing = true;
+        _indexed = true;
         allocatedSize = initialSize;
         _cells = (T[]) new Comparable[allocatedSize];
         // _cells = (T[]) java.lang.reflect.Array.newInstance(_cells.getClass(), allocatedSize); // DOES NOT WORK because we do not know generic type at run-time:
@@ -379,6 +431,25 @@ class DimEmpty implements DcColumnData
     public void setLength(int value) {
         _length = value;
     }
+
+    protected boolean _autoIndex;
+    @Override
+    public boolean isAutoIndex() {
+        return _autoIndex;
+    }
+    @Override
+    public void setAutoIndex(boolean value) {
+        _autoIndex = value;
+    }
+
+    protected boolean _indexed;
+    @Override
+    public boolean isIndexed() {
+        return _indexed;
+    }
+
+    @Override
+    public void reindex() { }
 
     @Override
     public boolean isNull(int input) { return true; }
@@ -447,6 +518,16 @@ class ColumnDefinition implements DcColumnDefinition
         ExprBuilder exprBuilder = new ExprBuilder();
         ExprNode expr = exprBuilder.build(_formula);
         setFormulaExpr(expr);
+
+        if(expr.getOperation() == OperationType.TUPLE) {
+            setDefinitionType(ColumnDefinitionType.LINK);
+        }
+        else if(expr.getOperation() == OperationType.CALL && expr.getName().equalsIgnoreCase("AGGREGATE")) {
+            setDefinitionType(ColumnDefinitionType.AGGREGATION);
+        }
+        else {
+            setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+        }
     }
 
     //
@@ -514,15 +595,15 @@ class ColumnDefinition implements DcColumnDefinition
         }
         else if (getDefinitionType() == ColumnDefinitionType.AGGREGATION)
         {
-            evaluator = new AggrEvaluator(_dim);
+            evaluator = new AggrIterator(_dim);
         }
         else if (getDefinitionType() == ColumnDefinitionType.ARITHMETIC)
         {
-            evaluator = new ExprEvaluator(_dim);
+            evaluator = new ExprIterator(_dim);
         }
         else if (getDefinitionType() == ColumnDefinitionType.LINK)
         {
-            evaluator = new ExprEvaluator(_dim);
+            evaluator = new ExprIterator(_dim);
         }
         else
         {

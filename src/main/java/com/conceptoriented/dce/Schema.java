@@ -206,6 +206,7 @@ public class Schema extends Set implements DcSchema {
         for(int i=0; i<sourceNames.size(); i++) {
             DcColumn column = createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
             column.add();
+            column.getData().setAutoIndex(false); // We will do many appends
             columns.add(column);
         }
 
@@ -241,6 +242,9 @@ public class Schema extends Set implements DcSchema {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        table.getData().reindex();
+        table.getData().setAutoIndex(true);
 
         return table;
     }

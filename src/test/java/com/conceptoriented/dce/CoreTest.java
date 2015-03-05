@@ -231,7 +231,6 @@ public class CoreTest {
         //
         DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
 
-        c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
 
         c15.add();
@@ -261,7 +260,6 @@ public class CoreTest {
         //
         DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
 
-        c15.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         c15.getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
 
         c15.add();
@@ -277,7 +275,6 @@ public class CoreTest {
         // Define a derived column with a definition
         //
         DcColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
-        c16.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
 
         c16.getDefinition().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
 
@@ -307,7 +304,6 @@ public class CoreTest {
 
         DcColumn link = schema.createColumn("Column Link", t2, t1, false);
 
-        link.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         link.getDefinition().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
 
         link.add();
@@ -360,7 +356,6 @@ public class CoreTest {
         // Aggregation via a syntactic formula
         //
         DcColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
-        c16.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
 
         c16.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
 
@@ -462,7 +457,6 @@ public class CoreTest {
         DcColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
 
         c24.getDefinition().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
-        c24.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         c24.getDefinition().setAppendData(true);
 
         c24.add();
@@ -492,7 +486,6 @@ public class CoreTest {
         DcColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
 
         c25.getDefinition().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
-        c25.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         c25.getDefinition().setAppendData(true);
 
         c25.add();
@@ -527,27 +520,23 @@ public class CoreTest {
         // Define a new arithmetic column: output is a computed primitive value
         DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
         amountColumn.getDefinition().setFormula("[UnitPrice] * [Quantity]");
-        amountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.ARITHMETIC);
         amountColumn.add();
         amountColumn.getDefinition().evaluate();
 
         // Define two link column: output is a tuple
         DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
         productColumn.getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
-        productColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         productColumn.add();
         productColumn.getDefinition().evaluate();
 
         DcColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
         categoryColumn.getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
-        categoryColumn.getDefinition().setDefinitionType(ColumnDefinitionType.LINK);
         categoryColumn.add();
         categoryColumn.getDefinition().evaluate();
 
         // Define a new aggregation column: output is an aggregation of a group of values
         DcColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
         totalAmountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
-        totalAmountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalAmountColumn.add();
         totalAmountColumn.getDefinition().evaluate();
 
@@ -555,7 +544,6 @@ public class CoreTest {
 
         DcColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
         totalCountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
-        totalCountColumn.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
         totalCountColumn.add();
         totalCountColumn.getDefinition().evaluate();
 
