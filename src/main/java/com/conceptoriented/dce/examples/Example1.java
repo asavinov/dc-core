@@ -5,13 +5,12 @@ import com.conceptoriented.dce.*;
 public class Example1 {
 
     public static void main(String[] args) {
-        String path = "C:\\Users\\savinov\\git\\dce-java\\src\\test\\resources\\example3";
+        String path = "src/test/resources/example3"; // Relative to project directory
+
         String detailsTableName = "Sales_SalesOrderDetail.txt";
-        String productsTableName = "Production_Product.txt";
-        String categoriesTableName = "Production_ProductCategory.txt";
 
         Workspace workspace = new Workspace();
-        DcSchema schema = new Schema("Example 1");
+        DcSchema schema = new Schema("Example 2");
         workspace.schemas.add(schema);
         schema.setWorkspace(workspace);
 
@@ -21,25 +20,45 @@ public class Example1 {
         //
         // Load data from CSV files
         //
+        long loadStartTime = System.currentTimeMillis();
+
         DcTable detailsTable = ((Schema)schema).createFromCsv(path + "\\" + detailsTableName, true);
         schema.addTable(detailsTable, null, null);
-        DcTable productsTable = ((Schema)schema).createFromCsv(path + "\\" + productsTableName, true);
-        schema.addTable(productsTable, null, null);
-        DcTable categoriesTable = ((Schema)schema).createFromCsv(path + "\\" + categoriesTableName, true);
-        schema.addTable(categoriesTable, null, null);
 
-        // Define a new arithmetic column: output is a computed primitive value
+        //
+        // Create, define and evaluate columns
+        //
+        long evaluationStartTime = System.currentTimeMillis();
+
+        // Arithmetic columns: output is a computed primitive value
         DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
         amountColumn.getDefinition().setFormula("[UnitPrice] * [OrderQty]");
         amountColumn.add();
         amountColumn.getDefinition().evaluate();
 
-        // 0. Turn off indexing during loading
-        // 1. Make DC interfaces visible: either public or in a separate file
-        // 2. Eliminate the need in ColumnDefinitionType. Set it automatically where parsing COEL
-        // 3. Primitive types should be accessible simpler. Say,
-        // 4. Introduce enumerator for identifying primitive types (instead of string)
+        //
+        // Print results
+        //
+        long endtime = System.currentTimeMillis();
 
+        long loadSec = (evaluationStartTime - loadStartTime) / 1000;
+        long loadMsec = (evaluationStartTime - loadStartTime) % 1000;
+        System.out.println("Data load time: " + loadSec + "s " + loadMsec + "ms. ");
+
+        long evalSec = (endtime - evaluationStartTime) / 1000;
+        long evalMsec = (endtime - evaluationStartTime) % 1000;
+        System.out.println("Evaluation time: " + evalSec + "s " + evalMsec + "ms. ");
+
+        System.out.println();
+
+        for(int i=0; i<10; i++) {
+            System.out.format("%-5s %16.5f %d %16.5f %n",
+                    i,
+                    detailsTable.getColumn("UnitPrice").getData().getValue(i),
+                    detailsTable.getColumn("OrderQty").getData().getValue(i),
+                    amountColumn.getData().getValue(i)
+                    );
+        }
     }
 
 }
