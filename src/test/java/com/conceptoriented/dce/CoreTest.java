@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.conceptoriented.dce.ColumnDefinitionType;
 import com.conceptoriented.dce.DcColumn;
 import com.conceptoriented.dce.DcSchema;
 import com.conceptoriented.dce.DcTable;
@@ -36,7 +35,6 @@ import com.conceptoriented.dce.DimPath;
 import com.conceptoriented.dce.ExprBuilder;
 import com.conceptoriented.dce.ExprNode;
 import com.conceptoriented.dce.Schema;
-import com.conceptoriented.dce.TableDefinitionType;
 import com.conceptoriented.dce.Workspace;
 
 public class CoreTest {
@@ -333,7 +331,7 @@ public class CoreTest {
         // Define aggregated column
         //
         DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
-        c15.getDefinition().setDefinitionType(ColumnDefinitionType.AGGREGATION);
+        c15.getDefinition().setDefinitionType(DcColumnDefinitionType.AGGREGATION);
 
         c15.getDefinition().setFactTable(t2); // Fact table
         c15.getDefinition().setGroupPaths(Arrays.asList(new DimPath(c24))); // One group path
@@ -381,7 +379,7 @@ public class CoreTest {
         // Define a new product-set
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
+        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PRODUCT);
         schema.addTable(t3, null, null);
 
         DcColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
@@ -423,7 +421,7 @@ public class CoreTest {
 
         ExprNode ast = exprBuilder.build("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
         t3.getDefinition().setWhereExpr(ast);
-        t3.getDefinition().setDefinitionType(TableDefinitionType.PRODUCT);
+        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PRODUCT);
 
         schema.addTable(t3, t2, null);
 
@@ -447,7 +445,7 @@ public class CoreTest {
         // Project "Table 2" along "Column 21" and get 2 unique records in a new set "Value A" (3 references) and "Value B" (1 reference)
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
+        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PROJECTION);
         schema.addTable(t3, null, null);
 
         DcColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
@@ -474,7 +472,7 @@ public class CoreTest {
         // Defining a combination of "Column 21" and "Column 22" and project with 3 unique records in a new set
         //
         DcTable t4 = schema.createTable("Table 4");
-        t4.getDefinition().setDefinitionType(TableDefinitionType.PROJECTION);
+        t4.getDefinition().setDefinitionType(DcTableDefinitionType.PROJECTION);
         schema.addTable(t4, null, null);
 
         DcColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);

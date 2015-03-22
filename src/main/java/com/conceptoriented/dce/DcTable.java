@@ -69,11 +69,3 @@ public interface DcTable {
     public DcTableDefinition getDefinition();
 }
 
-enum TableDefinitionType // Specific types of table formula
-{
-    FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
-    ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
-    PROJECTION, // Table gets its elements from (unique) outputs of some function
-    PRODUCT, // Table contains all combinations of its greater (key) sets satisfying the constraints
-    FILTER, // Tables contains a subset of elements from its super-set
-}

@@ -331,11 +331,11 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
     // ComTableDefinition
     //
 
-    protected TableDefinitionType _definitionType;
+    protected DcTableDefinitionType _definitionType;
     @Override
-    public TableDefinitionType getDefinitionType() { return _definitionType; }
+    public DcTableDefinitionType getDefinitionType() { return _definitionType; }
     @Override
-    public void setDefinitionType(TableDefinitionType value) { _definitionType = value; }
+    public void setDefinitionType(DcTableDefinitionType value) { _definitionType = value; }
 
     protected ExprNode _whereExpr;
     @Override
@@ -349,20 +349,20 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
 
     @Override
     public DcIterator getWhereEvaluator() {
-        DcIterator evaluator = new ExprIterator(this);
+        DcIterator evaluator = new IteratorExpr(this);
         return evaluator;
     }
 
     @Override
     public void populate() {
-        if (getDefinitionType() == TableDefinitionType.FREE)
+        if (getDefinitionType() == DcTableDefinitionType.FREE)
         {
             return; // Nothing to do
         }
 
         setLength(0);
 
-        if (getDefinitionType() == TableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)
+        if (getDefinitionType() == DcTableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)
         {
             //
             // Evaluator for where expression which will be used to check each new record before it is added
@@ -442,7 +442,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
             }
 
         }
-        else if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
+        else if (getDefinitionType() == DcTableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
             DcColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList()).get(0);
             DcTable sourceSet = projectDim.getInput();
@@ -498,7 +498,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         greaterDims = new ArrayList<DcColumn>();
         lesserDims = new ArrayList<DcColumn>();
 
-        setDefinitionType(TableDefinitionType.FREE);
+        setDefinitionType(DcTableDefinitionType.FREE);
     }
 
 }

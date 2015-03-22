@@ -552,11 +552,11 @@ class ColumnDefinition implements DcColumnDefinition
     public boolean isAppendSchema() { return _appendSchema; }
     public void setAppendSchema(boolean value) { _appendSchema = value; }
 
-    protected ColumnDefinitionType _definitionType;
+    protected DcColumnDefinitionType _definitionType;
     @Override
-    public ColumnDefinitionType getDefinitionType() { return _definitionType; }
+    public DcColumnDefinitionType getDefinitionType() { return _definitionType; }
     @Override
-    public void setDefinitionType(ColumnDefinitionType value) { _definitionType = value; }
+    public void setDefinitionType(DcColumnDefinitionType value) { _definitionType = value; }
 
     //
     // COEL (language) representation
@@ -575,13 +575,13 @@ class ColumnDefinition implements DcColumnDefinition
         setFormulaExpr(expr);
 
         if(expr.getOperation() == OperationType.TUPLE) {
-            setDefinitionType(ColumnDefinitionType.LINK);
+            setDefinitionType(DcColumnDefinitionType.LINK);
         }
         else if(expr.getOperation() == OperationType.CALL && expr.getName().equalsIgnoreCase("AGGREGATE")) {
-            setDefinitionType(ColumnDefinitionType.AGGREGATION);
+            setDefinitionType(DcColumnDefinitionType.AGGREGATION);
         }
         else {
-            setDefinitionType(ColumnDefinitionType.ARITHMETIC);
+            setDefinitionType(DcColumnDefinitionType.ARITHMETIC);
         }
     }
 
@@ -644,21 +644,21 @@ class ColumnDefinition implements DcColumnDefinition
     {
         DcIterator evaluator = null;
 
-        if (getDefinitionType() == ColumnDefinitionType.FREE)
+        if (getDefinitionType() == DcColumnDefinitionType.FREE)
         {
             ; // Nothing to do
         }
-        else if (getDefinitionType() == ColumnDefinitionType.AGGREGATION)
+        else if (getDefinitionType() == DcColumnDefinitionType.AGGREGATION)
         {
-            evaluator = new AggrIterator(_dim);
+            evaluator = new IteratorAggr(_dim);
         }
-        else if (getDefinitionType() == ColumnDefinitionType.ARITHMETIC)
+        else if (getDefinitionType() == DcColumnDefinitionType.ARITHMETIC)
         {
-            evaluator = new ExprIterator(_dim);
+            evaluator = new IteratorExpr(_dim);
         }
-        else if (getDefinitionType() == ColumnDefinitionType.LINK)
+        else if (getDefinitionType() == DcColumnDefinitionType.LINK)
         {
-            evaluator = new ExprIterator(_dim);
+            evaluator = new IteratorExpr(_dim);
         }
         else
         {
@@ -735,7 +735,7 @@ class ColumnDefinition implements DcColumnDefinition
         _dim = dim;
 
         _appendData = false;
-        _definitionType = ColumnDefinitionType.FREE;
+        _definitionType = DcColumnDefinitionType.FREE;
 
         _groupPaths = new ArrayList<DimPath>();
         _measurePaths = new ArrayList<DimPath>();
