@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 import java.util.List;
+
+import com.conceptoriented.dc.ExprNode;
 
 /**
  * Defines data in a table.

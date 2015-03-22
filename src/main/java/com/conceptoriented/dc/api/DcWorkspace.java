@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
-public enum DcDataType
-{
-    // Built-in types in C#: http://msdn.microsoft.com/en-us/library/vstudio/ya5y69ds.aspx
-    Void, // Null, Nothing, Empty no value. Can be equivalent to Top.
-    Top, // Maybe equivalent to Void
-    Bottom, // The most specific type but introduced formally. This guarantees that any set has a lesser set.
-    Root, // It is surrogate or reference
-    Integer,
-    Double,
-    Decimal,
-    String,
-    Boolean,
-    DateTime,
-    Set, // User-defined. It is any set that is not root (non-primititve type). Arbitrary user-defined name.
+import java.util.List;
+
+public interface DcWorkspace {
+
+    public List<DcSchema> getSchemas();
+    public void addSchema(DcSchema schema);
+    public void removeSchema(DcSchema schema);
+
+    public DcSchema getSchema(String name);
+
+    public DcSchema getMashup();
+    public void setMashup(DcSchema mashup);
 }
+

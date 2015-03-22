@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright 2013-2015 Alexandr Savinov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
-import com.conceptoriented.dc.api.*;
+public interface DcIterator {
+    public DcWorkspace getWorkspace();
+    public void setWorkspace(DcWorkspace workspace);
 
-public class Mapping {
+    public boolean next(); // True if there exists a next element
+    public boolean first(); // True if there exists a first element (if the set is not empty)
+    public boolean last(); // True if there exists a last element (if the set is not empty)
 
-    public ExprNode BuildExpression(ActionType action) {
-        throw new UnsupportedOperationException("TODO");
-    }
+    public Object evaluate(); // Compute output for the specified intput and write it
 
+    public Object getResult();
 }

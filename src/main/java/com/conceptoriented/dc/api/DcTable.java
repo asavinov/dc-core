@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 import java.util.List;
 

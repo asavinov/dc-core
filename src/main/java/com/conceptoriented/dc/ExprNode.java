@@ -24,6 +24,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import com.conceptoriented.dc.api.*;
+
 public class ExprNode extends TreeNode<ExprNode> {
 
     public ExprNode getChild(int child) { return (ExprNode)children.get(child).item; }
@@ -97,7 +99,7 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._result = result;
     }
 
-    public void resolve(Workspace workspace, List<DcVariable> variables) {
+    public void resolve(DcWorkspace workspace, List<DcVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
             boolean success;

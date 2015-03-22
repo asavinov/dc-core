@@ -19,6 +19,8 @@ package com.conceptoriented.dc;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.conceptoriented.dc.api.*;
+
 public class IteratorExpr implements DcIterator {
     protected DcColumnData columnData;
 
@@ -34,11 +36,11 @@ public class IteratorExpr implements DcIterator {
     // ComColumnEvaluator interface
     //
 
-    protected Workspace workspace;
+    protected DcWorkspace workspace;
     @Override
-    public Workspace getWorkspace() { return workspace; }
+    public DcWorkspace getWorkspace() { return workspace; }
     @Override
-    public void setWorkspace(Workspace workspace) { this.workspace = workspace; }
+    public void setWorkspace(DcWorkspace workspace) { this.workspace = workspace; }
 
     @Override
     public boolean next() {

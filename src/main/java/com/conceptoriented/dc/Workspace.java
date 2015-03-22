@@ -20,21 +20,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Workspace {
+import com.conceptoriented.dc.api.*;
 
-    public List<DcSchema> schemas;
+public class Workspace implements DcWorkspace {
 
-    public DcSchema getSchema(String name)
-    {
+    protected List<DcSchema> schemas;
+    @Override
+    public List<DcSchema> getSchemas() {
+        return schemas;
+    }
+    @Override
+    public void addSchema(DcSchema schema) {
+        schemas.add(schema);
+    }
+    @Override
+    public void removeSchema(DcSchema schema) {
+        schemas.remove(schema);
+    }
+
+    @Override
+    public DcSchema getSchema(String name) {
         Optional<DcSchema> ret = schemas.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
 
-    public DcSchema mashup;
-
-    public Workspace()
-    {
-        schemas = new ArrayList<DcSchema>();
+    protected DcSchema mashup;
+    @Override
+    public DcSchema getMashup() {
+        return mashup;
+    }
+    @Override
+    public void setMashup(DcSchema mashup) {
+        this.mashup = mashup;
     }
 
+    public Workspace() {
+        schemas = new ArrayList<DcSchema>();
+    }
 }

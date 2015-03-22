@@ -21,23 +21,17 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.conceptoriented.dc.DcColumn;
-import com.conceptoriented.dc.DcColumnDefinitionType;
-import com.conceptoriented.dc.DcSchema;
-import com.conceptoriented.dc.DcTable;
-import com.conceptoriented.dc.DcTableDefinitionType;
 import com.conceptoriented.dc.DimPath;
 import com.conceptoriented.dc.ExprBuilder;
 import com.conceptoriented.dc.ExprNode;
-import com.conceptoriented.dc.Schema;
-import com.conceptoriented.dc.Workspace;
+
+import com.conceptoriented.dc.api.*;
 
 public class CoreTest {
 
@@ -69,7 +63,7 @@ public class CoreTest {
         exprBuilder = new ExprBuilder();
     }
 
-    Workspace workspace;
+    DcWorkspace workspace;
     DcSchema schema;
 
     @Before
@@ -80,7 +74,7 @@ public class CoreTest {
         // Prepare schema
         //
         schema = createSampleSchema();
-        workspace.schemas.add(schema);
+        workspace.addSchema(schema);
         schema.setWorkspace(workspace);
     }
 

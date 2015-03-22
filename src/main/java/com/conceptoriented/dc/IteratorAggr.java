@@ -18,6 +18,8 @@ package com.conceptoriented.dc;
 
 import java.util.Arrays;
 
+import com.conceptoriented.dc.api.*;
+
 class IteratorAggr extends IteratorExpr
 {
     // base::columnData is the aggregated function to be computed

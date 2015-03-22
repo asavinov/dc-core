@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
-interface DcIterator {
-    public Workspace getWorkspace();
-    public void setWorkspace(Workspace workspace);
-
-    public boolean next(); // True if there exists a next element
-    public boolean first(); // True if there exists a first element (if the set is not empty)
-    public boolean last(); // True if there exists a last element (if the set is not empty)
-
-    public Object evaluate(); // Compute output for the specified intput and write it
-
-    public Object getResult();
+public enum DcTableDefinitionType // Specific types of table formula
+{
+    FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
+    ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
+    PROJECTION, // Table gets its elements from (unique) outputs of some function
+    PRODUCT, // Table contains all combinations of its greater (key) sets satisfying the constraints
+    FILTER, // Tables contains a subset of elements from its super-set
 }

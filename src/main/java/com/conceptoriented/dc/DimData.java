@@ -19,7 +19,7 @@ package com.conceptoriented.dc;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Objects;
+import com.conceptoriented.dc.api.*;
 
 public class DimData<T extends Comparable<T>> implements DcColumnData {
 

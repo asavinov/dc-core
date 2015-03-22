@@ -16,7 +16,10 @@
 
 package com.conceptoriented.dc.examples;
 
-import com.conceptoriented.dc.*;
+import com.conceptoriented.dc.api.*;
+
+import com.conceptoriented.dc.Workspace;
+import com.conceptoriented.dc.Schema;
 
 public class Example1 {
 
@@ -25,9 +28,9 @@ public class Example1 {
 
         String detailsTableName = "Sales_SalesOrderDetail.txt";
 
-        Workspace workspace = new Workspace();
+        DcWorkspace workspace = new Workspace();
         DcSchema schema = new Schema("Example 2");
-        workspace.schemas.add(schema);
+        workspace.addSchema(schema);
         schema.setWorkspace(workspace);
 
         DcTable integerType = schema.getPrimitive("Integer");

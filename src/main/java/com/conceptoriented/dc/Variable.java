@@ -18,6 +18,8 @@ package com.conceptoriented.dc;
 
 import com.google.common.base.Strings;
 
+import com.conceptoriented.dc.api.*;
+
 public class Variable implements DcVariable
 {
     protected boolean _isNull;
@@ -48,7 +50,7 @@ public class Variable implements DcVariable
     public void setTypeName(String value) { _typeName = value; }
 
 
-    public void resolve(Workspace workspace) {
+    public void resolve(DcWorkspace workspace) {
         if (!Strings.isNullOrEmpty(getSchemaName()))
         {
             // 1. Resolve schema name
@@ -64,19 +66,19 @@ public class Variable implements DcVariable
         else if (!Strings.isNullOrEmpty(getTypeName())) // No schema name (imcomplete info)
         {
             // 1. try to find the table in the mashup
-            if (workspace.mashup != null)
+            if (workspace.getMashup() != null)
             {
-                setTypeTable(workspace.mashup.getSubTable(getTypeName()));
+                setTypeTable(workspace.getMashup().getSubTable(getTypeName()));
                 if (getTypeTable() != null)
                 {
-                    setTypeSchema(workspace.mashup);
+                    setTypeSchema(workspace.getMashup());
                     setSchemaName(getTypeSchema().getName()); // We also reconstruct the name
                     return;
                 }
             }
 
             // 2. try to find the table in any other schema
-            for (DcSchema schema : workspace.schemas)
+            for (DcSchema schema : workspace.getSchemas())
             {
                 setTypeTable(schema.getSubTable(getTypeName()));
                 if (getTypeTable() != null)

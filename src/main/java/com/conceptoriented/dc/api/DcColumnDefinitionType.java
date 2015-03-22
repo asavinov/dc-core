@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 public enum DcColumnDefinitionType // Specific types of column formula
 {

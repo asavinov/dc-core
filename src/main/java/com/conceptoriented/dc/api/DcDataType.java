@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
-public enum DcTableDefinitionType // Specific types of table formula
+public enum DcDataType
 {
-    FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
-    ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
-    PROJECTION, // Table gets its elements from (unique) outputs of some function
-    PRODUCT, // Table contains all combinations of its greater (key) sets satisfying the constraints
-    FILTER, // Tables contains a subset of elements from its super-set
+    // Built-in types in C#: http://msdn.microsoft.com/en-us/library/vstudio/ya5y69ds.aspx
+    Void, // Null, Nothing, Empty no value. Can be equivalent to Top.
+    Top, // Maybe equivalent to Void
+    Bottom, // The most specific type but introduced formally. This guarantees that any set has a lesser set.
+    Root, // It is surrogate or reference
+    Integer,
+    Double,
+    Decimal,
+    String,
+    Boolean,
+    DateTime,
+    Set, // User-defined. It is any set that is not root (non-primititve type). Arbitrary user-defined name.
 }

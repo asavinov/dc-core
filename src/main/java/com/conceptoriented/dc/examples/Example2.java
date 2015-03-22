@@ -16,7 +16,10 @@
 
 package com.conceptoriented.dc.examples;
 
-import com.conceptoriented.dc.*;
+import com.conceptoriented.dc.api.*;
+
+import com.conceptoriented.dc.Workspace;
+import com.conceptoriented.dc.Schema;
 
 public class Example2 {
 
@@ -30,7 +33,7 @@ public class Example2 {
 
         Workspace workspace = new Workspace();
         DcSchema schema = new Schema("Example 1");
-        workspace.schemas.add(schema);
+        workspace.addSchema(schema);
         schema.setWorkspace(workspace);
 
         DcTable integerType = schema.getPrimitive("Integer");

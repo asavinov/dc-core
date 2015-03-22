@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 import java.util.List;
+
+import com.conceptoriented.dc.DimPath;
+import com.conceptoriented.dc.ExprNode;
+import com.conceptoriented.dc.Mapping;
 
 /**
  * Describes and computes one function in terms of other functions.

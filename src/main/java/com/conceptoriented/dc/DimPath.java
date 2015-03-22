@@ -19,6 +19,8 @@ package com.conceptoriented.dc;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.conceptoriented.dc.api.*;
+
 public class DimPath extends Dim {
 
     protected List<DcColumn> segments;

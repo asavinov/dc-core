@@ -29,19 +29,21 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.google.common.io.Files;
 
+import com.conceptoriented.dc.api.*;
+
 public class Schema extends Set implements DcSchema {
 
     //
     // ComSchema interface
     //
 
-    protected Workspace workspace;
+    protected DcWorkspace workspace;
     @Override
-    public Workspace getWorkspace() {
+    public DcWorkspace getWorkspace() {
         return workspace;
     }
     @Override
-    public void setWorkspace(Workspace workspace) {
+    public void setWorkspace(DcWorkspace workspace) {
         this.workspace = workspace;
     }
 

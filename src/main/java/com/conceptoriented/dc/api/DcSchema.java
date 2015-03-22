@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 public interface DcSchema extends DcTable {
 
-    public Workspace getWorkspace();
-    public void setWorkspace(Workspace workspace);
+    public DcWorkspace getWorkspace();
+    public void setWorkspace(DcWorkspace workspace);
 
     public DcTable getPrimitive(String dataType);
     public DcTable getRoot();

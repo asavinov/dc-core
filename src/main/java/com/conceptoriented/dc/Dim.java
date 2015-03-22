@@ -19,6 +19,8 @@ package com.conceptoriented.dc;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+import com.conceptoriented.dc.api.*;
+
 public class Dim implements DcColumn {
 
     //

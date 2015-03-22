@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
-
+package com.conceptoriented.dc.api;
 
 public interface DcVariable {
 
@@ -35,7 +34,7 @@ public interface DcVariable {
     public String getTypeName();
     public void setTypeName(String typeName);
 
-    public void resolve(Workspace workspace);
+    public void resolve(DcWorkspace workspace);
 
     public DcSchema getTypeSchema();
     public void setTypeSchema(DcSchema typeSchema);

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package com.conceptoriented.dc;
+package com.conceptoriented.dc.api;
 
 /**
- * Working with data in the table.
+ * Storage methods for working with function data like reading and writing function output values for the specified inputs.
  *
  * @author savinov
  *
  */
-public interface DcTableData {
+public interface DcColumnData {
 
     public int getLength();
     public void setLength(int length);
 
+    public boolean isAutoIndex();
     public void setAutoIndex(boolean value);
 
     public boolean isIndexed();
@@ -34,25 +35,27 @@ public interface DcTableData {
     public void reindex();
 
     //
-    // Value methods (convenience, probably should be removed and replaced by manual access to dimensions)
+    // Untyped methods. Default conversion will be done according to the function type.
+    //
+    public boolean isNull(int input);
+
+    public Object getValue(int input);
+    public void setValue(int input, Object value);
+    public void setValue(Object value);
+
+    public void nullify();
+
+    public void append(Object value);
+
+    public void insert(int input, Object value);
+
+    public void remove(int input);
+
+    //
+    // Project/de-project
     //
 
-    Object getValue(String name, int offset);
-    void setValue(String name, int offset, Object value);
+    Object project(int[] offsets);
+    int[] deproject(Object value);
 
-    //
-    // Tuple (flat record) methods: append, insert, remove, read, write.
-    //
-
-    int find(DcColumn[] dims, Object[] values);
-    int append(DcColumn[] dims, Object[] values);
-    void remove(int input);
-
-    //
-    // Expression (nested record) methods: append, insert, remove, read, write.
-    //
-
-    int find(ExprNode expr);
-    boolean canAppend(ExprNode expr);
-    int append(ExprNode expr);
 }
