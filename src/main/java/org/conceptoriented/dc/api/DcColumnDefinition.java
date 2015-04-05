@@ -18,9 +18,9 @@ package org.conceptoriented.dc.api;
 
 import java.util.List;
 
-import org.conceptoriented.dc.DimPath;
-import org.conceptoriented.dc.ExprNode;
-import org.conceptoriented.dc.Mapping;
+import org.conceptoriented.dc.engine.DimPath;
+import org.conceptoriented.dc.engine.ExprNode;
+import org.conceptoriented.dc.engine.Mapping;
 
 /**
  * Describes and computes one function in terms of other functions.

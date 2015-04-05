@@ -16,7 +16,7 @@
 
 package org.conceptoriented.dc.api;
 
-import org.conceptoriented.dc.ExprNode;
+import org.conceptoriented.dc.engine.ExprNode;
 
 /**
  * Working with data in the table.

@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc;
+package org.conceptoriented.dc.parser;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import org.conceptoriented.dc.ExprBaseVisitor;
-import org.conceptoriented.dc.ExprLexer;
-import org.conceptoriented.dc.ExprParser;
+import org.conceptoriented.dc.engine.ExprNode;
+import org.conceptoriented.dc.engine.ActionType;
+import org.conceptoriented.dc.engine.OperationType;
+
+import org.conceptoriented.dc.parser.ExprBaseVisitor;
+import org.conceptoriented.dc.parser.ExprLexer;
+import org.conceptoriented.dc.parser.ExprParser;
 
 public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc;
+package org.conceptoriented.dc.tests;
 
 import static org.junit.Assert.*;
 
@@ -23,15 +23,13 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import org.conceptoriented.dc.DimPath;
-import org.conceptoriented.dc.ExprBuilder;
-import org.conceptoriented.dc.ExprNode;
-import org.conceptoriented.dc.Schema;
-import org.conceptoriented.dc.Workspace;
-import org.conceptoriented.dc.api.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.conceptoriented.dc.api.*;
+import org.conceptoriented.dc.engine.*;
+import org.conceptoriented.dc.parser.ExprBuilder;
 
 public class CoreTest {
 

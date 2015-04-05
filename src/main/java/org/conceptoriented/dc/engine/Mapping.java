@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc;
+package org.conceptoriented.dc.engine;
 
 import org.conceptoriented.dc.api.*;
 

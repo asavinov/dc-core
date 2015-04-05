@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc;
+package org.conceptoriented.dc.engine;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.conceptoriented.dc.api.*;
+import org.conceptoriented.dc.parser.ExprBuilder;
 
 public class DimData<T extends Comparable<T>> implements DcColumnData {
 

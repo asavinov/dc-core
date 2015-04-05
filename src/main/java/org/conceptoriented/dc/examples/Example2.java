@@ -16,9 +16,9 @@
 
 package org.conceptoriented.dc.examples;
 
-import org.conceptoriented.dc.Schema;
-import org.conceptoriented.dc.Workspace;
 import org.conceptoriented.dc.api.*;
+import org.conceptoriented.dc.engine.Schema;
+import org.conceptoriented.dc.engine.Workspace;
 
 public class Example2 {
 

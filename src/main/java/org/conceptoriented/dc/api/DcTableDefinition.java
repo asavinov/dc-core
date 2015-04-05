@@ -18,7 +18,7 @@ package org.conceptoriented.dc.api;
 
 import java.util.List;
 
-import org.conceptoriented.dc.ExprNode;
+import org.conceptoriented.dc.engine.ExprNode;
 
 /**
  * Defines data in a table.
