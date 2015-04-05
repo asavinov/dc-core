@@ -2,7 +2,7 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.conceptoriented</groupId>
+  <groupId>org.conceptoriented</groupId>
   <artifactId>dc</artifactId>
   <packaging>jar</packaging>
   <version>0.2.0-SNAPSHOT</version>
