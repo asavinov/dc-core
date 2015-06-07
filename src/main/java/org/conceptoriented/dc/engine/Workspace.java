@@ -35,6 +35,14 @@ public class Workspace implements DcWorkspace {
     }
     @Override
     public void removeSchema(DcSchema schema) {
+        // We have to ensure that inter-schema (import/export) columns are also deleted
+        List<DcTable> allTables = schema.getAllSubTables();
+        for (DcTable t : allTables)
+        {
+            if (t.isPrimitive()) continue;
+            schema.deleteTable(t);
+        }
+
         schemas.remove(schema);
     }
 
