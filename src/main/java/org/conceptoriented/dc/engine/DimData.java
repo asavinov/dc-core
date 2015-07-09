@@ -570,9 +570,14 @@ class ColumnDefinition implements DcColumnDefinition
     public void setFormula(String value)
     {
         _formula = value;
+		
+        if (Utils.isNullOrEmpty(value)) return;
 
         ExprBuilder exprBuilder = new ExprBuilder();
         ExprNode expr = exprBuilder.build(_formula);
+
+        if (expr == null) return;
+
         setFormulaExpr(expr);
 
         if(expr.getOperation() == OperationType.TUPLE) {
