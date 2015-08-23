@@ -9,11 +9,11 @@
 
 # DataCommandr: Integrate. Transform. Analyze. 
 
-DataCommandr is a Java library for data integration, transformation and analysis. 
+DataCommandr Engine is an open source Java library for data integration, transformation and analysis. DataCommandr allows for loading data from different data sources and then defining (potentially highly complicated) data mashups. By a data mashup we mean a new data that is derived from the input data sources by applying various transformations. In this sense, it pursues the same goal as conventional query languages (like SQL) and data transformation languages (like Pig Latin). The unique distinguishing feature is that DataCommander applies a novel column-oriented approach where new data columns are defined in terms of other data columns. It is opposed to most other approaches where new data tables are defined in terms of other data tables. New columns in DataCommander are defined using a novel concept-oriented expression language (COEL). 
 
-DataCommandr is based on a novel approach to data modeling, called the concept-oriented model of data (COM). This model has been developed by [Alexandr Savinov](http://conceptoriented.org/savinov) and more information about it including publications can be found on [this site](http://conceptoriented.org).
+## Features 
 
-DataCommandr allows for loading data from different sources and then defining (potentially highly complicated) data mashups. By a data mashup we mean a new data that is derived from the input data sources by applying various transformations. In this sense, it pursues the same goal as conventional query languages (like SQL) and data transformation languages (like Pig Latin). The following features either distinguish DataCommandr from other approaches or make it unique: 
+DataCommander has the following distinguishing features: 
 
 * DataCommandr is based on a novel concept-oriented data model (COM) which is a unified model aimed at generalizing existing data models and data modeling techniques. 
 
@@ -31,7 +31,21 @@ It loads data into memory and queries it repeatedly column-wise much faster than
 
 ## More Information
 
-More information about Data Commandr can be found on the concept-oriented portal: <http://www.conceptoriented.org>.
+More information about DataCommandr and the underlying data model can be found from the following sources: 
+
+* Examples of using DataCommandr can be found in the `org.conceptoriented.dc.examples` package. The corresponding data sets are located in the resources folder: `/dce-java/src/test/resources` 
+
+* Source code of this project can be checked out from bitbucket: <http://bitbucket.org/conceptoriented/dce-java>
+
+* More information information on all aspects of concept-oriented paradigm including the concept-oriented model and concept-oriented programming including publications can found on the concept-oriented portal: <http://www.conceptoriented.org>
+
+* Concept-oriented expression language (COEL) is a formula language which is used in DataCommandr to define new data columns in terms of other data columns: <http://conceptoriented.org/wiki/Concept-oriented_expression_language>
+
+* COEL can be used to define various types of columns like calculated columns, link columns (used instead of joins), accumulated columns (substitute for group-by). Some examples of these formulas can be found here: <http://conceptoriented.org/wiki/COEL_formulas>
+
+* DataCommandr Engine has been also implemented in C# which is used as a data processing core in the DataCommandr interactive application (written in WPF). It is a self-service tool for agile data transformations. More information about this tool can be found here: <http://www.conceptoriented.com>
+
+* Alexandr Savinov is an author of DataCommander Engine Java library as well as the underlying concept-oriented model (COM): <http://conceptoriented.org/savinov>
 
 ## License
 
