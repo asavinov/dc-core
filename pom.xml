@@ -21,7 +21,7 @@
 		<profile>
 			<id>default_jdk</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<jdk>${env.JAVA_HOME}</jdk>
@@ -31,10 +31,10 @@
 		<profile>
 			<id>jdk18</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
-				<jdk>C:/Program Files/Java/jdk1.8.0_20</jdk>
+				<jdk>C:/Program Files/Java/jdk1.8.0_60</jdk>
 			</properties>
 		</profile>
 

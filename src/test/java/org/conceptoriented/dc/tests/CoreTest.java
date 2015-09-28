@@ -26,10 +26,11 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import org.conceptoriented.dc.api.*;
-import org.conceptoriented.dc.engine.*;
-import org.conceptoriented.dc.parser.ExprBuilder;
+import org.conceptoriented.dc.data.*;
+import org.conceptoriented.dc.data.eval.ExprNode;
+import org.conceptoriented.dc.data.query.ExprBuilder;
+import org.conceptoriented.dc.schema.*;
+import org.conceptoriented.dc.utils.DimPath;
 
 public class CoreTest {
 
