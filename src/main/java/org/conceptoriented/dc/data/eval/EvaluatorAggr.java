@@ -21,7 +21,7 @@ import java.util.Arrays;
 import org.conceptoriented.dc.schema.*;
 import org.conceptoriented.dc.data.*;
 
-public class IteratorAggr extends IteratorExpr
+public class EvaluatorAggr extends EvaluatorExpr
 {
     // base::columnData is the aggregated function to be computed
 
@@ -55,11 +55,11 @@ public class IteratorAggr extends IteratorExpr
         thisVariable.setValue(thisCurrent);
 
         groupExpr.evaluate();
-        int groupElement = (int)groupExpr.getResult().getValue();
+        int groupElement = (int)groupExpr.getOutputVariable().getValue();
         groupVariable.setValue(groupElement);
 
         measureExpr.evaluate();
-        Object measureValue = measureExpr.getResult().getValue();
+        Object measureValue = measureExpr.getOutputVariable().getValue();
         measureVariable.setValue(measureValue);
 
         //
@@ -67,13 +67,13 @@ public class IteratorAggr extends IteratorExpr
         //
         outputExpr.evaluate();
 
-        Object newValue = outputExpr.getResult().getValue();
+        Object newValue = outputExpr.getOutputVariable().getValue();
         columnData.setValue(groupElement, newValue);
 
-        return outputExpr.getResult().getValue();
+        return outputExpr.getOutputVariable().getValue();
     }
 
-    public IteratorAggr(DcColumn column) // Create evaluator from structured definition
+    public EvaluatorAggr(DcColumn column) // Create evaluator from structured definition
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();

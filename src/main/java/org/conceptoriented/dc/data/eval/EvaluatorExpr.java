@@ -22,7 +22,7 @@ import java.util.Arrays;
 import org.conceptoriented.dc.schema.*;
 import org.conceptoriented.dc.data.*;
 
-public class IteratorExpr implements DcIterator {
+public class EvaluatorExpr implements DcEvaluator {
     protected DcColumnData columnData;
 
     // Loop
@@ -44,7 +44,7 @@ public class IteratorExpr implements DcIterator {
     public void setWorkspace(DcWorkspace workspace) { this.workspace = workspace; }
 
     @Override
-    public boolean next() {
+    public boolean nextInput() {
         if (thisCurrent < thisTable.getData().getLength()) thisCurrent++;
 
         if (thisCurrent < thisTable.getData().getLength()) return true;
@@ -52,7 +52,7 @@ public class IteratorExpr implements DcIterator {
     }
 
     @Override
-    public boolean first() {
+    public boolean firstInput() {
         thisCurrent = 0;
 
         if (thisCurrent < thisTable.getData().getLength()) return true;
@@ -60,7 +60,7 @@ public class IteratorExpr implements DcIterator {
     }
 
     @Override
-    public boolean last() {
+    public boolean lastInput() {
         thisCurrent = thisTable.getData().getLength() - 1;
 
         if (thisCurrent >= 0) return true;
@@ -78,18 +78,18 @@ public class IteratorExpr implements DcIterator {
         // Write the result value to the function
         if (columnData != null)
         {
-            columnData.setValue(thisCurrent, outputExpr.getResult().getValue());
+            columnData.setValue(thisCurrent, outputExpr.getOutputVariable().getValue());
         }
 
-        return outputExpr.getResult().getValue();
+        return outputExpr.getOutputVariable().getValue();
     }
 
     @Override
-    public Object getResult() {
-        return outputExpr.getResult().getValue();
+    public Object getOutput() {
+        return outputExpr.getOutputVariable().getValue();
     }
 
-    public IteratorExpr(DcColumn column)
+    public EvaluatorExpr(DcColumn column)
     {
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
@@ -130,15 +130,15 @@ public class IteratorExpr implements DcIterator {
             }
         }
 
-        outputExpr.getResult().setSchemaName(column.getOutput().getSchema().getName());
-        outputExpr.getResult().setTypeName(column.getOutput().getName());
-        outputExpr.getResult().setTypeSchema(column.getOutput().getSchema());
-        outputExpr.getResult().setTypeTable(column.getOutput());
+        outputExpr.getOutputVariable().setSchemaName(column.getOutput().getSchema().getName());
+        outputExpr.getOutputVariable().setTypeName(column.getOutput().getName());
+        outputExpr.getOutputVariable().setTypeSchema(column.getOutput().getSchema());
+        outputExpr.getOutputVariable().setTypeTable(column.getOutput());
 
         outputExpr.resolve(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
     }
 
-    public IteratorExpr(DcTable table)
+    public EvaluatorExpr(DcTable table)
     {
         setWorkspace(table.getSchema().getWorkspace());
         columnData = null;
@@ -156,7 +156,7 @@ public class IteratorExpr implements DcIterator {
         outputExpr.resolve(workspace, Arrays.asList(thisVariable));
     }
 
-    public IteratorExpr()
+    public EvaluatorExpr()
     {
     }
 }

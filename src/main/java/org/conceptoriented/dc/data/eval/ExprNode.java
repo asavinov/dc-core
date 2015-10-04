@@ -91,12 +91,12 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._action = value;
     }
 
-    public DcVariable _result;
-    public DcVariable getResult() {
-        return _result;
+    public DcVariable _outputVariable;
+    public DcVariable getOutputVariable() {
+        return _outputVariable;
     }
-    public void setResult(DcVariable result) {
-        this._result = result;
+    public void setOutputVariable(DcVariable variable) {
+        this._outputVariable = variable;
     }
 
     public void resolve(DcWorkspace workspace, List<DcVariable> variables) {
@@ -113,25 +113,25 @@ public class ExprNode extends TreeNode<ExprNode> {
             try { intValue = Integer.parseInt(getName()); } catch (NumberFormatException e) { success = false; }
             if (success)
             {
-                getResult().setTypeName("Integer");
-                getResult().setValue(intValue);
+                getOutputVariable().setTypeName("Integer");
+                getOutputVariable().setValue(intValue);
             }
             else {
                 success = true;
                 try { doubleValue = Double.parseDouble(getName()); } catch (NumberFormatException e) { success = false; }
                 if (success)
                 {
-                    getResult().setTypeName("Double");
-                    getResult().setValue(doubleValue);
+                    getOutputVariable().setTypeName("Double");
+                    getOutputVariable().setValue(doubleValue);
                 }
                 else // Cannot parse means string
                 {
-                    getResult().setTypeName("String");
-                    getResult().setValue(getName());
+                    getOutputVariable().setTypeName("String");
+                    getOutputVariable().setValue(getName());
                 }
             }
 
-            getResult().resolve(workspace);
+            getOutputVariable().resolve(workspace);
         }
         else if (getOperation() == OperationType.TUPLE)
         {
@@ -143,7 +143,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             // 1. Resolve type table name
             //
-            getResult().resolve(workspace);
+            getOutputVariable().resolve(workspace);
 
             //
             // 2. Resolve Name into a column object (a function from the parent to this node)
@@ -155,23 +155,23 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
             else if (parentNode.getOperation() == OperationType.TUPLE) // This tuple in another tuple
             {
-                if (parentNode.getResult().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
+                if (parentNode.getOutputVariable().getTypeTable() != null && !Utils.isNullOrEmpty(getName()))
                 {
-                    DcColumn col = parentNode.getResult().getTypeTable().getColumn(getName());
+                    DcColumn col = parentNode.getOutputVariable().getTypeTable().getColumn(getName());
 
                     if (col != null) // Column resolved
                     {
                         setColumn(col);
 
                         // Check and process type information
-                        if (getResult().getTypeTable() == null)
+                        if (getOutputVariable().getTypeTable() == null)
                         {
-                            getResult().setSchemaName(col.getOutput().getSchema().getName());
-                            getResult().setTypeName(col.getOutput().getName());
-                            getResult().setTypeSchema(col.getOutput().getSchema());
-                            getResult().setTypeTable(col.getOutput());
+                            getOutputVariable().setSchemaName(col.getOutput().getSchema().getName());
+                            getOutputVariable().setTypeName(col.getOutput().getName());
+                            getOutputVariable().setTypeSchema(col.getOutput().getSchema());
+                            getOutputVariable().setTypeTable(col.getOutput());
                         }
-                        else if (getResult().getTypeTable() != col.getOutput())
+                        else if (getOutputVariable().getTypeTable() != col.getOutput())
                         {
                             ; // ERROR: Output type of the column must be the same as this node result type
                         }
@@ -210,7 +210,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             // 1. Resolve type table name
             //
-            getResult().resolve(workspace);
+            getOutputVariable().resolve(workspace);
 
 
             //
@@ -259,10 +259,10 @@ public class ExprNode extends TreeNode<ExprNode> {
                 {
                     DcVariable var = varOpt.get();
 
-                    getResult().setSchemaName(var.getSchemaName());
-                    getResult().setTypeName(var.getTypeName());
-                    getResult().setTypeSchema(var.getTypeSchema());
-                    getResult().setTypeTable(var.getTypeTable());
+                    getOutputVariable().setSchemaName(var.getSchemaName());
+                    getOutputVariable().setTypeName(var.getTypeName());
+                    getOutputVariable().setTypeSchema(var.getTypeSchema());
+                    getOutputVariable().setTypeTable(var.getTypeTable());
 
                     setVariable(var);
                 }
@@ -279,15 +279,15 @@ public class ExprNode extends TreeNode<ExprNode> {
                     thisChild.setAction(ActionType.READ);
                     thisChild.setName("this");
 
-                    thisChild.getResult().setSchemaName(thisVar.getSchemaName());
-                    thisChild.getResult().setTypeName(thisVar.getTypeName());
-                    thisChild.getResult().setTypeSchema(thisVar.getTypeSchema());
-                    thisChild.getResult().setTypeTable(thisVar.getTypeTable());
+                    thisChild.getOutputVariable().setSchemaName(thisVar.getSchemaName());
+                    thisChild.getOutputVariable().setTypeName(thisVar.getTypeName());
+                    thisChild.getOutputVariable().setTypeSchema(thisVar.getTypeSchema());
+                    thisChild.getOutputVariable().setTypeTable(thisVar.getTypeTable());
 
                     thisChild.setVariable(thisVar);
 
                     ExprNode path = thisChild;
-                    DcTable contextTable = thisChild.getResult().getTypeTable();
+                    DcTable contextTable = thisChild.getOutputVariable().getTypeTable();
                     DcColumn col = null;
 
                     while (contextTable != null)
@@ -331,14 +331,14 @@ public class ExprNode extends TreeNode<ExprNode> {
                         setColumn(col);
 
                         // Check and process type information
-                        if (getResult().getTypeTable() == null)
+                        if (getOutputVariable().getTypeTable() == null)
                         {
-                            getResult().setSchemaName(col.getOutput().getSchema().getName());
-                            getResult().setTypeName(col.getOutput().getName());
-                            getResult().setTypeSchema(col.getOutput().getSchema());
-                            getResult().setTypeTable(col.getOutput());
+                            getOutputVariable().setSchemaName(col.getOutput().getSchema().getName());
+                            getOutputVariable().setTypeName(col.getOutput().getName());
+                            getOutputVariable().setTypeSchema(col.getOutput().getSchema());
+                            getOutputVariable().setTypeTable(col.getOutput());
                         }
-                        else if (getResult().getTypeTable() != col.getOutput())
+                        else if (getOutputVariable().getTypeTable() != col.getOutput())
                         {
                             ; // ERROR: Output type of the column must be the same as this node result type
                         }
@@ -364,21 +364,21 @@ public class ExprNode extends TreeNode<ExprNode> {
                     outputChild = getChild(0);
                 }
 
-                DcColumn col = outputChild.getResult().getTypeTable().getColumn(methodName);
+                DcColumn col = outputChild.getOutputVariable().getTypeTable().getColumn(methodName);
 
                 if (col != null) // Column resolved
                 {
                     setColumn(col);
 
                     // Check and process type information
-                    if (getResult().getTypeTable() == null)
+                    if (getOutputVariable().getTypeTable() == null)
                     {
-                        getResult().setSchemaName(col.getOutput().getSchema().getName());
-                        getResult().setTypeName(col.getOutput().getName());
-                        getResult().setTypeSchema(col.getOutput().getSchema());
-                        getResult().setTypeTable(col.getOutput());
+                        getOutputVariable().setSchemaName(col.getOutput().getSchema().getName());
+                        getOutputVariable().setTypeName(col.getOutput().getName());
+                        getOutputVariable().setTypeSchema(col.getOutput().getSchema());
+                        getOutputVariable().setTypeTable(col.getOutput());
                     }
-                    else if (getResult().getTypeTable() != col.getOutput())
+                    else if (getOutputVariable().getTypeTable() != col.getOutput())
                     {
                         ; // ERROR: Output type of the column must be the same as this node result type
                     }
@@ -393,8 +393,8 @@ public class ExprNode extends TreeNode<ExprNode> {
                 String methodName = this.getName();
 
                 // TODO: Derive return type. It is derived from arguments by using type conversion rules
-                getResult().setTypeName("Double");
-                getResult().resolve(workspace);
+                getOutputVariable().setTypeName("Double");
+                getOutputVariable().resolve(workspace);
 
                 switch (getAction())
                 {
@@ -429,40 +429,40 @@ public class ExprNode extends TreeNode<ExprNode> {
                 childNode.item.evaluate();
             }
 
-            if (getResult().getTypeTable().isPrimitive()) // Primitive TUPLE nodes are processed differently
+            if (getOutputVariable().getTypeTable().isPrimitive()) // Primitive TUPLE nodes are processed differently
             {
                 ExprNode childNode = getChild(0);
-                Object val = childNode.getResult().getValue();
-                String targeTypeName = getResult().getTypeTable().getName();
+                Object val = childNode.getOutputVariable().getValue();
+                String targeTypeName = getOutputVariable().getTypeTable().getName();
 
                 // Copy result from the child expression and convert it to this node type
                 if (val instanceof String && Utils.isNullOrEmpty((String)val))
                 {
-                    getResult().setValue(null);
+                    getOutputVariable().setValue(null);
                 }
                 else if (Utils.sameTableName(targeTypeName, "Integer"))
                 {
-                    getResult().setValue(Utils.toInt32(val));
+                    getOutputVariable().setValue(Utils.toInt32(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "Double"))
                 {
-                    getResult().setValue(Utils.toDouble(val));
+                    getOutputVariable().setValue(Utils.toDouble(val));
                 }
                 else if(Utils.sameTableName(targeTypeName, "Decimal"))
                 {
-                    getResult().setValue(Utils.toDecimal(val));
+                    getOutputVariable().setValue(Utils.toDecimal(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "String"))
                 {
-                    getResult().setValue(val.toString());
+                    getOutputVariable().setValue(val.toString());
                 }
                 else if (Utils.sameTableName(targeTypeName, "Boolean"))
                 {
-                    getResult().setValue(Utils.toBoolean(val));
+                    getOutputVariable().setValue(Utils.toBoolean(val));
                 }
                 else if (Utils.sameTableName(targeTypeName, "DateTime"))
                 {
-                    getResult().setValue(Utils.toDateTime(val));
+                    getOutputVariable().setValue(Utils.toDateTime(val));
                 }
                 else
                 {
@@ -476,15 +476,15 @@ public class ExprNode extends TreeNode<ExprNode> {
                 // Find, append or update an element in this set (depending on the action type)
                 if (getAction() == ActionType.READ) // Find the offset
                 {
-                    int input = getResult().getTypeTable().getData().find(this);
+                    int input = getOutputVariable().getTypeTable().getData().find(this);
 
-                    if (input < 0 || input >= getResult().getTypeTable().getData().getLength()) // Not found
+                    if (input < 0 || input >= getOutputVariable().getTypeTable().getData().getLength()) // Not found
                     {
-                        getResult().setValue(null);
+                        getOutputVariable().setValue(null);
                     }
                     else
                     {
-                        getResult().setValue(input);
+                        getOutputVariable().setValue(input);
                     }
                 }
                 else if (getAction() == ActionType.UPDATE) // Find and update the record
@@ -492,14 +492,14 @@ public class ExprNode extends TreeNode<ExprNode> {
                 }
                 else if (getAction() == ActionType.APPEND) // Find, try to update and append if cannot be found
                 {
-                    int input = getResult().getTypeTable().getData().find(this); // Uniqueness constraint: check if it exists already
+                    int input = getOutputVariable().getTypeTable().getData().find(this); // Uniqueness constraint: check if it exists already
 
-                    if (input < 0 || input >= getResult().getTypeTable().getData().getLength()) // Not found
+                    if (input < 0 || input >= getOutputVariable().getTypeTable().getData().getLength()) // Not found
                     {
-                        input = getResult().getTypeTable().getData().append(this); // Append new
+                        input = getOutputVariable().getTypeTable().getData().append(this); // Append new
                     }
 
-                    getResult().setValue(input);
+                    getOutputVariable().setValue(input);
                 }
                 else
                 {
@@ -554,14 +554,14 @@ public class ExprNode extends TreeNode<ExprNode> {
                 if (getColumn() != null)
                 {
                     ExprNode prevOutput = getChild(0);
-                    int input = (int)prevOutput.getResult().getValue();
+                    int input = (int)prevOutput.getOutputVariable().getValue();
                     Object output = getColumn().getData().getValue(input);
-                    getResult().setValue(output);
+                    getOutputVariable().setValue(output);
                 }
                 else if (getVariable() != null)
                 {
                     Object result = getVariable().getValue();
-                    getResult().setValue(result);
+                    getOutputVariable().setValue(result);
                 }
             }
             else if (getAction() == ActionType.UPDATE) // Compute new value for the specified offset using a new value in the variable
@@ -575,115 +575,115 @@ public class ExprNode extends TreeNode<ExprNode> {
                 doubleRes = 1.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
+                    double arg = Utils.toDouble(childNode.item.getOutputVariable().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes *= arg;
                 }
-                getResult().setValue(doubleRes);
+                getOutputVariable().setValue(doubleRes);
             }
             else if (getAction() == ActionType.DIV)
             {
-                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
                 for (int i = 1; i < children.size(); i++)
                 {
-                    double arg = Utils.toDouble(((ExprNode)children.get(i)).getResult().getValue());
+                    double arg = Utils.toDouble(((ExprNode)children.get(i)).getOutputVariable().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes /= arg;
                 }
-                getResult().setValue(doubleRes);
+                getOutputVariable().setValue(doubleRes);
             }
             else if (getAction() == ActionType.ADD)
             {
                 doubleRes = 0.0;
                 for (TreeNode<ExprNode> childNode : children)
                 {
-                    double arg = Utils.toDouble(childNode.item.getResult().getValue());
+                    double arg = Utils.toDouble(childNode.item.getOutputVariable().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes += arg;
                 }
-                getResult().setValue(doubleRes);
+                getOutputVariable().setValue(doubleRes);
             }
             else if (getAction() == ActionType.SUB)
             {
-                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                doubleRes = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
                 for (int i = 1; i < children.size(); i++)
                 {
-                    double arg = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
+                    double arg = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
                     if (Double.isNaN(arg)) continue;
                     doubleRes /= arg;
                 }
-                getResult().setValue(doubleRes);
+                getOutputVariable().setValue(doubleRes);
             }
             else if (getAction() == ActionType.COUNT)
             {
-                intRes = Utils.toInt32((((ExprNode)children.get(0)).getResult().getValue()));
+                intRes = Utils.toInt32((((ExprNode)children.get(0)).getOutputVariable().getValue()));
                 intRes += 1;
-                getResult().setValue(intRes);
+                getOutputVariable().setValue(intRes);
             }
             //
             // LEQ, GEQ, GRE, LES,
             //
             else if (getAction() == ActionType.LEQ)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 <= arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.GEQ)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 >= arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.GRE)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 > arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.LES)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 < arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             //
             // EQ, NEQ
             //
             else if (getAction() == ActionType.EQ)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 == arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.NEQ)
             {
-                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getResult().getValue());
-                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getResult().getValue());
+                double arg1 = Utils.toDouble(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                double arg2 = Utils.toDouble(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 != arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             //
             // AND, OR
             //
             else if (getAction() == ActionType.AND)
             {
-                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getResult().getValue());
-                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getResult().getValue());
+                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 && arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.OR)
             {
-                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getResult().getValue());
-                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getResult().getValue());
+                boolean arg1 = Utils.toBoolean(((ExprNode)children.get(0)).getOutputVariable().getValue());
+                boolean arg2 = Utils.toBoolean(((ExprNode)children.get(1)).getOutputVariable().getValue());
                 boolRes = arg1 || arg2;
-                getResult().setValue(boolRes);
+                getOutputVariable().setValue(boolRes);
             }
             else if (getAction() == ActionType.PROCEDURE)
             {
@@ -696,15 +696,15 @@ public class ExprNode extends TreeNode<ExprNode> {
                 if(Modifier.isStatic(getMethod().getModifiers())) {
                     args = new Object[childCount];
                     for(int i=0; i<childCount; i++) {
-                        args[i] = ((ExprNode)children.get(i)).getResult().getValue();
+                        args[i] = ((ExprNode)children.get(i)).getOutputVariable().getValue();
                     }
                 }
                 else {
-                    if(childCount > 0) thisObj = ((ExprNode)children.get(0)).getResult().getValue();
+                    if(childCount > 0) thisObj = ((ExprNode)children.get(0)).getOutputVariable().getValue();
 
                     args = new Object[childCount - 1];
                     for(int i=0; i<childCount-1; i++) {
-                        args[i] = ((ExprNode)children.get(i+1)).getResult().getValue();
+                        args[i] = ((ExprNode)children.get(i+1)).getOutputVariable().getValue();
                     }
                 }
 
@@ -715,7 +715,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                     e.printStackTrace();
                 }
 
-                getResult().setValue(objRes);
+                getOutputVariable().setValue(objRes);
             }
             else // Some procedure. Find its API specification or retrieve via reflection
             {
@@ -753,10 +753,10 @@ public class ExprNode extends TreeNode<ExprNode> {
                 node.setAction(ActionType.READ);
                 node.setName(seg.getName());
 
-                node.getResult().setSchemaName(seg.getOutput().getSchema().getName());
-                node.getResult().setTypeName(seg.getOutput().getName());
-                node.getResult().setTypeSchema(seg.getOutput().getSchema());
-                node.getResult().setTypeTable(seg.getOutput());
+                node.getOutputVariable().setSchemaName(seg.getOutput().getSchema().getName());
+                node.getOutputVariable().setTypeName(seg.getOutput().getName());
+                node.getOutputVariable().setTypeSchema(seg.getOutput().getSchema());
+                node.getOutputVariable().setTypeTable(seg.getOutput());
 
                 if (expr != null)
                 {
@@ -778,10 +778,10 @@ public class ExprNode extends TreeNode<ExprNode> {
             thisNode.setOperation(OperationType.CALL);
             thisNode.setAction(ActionType.READ);
 
-            thisNode.getResult().setSchemaName(path.getInput().getSchema().getName());
-            thisNode.getResult().setTypeName(path.getInput().getName());
-            thisNode.getResult().setTypeSchema(path.getInput().getSchema());
-            thisNode.getResult().setTypeTable(path.getInput());
+            thisNode.getOutputVariable().setSchemaName(path.getInput().getSchema().getName());
+            thisNode.getOutputVariable().setTypeName(path.getInput().getName());
+            thisNode.getOutputVariable().setTypeSchema(path.getInput().getSchema());
+            thisNode.getOutputVariable().setTypeTable(path.getInput());
 
             if (expr != null)
             {
@@ -831,10 +831,10 @@ public class ExprNode extends TreeNode<ExprNode> {
         valueNode.setOperation(OperationType.CALL);
         valueNode.setAction(ActionType.READ);
 
-        valueNode.getResult().setSchemaName(column.getOutput().getSchema().getName());
-        valueNode.getResult().setTypeName(column.getOutput().getName());
-        valueNode.getResult().setTypeSchema(column.getOutput().getSchema());
-        valueNode.getResult().setTypeTable(column.getOutput());
+        valueNode.getOutputVariable().setSchemaName(column.getOutput().getSchema().getName());
+        valueNode.getOutputVariable().setTypeName(column.getOutput().getName());
+        valueNode.getOutputVariable().setTypeSchema(column.getOutput().getSchema());
+        valueNode.getOutputVariable().setTypeTable(column.getOutput());
 
         //
         // A node for computing a result (updated) function value from the current value and new value
@@ -844,10 +844,10 @@ public class ExprNode extends TreeNode<ExprNode> {
         expr.setAction(aggregation); // SUM etc.
         expr.setName(column.getName());
 
-        expr.getResult().setSchemaName(column.getOutput().getSchema().getName());
-        expr.getResult().setTypeName(column.getOutput().getName());
-        expr.getResult().setTypeSchema(column.getOutput().getSchema());
-        expr.getResult().setTypeTable(column.getOutput());
+        expr.getOutputVariable().setSchemaName(column.getOutput().getSchema().getName());
+        expr.getOutputVariable().setTypeName(column.getOutput().getName());
+        expr.getOutputVariable().setTypeSchema(column.getOutput().getSchema());
+        expr.getOutputVariable().setTypeTable(column.getOutput());
 
         // Two arguments in child nodes
         expr.addChild(currentValueNode);
@@ -858,6 +858,6 @@ public class ExprNode extends TreeNode<ExprNode> {
 
     public ExprNode()
     {
-        setResult(new Variable("", "Void", "return"));
+        setOutputVariable(new Variable("", "Void", "return"));
     }
 }

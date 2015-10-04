@@ -18,7 +18,7 @@ package org.conceptoriented.dc.schema;
 
 import java.util.List;
 
-import org.conceptoriented.dc.data.eval.DcIterator;
+import org.conceptoriented.dc.data.eval.DcEvaluator;
 import org.conceptoriented.dc.data.eval.ExprNode;
 
 /**
@@ -38,7 +38,7 @@ public interface DcTableDefinition
     ExprNode getOrderbyExp();
     void setOrderbyExp(ExprNode value);
 
-    DcIterator getWhereEvaluator();
+    DcEvaluator getWhereEvaluator();
 
     void populate();
 

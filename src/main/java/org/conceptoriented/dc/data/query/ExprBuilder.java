@@ -269,7 +269,7 @@ public class ExprBuilder extends ExprBaseVisitor<ExprNode> {
         }
 
         n.setName(name);
-        n.getResult().setTypeName(type);
+        n.getOutputVariable().setTypeName(type);
         n.setOperation(OperationType.TUPLE);
         n.setAction(ActionType.READ);
 

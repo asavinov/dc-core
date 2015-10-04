@@ -18,15 +18,15 @@ package org.conceptoriented.dc.data.eval;
 
 import org.conceptoriented.dc.schema.DcWorkspace;
 
-public interface DcIterator {
+public interface DcEvaluator {
     public DcWorkspace getWorkspace();
     public void setWorkspace(DcWorkspace workspace);
 
-    public boolean next(); // True if there exists a next element
-    public boolean first(); // True if there exists a first element (if the set is not empty)
-    public boolean last(); // True if there exists a last element (if the set is not empty)
+    public boolean nextInput(); // True if there exists a next element
+    public boolean firstInput(); // True if there exists a first element (if the set is not empty)
+    public boolean lastInput(); // True if there exists a last element (if the set is not empty)
 
     public Object evaluate(); // Compute output for the specified intput and write it
 
-    public Object getResult();
+    public Object getOutput();
 }

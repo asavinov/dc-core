@@ -22,9 +22,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.conceptoriented.dc.data.DcTableData;
-import org.conceptoriented.dc.data.eval.DcIterator;
+import org.conceptoriented.dc.data.eval.DcEvaluator;
 import org.conceptoriented.dc.data.eval.ExprNode;
-import org.conceptoriented.dc.data.eval.IteratorExpr;
+import org.conceptoriented.dc.data.eval.EvaluatorExpr;
 import org.conceptoriented.dc.schema.*;
 
 public class Set implements DcTable, DcTableData, DcTableDefinition {
@@ -285,7 +285,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
             if (childExpr != null)
             {
                 Object val = null;
-                val = childExpr.getResult().getValue();
+                val = childExpr.getOutputVariable().getValue();
 
                 hasBeenRestricted = true;
                 int[] range = dim.getData().deproject(val); // Deproject the value
@@ -324,7 +324,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
             Object val = null;
             if (childExpr != null) // A tuple contains a subset of all dimensions
             {
-                val = childExpr.getResult().getValue();
+                val = childExpr.getOutputVariable().getValue();
             }
             dim.getData().append(val);
         }
@@ -354,8 +354,8 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
     public void setOrderbyExp(ExprNode value) { _orderbyExp = value; }
 
     @Override
-    public DcIterator getWhereEvaluator() {
-        DcIterator evaluator = new IteratorExpr(this);
+    public DcEvaluator getWhereEvaluator() {
+        DcEvaluator evaluator = new EvaluatorExpr(this);
         return evaluator;
     }
 
@@ -373,7 +373,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
             //
             // Evaluator for where expression which will be used to check each new record before it is added
             //
-            DcIterator eval = null;
+            DcEvaluator eval = null;
             if (getDefinition().getWhereExpr() != null)
             {
                 eval = getWhereEvaluator();
@@ -415,9 +415,9 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                     {
                         boolean satisfies = true;
 
-                        eval.last();
+                        eval.lastInput();
                         eval.evaluate();
-                        satisfies = (boolean)eval.getResult();
+                        satisfies = (boolean)eval.getOutput();
 
                         if (!satisfies)
                         {

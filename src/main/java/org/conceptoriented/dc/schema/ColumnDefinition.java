@@ -116,9 +116,9 @@ public class ColumnDefinition implements DcColumnDefinition
     //
 
     // Get an object which is used to compute the function values according to the formula
-    protected DcIterator getIterator()
+    protected DcEvaluator getIterator()
     {
-        DcIterator evaluator = null;
+        DcEvaluator evaluator = null;
 
         if (getDefinitionType() == DcColumnDefinitionType.FREE)
         {
@@ -126,15 +126,15 @@ public class ColumnDefinition implements DcColumnDefinition
         }
         else if (getDefinitionType() == DcColumnDefinitionType.AGGREGATION)
         {
-            evaluator = new IteratorAggr(_dim);
+            evaluator = new EvaluatorAggr(_dim);
         }
         else if (getDefinitionType() == DcColumnDefinitionType.ARITHMETIC)
         {
-            evaluator = new IteratorExpr(_dim);
+            evaluator = new EvaluatorExpr(_dim);
         }
         else if (getDefinitionType() == DcColumnDefinitionType.LINK)
         {
-            evaluator = new IteratorExpr(_dim);
+            evaluator = new EvaluatorExpr(_dim);
         }
         else
         {
@@ -153,13 +153,13 @@ public class ColumnDefinition implements DcColumnDefinition
     @Override
     public void evaluate()
     {
-        DcIterator evaluator = getIterator();
+        DcEvaluator evaluator = getIterator();
         if (evaluator == null) return;
 
         try {
             evaluateBegin();
 
-            while (evaluator.next())
+            while (evaluator.nextInput())
             {
                 evaluator.evaluate();
             }
