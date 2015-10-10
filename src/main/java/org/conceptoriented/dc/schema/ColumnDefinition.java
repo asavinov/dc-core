@@ -15,14 +15,6 @@ public class ColumnDefinition implements DcColumnDefinition
     // ComColumnDefinition interface
     //
 
-    protected boolean _appendData;
-    public boolean isAppendData() { return _appendData; }
-    public void setAppendData(boolean value) { _appendData = value; }
-
-    protected boolean _appendSchema;
-    public boolean isAppendSchema() { return _appendSchema; }
-    public void setAppendSchema(boolean value) { _appendSchema = value; }
-
     //
     // COEL (language) representation
     //
@@ -47,6 +39,14 @@ public class ColumnDefinition implements DcColumnDefinition
     // Structured (object) representation
     //
 
+    protected boolean _appendData;
+    public boolean isAppendData() { return _appendData; }
+    public void setAppendData(boolean value) { _appendData = value; }
+
+    protected boolean _appendSchema;
+    public boolean isAppendSchema() { return _appendSchema; }
+    public void setAppendSchema(boolean value) { _appendSchema = value; }
+
     protected ExprNode _formulaExpr;
     @Override
     public ExprNode getFormulaExpr() { return _formulaExpr; }
@@ -58,12 +58,6 @@ public class ColumnDefinition implements DcColumnDefinition
     public Mapping getMapping() { return _mapping; }
     @Override
     public void setMapping(Mapping value) { _mapping = value; }
-
-    protected ExprNode _whereExpr;
-    @Override
-    public ExprNode getWhereExpr() { return _whereExpr; }
-    @Override
-    public void setWhereExpr(ExprNode value) { _whereExpr = value; }
 
     //
     // Aggregation

@@ -30,12 +30,6 @@ import org.conceptoriented.dc.utils.Mapping;
  */
 public interface DcColumnDefinition {
 
-    public boolean isAppendData();
-    public void setAppendData(boolean value);
-
-    public boolean isAppendSchema();
-    public void setAppendSchema(boolean value);
-
     //
     // COEL (language) representation
     //
@@ -47,14 +41,17 @@ public interface DcColumnDefinition {
     // Structured (object) representation
     //
 
+    public boolean isAppendData();
+    public void setAppendData(boolean value);
+
+    public boolean isAppendSchema();
+    public void setAppendSchema(boolean value);
+
     public ExprNode getFormulaExpr();
     public void setFormulaExpr(ExprNode exprNode);
 
     public Mapping getMapping();
     public void setMapping(Mapping mapping);
-
-    public ExprNode getWhereExpr();
-    public void setWhereExpr(ExprNode exprNode);
 
     //
     // Aggregation
