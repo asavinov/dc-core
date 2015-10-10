@@ -23,12 +23,6 @@ public class ColumnDefinition implements DcColumnDefinition
     public boolean isAppendSchema() { return _appendSchema; }
     public void setAppendSchema(boolean value) { _appendSchema = value; }
 
-    protected DcColumnDefinitionType _definitionType;
-    @Override
-    public DcColumnDefinitionType getDefinitionType() { return _definitionType; }
-    @Override
-    public void setDefinitionType(DcColumnDefinitionType value) { _definitionType = value; }
-
     //
     // COEL (language) representation
     //
@@ -46,19 +40,7 @@ public class ColumnDefinition implements DcColumnDefinition
         ExprBuilder exprBuilder = new ExprBuilder();
         ExprNode expr = exprBuilder.build(_formula);
 
-        if (expr == null) return;
-
         setFormulaExpr(expr);
-
-        if(expr.getOperation() == OperationType.TUPLE) {
-            setDefinitionType(DcColumnDefinitionType.LINK);
-        }
-        else if(expr.getOperation() == OperationType.CALL && expr.getName().equalsIgnoreCase("AGGREGATE")) {
-            setDefinitionType(DcColumnDefinitionType.AGGREGATION);
-        }
-        else {
-            setDefinitionType(DcColumnDefinitionType.ARITHMETIC);
-        }
     }
 
     //
@@ -120,19 +102,19 @@ public class ColumnDefinition implements DcColumnDefinition
     {
         DcEvaluator evaluator = null;
 
-        if (getDefinitionType() == DcColumnDefinitionType.FREE)
+        if (getFormulaExpr() == null || getFormulaExpr().getDefinitionType() == ColumnDefinitionType.FREE)
         {
             ; // Nothing to do
         }
-        else if (getDefinitionType() == DcColumnDefinitionType.AGGREGATION)
+        else if (getFormulaExpr().getDefinitionType() == ColumnDefinitionType.AGGREGATION)
         {
             evaluator = new EvaluatorAggr(_dim);
         }
-        else if (getDefinitionType() == DcColumnDefinitionType.ARITHMETIC)
+        else if (getFormulaExpr().getDefinitionType() == ColumnDefinitionType.ARITHMETIC)
         {
             evaluator = new EvaluatorExpr(_dim);
         }
-        else if (getDefinitionType() == DcColumnDefinitionType.LINK)
+        else if (getFormulaExpr().getDefinitionType() == ColumnDefinitionType.LINK)
         {
             evaluator = new EvaluatorExpr(_dim);
         }
@@ -211,7 +193,6 @@ public class ColumnDefinition implements DcColumnDefinition
         _dim = dim;
 
         _appendData = false;
-        _definitionType = DcColumnDefinitionType.FREE;
 
         _groupPaths = new ArrayList<DimPath>();
         _measurePaths = new ArrayList<DimPath>();

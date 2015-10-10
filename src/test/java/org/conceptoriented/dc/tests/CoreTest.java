@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.conceptoriented.dc.data.*;
+import org.conceptoriented.dc.data.eval.ColumnDefinitionType;
 import org.conceptoriented.dc.data.eval.ExprNode;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 import org.conceptoriented.dc.schema.*;
@@ -325,6 +326,7 @@ public class CoreTest {
         //
         // Define aggregated column
         //
+        /*
         DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
         c15.getDefinition().setDefinitionType(DcColumnDefinitionType.AGGREGATION);
 
@@ -344,6 +346,7 @@ public class CoreTest {
         assertEquals(40.0, c15.getData().getValue(0));
         assertEquals(140.0, c15.getData().getValue(1));
         assertEquals(0.0, c15.getData().getValue(2)); // In fact, it has to be NaN or null (no values have been aggregated)
+         */
 
         //
         // Aggregation via a syntactic formula

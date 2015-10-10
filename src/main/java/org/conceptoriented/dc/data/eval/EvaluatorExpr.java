@@ -117,7 +117,7 @@ public class EvaluatorExpr implements DcEvaluator {
         {
             outputExpr = column.getDefinition().getFormulaExpr();
 
-            if (column.getDefinition().getDefinitionType() == DcColumnDefinitionType.LINK)
+            if (outputExpr.getDefinitionType() == ColumnDefinitionType.LINK)
             {
                 // Adjust the expression according to other parameters of the definition
                 if(column.getDefinition().isAppendData()) {

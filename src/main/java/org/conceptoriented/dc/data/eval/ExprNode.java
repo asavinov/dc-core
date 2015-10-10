@@ -91,6 +91,18 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._action = value;
     }
 
+    public ColumnDefinitionType getDefinitionType() {
+        if(getOperation() == OperationType.TUPLE) {
+            return ColumnDefinitionType.LINK;
+        }
+        else if(getOperation() == OperationType.CALL && getName().equalsIgnoreCase("AGGREGATE")) {
+            return ColumnDefinitionType.AGGREGATION;
+        }
+        else {
+            return ColumnDefinitionType.ARITHMETIC;
+        }
+    }
+
     public DcVariable _outputVariable;
     public DcVariable getOutputVariable() {
         return _outputVariable;

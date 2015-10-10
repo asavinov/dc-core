@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.schema;
+package org.conceptoriented.dc.data.eval;
 
-public enum DcColumnDefinitionType // Specific types of column formula
+public enum ColumnDefinitionType // Specific types of column formula
 {
     FREE, // No definition for the column (and cannot be defined). Example: key columns of a product table
     ANY, // Arbitrary formula without constraints which can mix many other types of expressions

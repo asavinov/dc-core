@@ -36,9 +36,6 @@ public interface DcColumnDefinition {
     public boolean isAppendSchema();
     public void setAppendSchema(boolean value);
 
-    public DcColumnDefinitionType getDefinitionType();
-    public void setDefinitionType(DcColumnDefinitionType columnDefinitionType);
-
     //
     // COEL (language) representation
     //
