@@ -53,12 +53,6 @@ public class ColumnDefinition implements DcColumnDefinition
     @Override
     public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
 
-    protected Mapping _mapping;
-    @Override
-    public Mapping getMapping() { return _mapping; }
-    @Override
-    public void setMapping(Mapping value) { _mapping = value; }
-
     //
     // Aggregation
     //

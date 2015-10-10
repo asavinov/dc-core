@@ -102,18 +102,7 @@ public class EvaluatorExpr implements DcEvaluator {
         thisVariable.setTypeTable(thisTable);
 
         // Output expression
-        if (column.getDefinition().getMapping() != null)
-        {
-            if (column.getDefinition().isAppendData())
-            {
-                outputExpr = column.getDefinition().getMapping().BuildExpression(ActionType.APPEND);
-            }
-            else
-            {
-                outputExpr = column.getDefinition().getMapping().BuildExpression(ActionType.READ);
-            }
-        }
-        else if (column.getDefinition().getFormulaExpr() != null)
+        if (column.getDefinition().getFormulaExpr() != null)
         {
             outputExpr = column.getDefinition().getFormulaExpr();
 

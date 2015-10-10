@@ -50,9 +50,6 @@ public interface DcColumnDefinition {
     public ExprNode getFormulaExpr();
     public void setFormulaExpr(ExprNode exprNode);
 
-    public Mapping getMapping();
-    public void setMapping(Mapping mapping);
-
     //
     // Aggregation
     //
