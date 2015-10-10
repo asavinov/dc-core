@@ -51,23 +51,6 @@ public interface DcColumnDefinition {
     public void setFormulaExpr(ExprNode exprNode);
 
     //
-    // Aggregation
-    //
-
-    public DcTable getFactTable();
-    public void setFactTable(DcTable table);
-
-    public List<DimPath> getGroupPaths();
-    public void setGroupPaths(List<DimPath> groupPaths);
-
-    public List<DimPath> getMeasurePaths();
-    public void setMeasurePaths(List<DimPath> measurePaths);
-
-    public String getUpdater();
-    public void setUpdater(String updater);
-
-
-    //
     // Compute
     //
 

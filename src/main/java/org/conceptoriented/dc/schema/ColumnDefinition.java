@@ -54,42 +54,22 @@ public class ColumnDefinition implements DcColumnDefinition
     public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
 
     //
-    // Aggregation
-    //
-
-    protected DcTable _factTable;
-    @Override
-    public DcTable getFactTable() { return _factTable; }
-    @Override
-    public void setFactTable(DcTable value) { _factTable = value; }
-
-    protected List<DimPath> _groupPaths;
-    @Override
-    public List<DimPath> getGroupPaths() { return _groupPaths; }
-    @Override
-    public void setGroupPaths(List<DimPath> value) { _groupPaths = value; }
-
-    protected List<DimPath> _measurePaths;
-    @Override
-    public List<DimPath> getMeasurePaths() { return _measurePaths; }
-    @Override
-    public void setMeasurePaths(List<DimPath> value) { _measurePaths = value; }
-
-    protected String _updater;
-    @Override
-    public String getUpdater() { return _updater; }
-    @Override
-    public void setUpdater(String value) { _updater = value; }
-
-    //
     // Compute
     //
 
-    // Get an object which is used to compute the function values according to the formula
-    protected DcEvaluator getIterator()
+    private void evaluateBegin()
     {
-        DcEvaluator evaluator = null;
+        _dim.getData().setAutoIndex(false);
+        //_dim.getData().nullify();
+    }
 
+    @Override
+    public void evaluate()
+    {
+    	//
+        // Get an object which is used to compute the function values according to the formula
+    	//
+        DcEvaluator evaluator = null;
         if (getFormulaExpr() == null || getFormulaExpr().getDefinitionType() == ColumnDefinitionType.FREE)
         {
             ; // Nothing to do
@@ -110,22 +90,12 @@ public class ColumnDefinition implements DcColumnDefinition
         {
             throw new UnsupportedOperationException("This type of column definition is not implemented.");
         }
-
-        return evaluator;
-    }
-
-    private void evaluateBegin()
-    {
-        _dim.getData().setAutoIndex(false);
-        //_dim.getData().nullify();
-    }
-
-    @Override
-    public void evaluate()
-    {
-        DcEvaluator evaluator = getIterator();
         if (evaluator == null) return;
 
+        //
+        // Evaluation loop: read next input, pass it to the expression and evaluate
+        //
+        
         try {
             evaluateBegin();
 
@@ -181,9 +151,7 @@ public class ColumnDefinition implements DcColumnDefinition
         _dim = dim;
 
         _appendData = false;
-
-        _groupPaths = new ArrayList<DimPath>();
-        _measurePaths = new ArrayList<DimPath>();
+        _appendSchema = true;
 
         dependencies = new ArrayList<Dim>();
     }

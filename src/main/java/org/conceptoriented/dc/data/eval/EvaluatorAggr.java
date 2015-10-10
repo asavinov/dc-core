@@ -78,39 +78,7 @@ public class EvaluatorAggr extends EvaluatorExpr
         setWorkspace(column.getInput().getSchema().getWorkspace());
         columnData = column.getData();
 
-        if (column.getDefinition().getFormulaExpr() == null) // From structured definition (parameters)
-        {
-            // Facts
-            thisCurrent = -1;
-            thisTable = column.getDefinition().getFactTable();
-
-            thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
-            thisVariable.setTypeSchema(thisTable.getSchema());
-            thisVariable.setTypeTable(thisTable);
-
-            // Groups
-            groupExpr = ExprNode.createReader(column.getDefinition().getGroupPaths().get(0), true); // Currently only one path is used
-            groupExpr = (ExprNode)groupExpr.getRoot();
-            groupExpr.resolve(workspace, Arrays.asList(thisVariable));
-
-            groupVariable = new Variable(column.getInput().getSchema().getName(), column.getInput().getName(), "this");
-            groupVariable.setTypeSchema(column.getInput().getSchema());
-            groupVariable.setTypeTable(column.getInput());
-
-            // Measure
-            measureExpr = ExprNode.createReader(column.getDefinition().getMeasurePaths().get(0), true);
-            measureExpr = (ExprNode)measureExpr.getRoot();
-            measureExpr.resolve(workspace, Arrays.asList(thisVariable));
-
-            measureVariable = new Variable(column.getOutput().getSchema().getName(), column.getOutput().getName(), "value");
-            measureVariable.setTypeSchema(column.getOutput().getSchema());
-            measureVariable.setTypeTable(column.getOutput());
-
-            // Updater/aggregation function
-            outputExpr = ExprNode.createUpdater(column, column.getDefinition().getUpdater());
-            outputExpr.resolve(workspace, Arrays.asList(groupVariable, measureVariable));
-        }
-        else // From expression
+        if (column.getDefinition().getFormulaExpr() != null) // From expression
         {
             //
             // Extract all aggregation components from expression (aggregation expression cannot be resolved)
