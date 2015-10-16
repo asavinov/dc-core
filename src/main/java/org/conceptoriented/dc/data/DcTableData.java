@@ -50,12 +50,4 @@ public interface DcTableData {
     int find(DcColumn[] dims, Object[] values);
     int append(DcColumn[] dims, Object[] values);
     void remove(int input);
-
-    //
-    // Expression (nested record) methods: append, insert, remove, read, write.
-    //
-
-    int find(ExprNode expr);
-    boolean canAppend(ExprNode expr);
-    int append(ExprNode expr);
 }

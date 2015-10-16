@@ -22,6 +22,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.conceptoriented.dc.data.DcTableData;
+import org.conceptoriented.dc.data.DcTableReader;
+import org.conceptoriented.dc.data.DcTableWriter;
+import org.conceptoriented.dc.data.TableReader;
+import org.conceptoriented.dc.data.TableWriter;
 import org.conceptoriented.dc.data.eval.DcEvaluator;
 import org.conceptoriented.dc.data.eval.ExprNode;
 import org.conceptoriented.dc.data.eval.EvaluatorExpr;
@@ -30,7 +34,7 @@ import org.conceptoriented.dc.schema.*;
 public class Set implements DcTable, DcTableData, DcTableDefinition {
 
     //
-    // ComTable interface
+    // DcTable interface
     //
 
     protected String name;
@@ -161,8 +165,18 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         return this;
     }
 
+    @Override
+    public DcTableReader getTableReader() {
+        return new TableReader(this);
+    }
+
+    @Override
+    public DcTableWriter getTableWriter() {
+        return new TableWriter(this);
+    }
+
     //
-    // ComTableData
+    // DcTableData
     //
 
     protected int _length;
@@ -267,74 +281,8 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         _length--;
     }
 
-    // Expression (nested record) methods: append, insert, remove, read, write.
-
-    @Override
-    public int find(ExprNode expr) {
-        int[] result = java.util.stream.IntStream.range(0, getLength()).toArray(); // All elements of this set (can be quite long)
-
-        boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
-
-        List<DcColumn> dims = new ArrayList<DcColumn>();
-        dims.addAll(getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()));
-        dims.addAll(getColumns().stream().filter(x -> !x.isKey()).collect(Collectors.toList()));
-
-        for (DcColumn dim : dims) // OPTIMIZE: the order of dimensions matters (use statistics, first dimensins with better filtering). Also, first identity dimensions.
-        {
-            ExprNode childExpr = expr.getChild(dim.getName());
-            if (childExpr != null)
-            {
-                Object val = null;
-                val = childExpr.getOutputVariable().getValue();
-
-                hasBeenRestricted = true;
-                int[] range = dim.getData().deproject(val); // Deproject the value
-                result = Utils.intersect(result, range); // Intersect with previous de-projections
-                // OPTIMIZE: Write our own implementation for intersection and other operations. Assume that they are ordered.
-                // OPTIMIZE: Remember the position for the case this value will have to be inserted so we do not have again search for this positin during insertion (optimization)
-
-                if (result.length == 0) break; // Not found
-            }
-        }
-
-        if (result.length == 0) // Not found
-        {
-            return -1;
-        }
-        else if (result.length == 1) // Found single element - return its offset
-        {
-            if (hasBeenRestricted) return result[0];
-            else return -result.length;
-        }
-        else // Many elements satisfy these properties (non-unique identities). Use other methods for getting these records (like de-projection)
-        {
-            return -result.length;
-        }
-    }
-    @Override
-    public boolean canAppend(ExprNode expr) {
-        throw new UnsupportedOperationException();
-    }
-    @Override
-    public int append(ExprNode expr) {
-
-        for (DcColumn dim : getColumns()) // We must append one value to ALL greater dimensions (possibly null)
-        {
-            ExprNode childExpr = expr.getChild(dim.getName()); // TODO: replace by accessor by dimension reference (has to be resolved in the tuple)
-            Object val = null;
-            if (childExpr != null) // A tuple contains a subset of all dimensions
-            {
-                val = childExpr.getOutputVariable().getValue();
-            }
-            dim.getData().append(val);
-        }
-
-        _length++;
-        return getLength() - 1;
-    }
-
     //
-    // ComTableDefinition
+    // DcTableDefinition
     //
 
     protected DcTableDefinitionType _definitionType;

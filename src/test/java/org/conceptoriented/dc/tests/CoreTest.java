@@ -352,9 +352,7 @@ public class CoreTest {
         // Aggregation via a syntactic formula
         //
         DcColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
-
         c16.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
-
         c16.add();
 
         c16.getData().setValue(0.0);

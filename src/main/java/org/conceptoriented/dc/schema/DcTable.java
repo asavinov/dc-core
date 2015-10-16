@@ -19,6 +19,8 @@ package org.conceptoriented.dc.schema;
 import java.util.List;
 
 import org.conceptoriented.dc.data.DcTableData;
+import org.conceptoriented.dc.data.DcTableReader;
+import org.conceptoriented.dc.data.DcTableWriter;
 
 /**
  * Describes one table.
@@ -69,5 +71,6 @@ public interface DcTable {
 
     public DcTableData getData();
     public DcTableDefinition getDefinition();
+    public DcTableReader getTableReader();
+    public DcTableWriter getTableWriter();
 }
-

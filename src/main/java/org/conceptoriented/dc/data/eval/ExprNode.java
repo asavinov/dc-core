@@ -91,6 +91,14 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._action = value;
     }
 
+    protected DcTableWriter _tableWriter;
+    public DcTableWriter getTableWriter() {
+        return _tableWriter;
+    }
+    public void setTableWriter(DcTableWriter value) {
+        this._tableWriter = value;
+    }
+
     public ColumnDefinitionType getDefinitionType() {
         if(getOperation() == OperationType.TUPLE) {
             return ColumnDefinitionType.LINK;
@@ -422,6 +430,72 @@ public class ExprNode extends TreeNode<ExprNode> {
         }
     }
 
+    public void evaluateBegin()
+    {
+        if (getOperation() == OperationType.VALUE)
+        {
+
+        }
+        else if (getOperation() == OperationType.TUPLE) // SET, TABLE, NON-PRIMITIVE, ...
+        {
+            // Open file for writing
+            if (getOutputVariable().getTypeTable() != null && !getOutputVariable().getTypeTable().isPrimitive())
+            {
+                setTableWriter(getOutputVariable().getTypeTable().getTableWriter());
+                getTableWriter().open();
+            }
+
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.item.evaluateBegin();
+            }
+        }
+        else if (getOperation() == OperationType.CALL) // FUNCTION, COLUMN, PRIMITIVE, ...
+        {
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.item.evaluateBegin();
+            }
+        }
+    }
+
+    public void evaluateEnd()
+    {
+        if (getOperation() == OperationType.VALUE)
+        {
+
+        }
+        else if (getOperation() == OperationType.TUPLE) // SET, TABLE, NON-PRIMITIVE, ...
+        {
+            // Close file
+            if (getTableWriter() != null) getTableWriter().close();
+
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.item.evaluateEnd();
+            }
+        }
+        else if (getOperation() == OperationType.CALL) // FUNCTION, COLUMN, PRIMITIVE, ...
+        {
+            //
+            // Evaluate children
+            //
+            for (TreeNode<ExprNode> childNode : children)
+            {
+                childNode.item.evaluateEnd();
+            }
+        }
+    }
+
     public void evaluate() {
         //
         // Evaluate children so that we have all their return values
@@ -488,7 +562,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                 // Find, append or update an element in this set (depending on the action type)
                 if (getAction() == ActionType.READ) // Find the offset
                 {
-                    int input = getOutputVariable().getTypeTable().getData().find(this);
+                    int input = getTableWriter().find(this);
 
                     if (input < 0 || input >= getOutputVariable().getTypeTable().getData().getLength()) // Not found
                     {
@@ -504,11 +578,11 @@ public class ExprNode extends TreeNode<ExprNode> {
                 }
                 else if (getAction() == ActionType.APPEND) // Find, try to update and append if cannot be found
                 {
-                    int input = getOutputVariable().getTypeTable().getData().find(this); // Uniqueness constraint: check if it exists already
+                    int input = getTableWriter().find(this); // Uniqueness constraint: check if it exists already
 
                     if (input < 0 || input >= getOutputVariable().getTypeTable().getData().getLength()) // Not found
                     {
-                        input = getOutputVariable().getTypeTable().getData().append(this); // Append new
+                        input = getTableWriter().append(this); // Append new
                     }
 
                     getOutputVariable().setValue(input);
