@@ -161,12 +161,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
 
             //
-            // 1. Resolve type table name
-            //
-            getOutputVariable().resolve(workspace);
-
-            //
-            // 2. Resolve Name into a column object (a function from the parent to this node)
+            // Resolve Name into a column object (a function from the parent to this node)
             //
             ExprNode parentNode = (ExprNode)parent;
             if (parentNode == null)
@@ -209,6 +204,11 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
 
             //
+            // Resolve type table name
+            //
+            getOutputVariable().resolve(workspace);
+
+            //
             // Resolve children (important: after the tuple itself, because this node will be used)
             //
             for (TreeNode<ExprNode> childNode : children)
@@ -228,13 +228,13 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
 
             //
-            // 1. Resolve type table name
+            // Resolve type table name
             //
             getOutputVariable().resolve(workspace);
 
 
             //
-            // 2. Resolve Name into a column object, variable, procedure or whatever object that will return a result (children must be resolved before)
+            // Resolve Name into a column object, variable, procedure or whatever object that will return a result (children must be resolved before)
             //
             ExprNode methodChild = getChild("method"); // Get column name
             ExprNode thisChild = getChild("this"); // Get column lesser set
@@ -439,7 +439,7 @@ public class ExprNode extends TreeNode<ExprNode> {
         else if (getOperation() == OperationType.TUPLE) // SET, TABLE, NON-PRIMITIVE, ...
         {
             // Open file for writing
-            if (getOutputVariable().getTypeTable() != null && !getOutputVariable().getTypeTable().isPrimitive())
+            if (getOutputVariable().getTypeTable() != null && !getOutputVariable().getTypeTable().isPrimitive() && !getOutputVariable().getTypeTable().isPrimitive())
             {
                 setTableWriter(getOutputVariable().getTypeTable().getTableWriter());
                 getTableWriter().open();
