@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.conceptoriented.dc.data.eval.*;
 import org.conceptoriented.dc.schema.*;
 
 public class TableWriter implements DcTableWriter {

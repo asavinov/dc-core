@@ -1,7 +1,5 @@
 package org.conceptoriented.dc.data;
 
-import org.conceptoriented.dc.data.eval.*;
-
 public interface DcTableWriter {
 	public void open();
     public void close();

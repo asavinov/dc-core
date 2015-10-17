@@ -17,6 +17,7 @@
 package org.conceptoriented.dc.schema;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,11 +25,12 @@ import java.util.stream.Collectors;
 import org.conceptoriented.dc.data.DcTableData;
 import org.conceptoriented.dc.data.DcTableReader;
 import org.conceptoriented.dc.data.DcTableWriter;
+import org.conceptoriented.dc.data.DcVariable;
+import org.conceptoriented.dc.data.ExprNode;
 import org.conceptoriented.dc.data.TableReader;
 import org.conceptoriented.dc.data.TableWriter;
-import org.conceptoriented.dc.data.eval.DcEvaluator;
-import org.conceptoriented.dc.data.eval.ExprNode;
-import org.conceptoriented.dc.data.eval.EvaluatorExpr;
+import org.conceptoriented.dc.data.Variable;
+import org.conceptoriented.dc.data.query.ExprBuilder;
 import org.conceptoriented.dc.schema.*;
 
 public class Set implements DcTable, DcTableData, DcTableDefinition {
@@ -215,19 +217,6 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         }
     }
 
-    // Value methods
-
-    @Override
-    public Object getValue(String name, int offset) {
-        DcColumn col = getColumn(name);
-        return col.getData().getValue(offset);
-    }
-    @Override
-    public void setValue(String name, int offset, Object value) {
-        DcColumn col = getColumn(name);
-        col.getData().setValue(offset, value);
-    }
-
     // Tuple methods
 
     @Override
@@ -285,48 +274,95 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
     // DcTableDefinition
     //
 
-    protected DcTableDefinitionType _definitionType;
     @Override
-    public DcTableDefinitionType getDefinitionType() { return _definitionType; }
+    public TableDefinitionType getDefinitionType() 
+    { 
+        if (isPrimitive()) return TableDefinitionType.FREE;
+
+        // Try to find incoming generating (append) columns. If they exist then table instances are populated as this dimension output tuples.
+        List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList());
+        if(inColumns != null && inColumns.size() > 0)
+        {
+            return TableDefinitionType.PROJECTION;
+        }
+
+        // Try to find outgoing key non-primitive columns. If they exist then table instances are populated as their combinations.
+        List<DcColumn> outColumns = getColumns().stream().filter(d -> d.isKey() && !d.isPrimitive()).collect(Collectors.toList());
+        if(outColumns != null && outColumns.size() > 0)
+        {
+            return TableDefinitionType.PRODUCT;
+        }
+
+        // No instances can be created automatically. 
+        return TableDefinitionType.FREE;
+	}
+
+    protected String _whereFormula;
     @Override
-    public void setDefinitionType(DcTableDefinitionType value) { _definitionType = value; }
+    public String getWhereFormula() { return _whereFormula; }
+    @Override
+    public void setWhereFormula(String value) 
+    { 
+    	_whereFormula = value;
+		
+        if (Utils.isNullOrEmpty(value)) return;
+
+        ExprBuilder exprBuilder = new ExprBuilder();
+        ExprNode expr = exprBuilder.build(_whereFormula);
+
+        setWhereExpr(expr);
+    }
 
     protected ExprNode _whereExpr;
     @Override
     public ExprNode getWhereExpr() { return _whereExpr; }
+    @Override
     public void setWhereExpr(ExprNode value) { _whereExpr = value; }
 
-    protected ExprNode _orderbyExp;
+    protected String _orderbyFormula;
     @Override
-    public ExprNode getOrderbyExp() { return _orderbyExp; }
-    public void setOrderbyExp(ExprNode value) { _orderbyExp = value; }
-
+    public String getOrderbyFormula() { return _orderbyFormula; }
     @Override
-    public DcEvaluator getWhereEvaluator() {
-        DcEvaluator evaluator = new EvaluatorExpr(this);
-        return evaluator;
-    }
+    public void setOrderbyFormula(String value) { _orderbyFormula = value; }
 
     @Override
     public void populate() {
-        if (getDefinitionType() == DcTableDefinitionType.FREE)
+        if (getDefinitionType() == TableDefinitionType.FREE)
         {
             return; // Nothing to do
         }
 
         setLength(0);
 
-        if (getDefinitionType() == DcTableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)
+        if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
-            //
-            // Evaluator for where expression which will be used to check each new record before it is added
-            //
-            DcEvaluator eval = null;
-            if (getDefinition().getWhereExpr() != null)
-            {
-                eval = getWhereEvaluator();
-            }
+            List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList());
 
+            for(DcColumn inColumn : inColumns) 
+            {
+                inColumn.getDefinition().evaluate(); // Delegate to column evaluation - it will add records from column expression
+            }
+        }
+        else if (getDefinitionType() == TableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)
+        {
+            // Input variable for where formula
+        	DcVariable thisVariable = new Variable(this.getSchema().getName(), this.getName(), "this");
+            thisVariable.setTypeSchema(this.getSchema());
+            thisVariable.setTypeTable(this);
+
+            // Evaluator expression for where formula
+            ExprNode outputExpr = this.getDefinition().getWhereExpr();
+            if(outputExpr != null)
+            {
+                outputExpr.getOutputVariable().setSchemaName(this.getSchema().getName());
+                outputExpr.getOutputVariable().setTypeName("Boolean");
+                outputExpr.getOutputVariable().setTypeSchema(this.getSchema());
+                outputExpr.getOutputVariable().setTypeTable(this.getSchema().getPrimitive("Boolean"));
+                outputExpr.resolve(this.getSchema().getWorkspace(), Arrays.asList(thisVariable));
+
+                outputExpr.evaluateBegin();
+            }
+        	
             //
             // Find all local greater dimensions to be varied (including the super-dim)
             //
@@ -358,18 +394,22 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                     }
                     int input = append(dims, vals);
 
+                    //
                     // Now check if this appended element satisfies the where expression and if not then remove it
-                    if (eval != null)
+                    //
+                    if (outputExpr != null)
                     {
-                        boolean satisfies = true;
+                        // Set 'this' variable to the last elements (that has been just appended) which will be read by the expression
+                        thisVariable.setValue(this.getData().getLength() - 1);
 
-                        eval.lastInput();
-                        eval.evaluate();
-                        satisfies = (boolean)eval.getOutput();
+                        // Evaluate expression
+                        outputExpr.evaluate();
+
+                        boolean satisfies = (boolean)outputExpr.getOutputVariable().getValue();
 
                         if (!satisfies)
                         {
-                            setLength(getLength() - 1);
+                            setLength(getLength() - 1); // Remove elements
                         }
                     }
 
@@ -395,15 +435,6 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                 }
             }
 
-        }
-        else if (getDefinitionType() == DcTableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
-        {
-            DcColumn projectDim = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList()).get(0);
-            DcTable sourceSet = projectDim.getInput();
-            DcTable targetSet = projectDim.getOutput(); // this set
-
-            // Delegate to column evaluation - it will add records from column expression
-            projectDim.getDefinition().evaluate();
         }
         else
         {
@@ -451,8 +482,6 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
 
         greaterDims = new ArrayList<DcColumn>();
         lesserDims = new ArrayList<DcColumn>();
-
-        setDefinitionType(DcTableDefinitionType.FREE);
     }
 
 }

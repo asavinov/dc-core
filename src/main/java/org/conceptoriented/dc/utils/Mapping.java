@@ -16,7 +16,8 @@
 
 package org.conceptoriented.dc.utils;
 
-import org.conceptoriented.dc.data.eval.*;
+import org.conceptoriented.dc.data.ActionType;
+import org.conceptoriented.dc.data.ExprNode;
 
 public class Mapping {
 

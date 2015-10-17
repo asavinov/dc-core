@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.conceptoriented.dc.data.*;
-import org.conceptoriented.dc.data.eval.ColumnDefinitionType;
-import org.conceptoriented.dc.data.eval.ExprNode;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 import org.conceptoriented.dc.schema.*;
 import org.conceptoriented.dc.utils.DimPath;
@@ -323,30 +321,16 @@ public class CoreTest {
         DcColumn c23 = t2.getColumn("Column 23");
         DcColumn c24 = t2.getColumn("Table 1");
 
-        //
-        // Define aggregated column
-        //
-        /*
         DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
-        c15.getDefinition().setDefinitionType(DcColumnDefinitionType.AGGREGATION);
-
-        c15.getDefinition().setFactTable(t2); // Fact table
-        c15.getDefinition().setGroupPaths(Arrays.asList(new DimPath(c24))); // One group path
-        c15.getDefinition().setMeasurePaths(Arrays.asList(new DimPath(c23))); // One measure path
-        c15.getDefinition().setUpdater("SUM"); // Aggregation function
-
+        c15.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23], aggregator=SUM)");
         c15.add();
 
-        //
-        // Evaluate expression
-        //
         c15.getData().setValue(0.0);
         c15.getDefinition().evaluate(); // {40, 140, 0}
 
         assertEquals(40.0, c15.getData().getValue(0));
         assertEquals(140.0, c15.getData().getValue(1));
         assertEquals(0.0, c15.getData().getValue(2)); // In fact, it has to be NaN or null (no values have been aggregated)
-         */
 
         //
         // Aggregation via a syntactic formula
@@ -375,7 +359,6 @@ public class CoreTest {
         // Define a new product-set
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PRODUCT);
         schema.addTable(t3, null, null);
 
         DcColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
@@ -389,9 +372,7 @@ public class CoreTest {
         //
         // Add simple where expression
         //
-
-        ExprNode ast = exprBuilder.build("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
-        t3.getDefinition().setWhereExpr(ast);
+        t3.getDefinition().setWhereFormula("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
 
         t3.getDefinition().populate();
         assertEquals(4, t3.getData().getLength());
@@ -414,10 +395,7 @@ public class CoreTest {
         // Define a new filter-set
         //
         DcTable t3 = schema.createTable("Table 3");
-
-        ExprNode ast = exprBuilder.build("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
-        t3.getDefinition().setWhereExpr(ast);
-        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PRODUCT);
+        t3.getDefinition().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
 
         schema.addTable(t3, t2, null);
 
@@ -441,7 +419,6 @@ public class CoreTest {
         // Project "Table 2" along "Column 21" and get 2 unique records in a new set "Value A" (3 references) and "Value B" (1 reference)
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getDefinition().setDefinitionType(DcTableDefinitionType.PROJECTION);
         schema.addTable(t3, null, null);
 
         DcColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
@@ -468,7 +445,6 @@ public class CoreTest {
         // Defining a combination of "Column 21" and "Column 22" and project with 3 unique records in a new set
         //
         DcTable t4 = schema.createTable("Table 4");
-        t4.getDefinition().setDefinitionType(DcTableDefinitionType.PROJECTION);
         schema.addTable(t4, null, null);
 
         DcColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);

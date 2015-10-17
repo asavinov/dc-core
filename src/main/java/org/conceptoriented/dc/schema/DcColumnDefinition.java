@@ -18,7 +18,7 @@ package org.conceptoriented.dc.schema;
 
 import java.util.List;
 
-import org.conceptoriented.dc.data.eval.ExprNode;
+import org.conceptoriented.dc.data.ExprNode;
 import org.conceptoriented.dc.utils.DimPath;
 import org.conceptoriented.dc.utils.Mapping;
 

@@ -18,8 +18,7 @@ package org.conceptoriented.dc.schema;
 
 import java.util.List;
 
-import org.conceptoriented.dc.data.eval.DcEvaluator;
-import org.conceptoriented.dc.data.eval.ExprNode;
+import org.conceptoriented.dc.data.ExprNode;
 
 /**
  * Defines data in a table.
@@ -29,27 +28,27 @@ import org.conceptoriented.dc.data.eval.ExprNode;
  */
 public interface DcTableDefinition
 {
-    DcTableDefinitionType getDefinitionType();
-    void setDefinitionType(DcTableDefinitionType value);
+    public TableDefinitionType getDefinitionType();
 
-    ExprNode getWhereExpr();
-    void setWhereExpr(ExprNode value);
+    public String getWhereFormula();
+    public void setWhereFormula(String value);
 
-    ExprNode getOrderbyExp();
-    void setOrderbyExp(ExprNode value);
+    public ExprNode getWhereExpr();
+    public void setWhereExpr(ExprNode value);
 
-    DcEvaluator getWhereEvaluator();
+    public String getOrderbyFormula();
+    public void setOrderbyFormula(String value);
 
-    void populate();
+    public void populate();
 
-    void unpopulate(); // Is not it Length=0?
+    public void unpopulate(); // Is not it Length=0?
 
     //
     // Dependencies. The order is important and corresponds to dependency chain
     //
-    List<DcTable> usesTables(boolean recursive); // This element depends upon
-    List<DcTable> isUsedInTables(boolean recursive); // Dependants
+    public List<DcTable> usesTables(boolean recursive); // This element depends upon
+    public List<DcTable> isUsedInTables(boolean recursive); // Dependants
 
-    List<DcColumn> usesColumns(boolean recursive); // This element depends upon
-    List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
+    public List<DcColumn> usesColumns(boolean recursive); // This element depends upon
+    public List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 }

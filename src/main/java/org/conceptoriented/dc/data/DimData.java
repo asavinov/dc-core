@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.conceptoriented.dc.utils.*;
 import org.conceptoriented.dc.schema.*;
-import org.conceptoriented.dc.data.eval.*;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 
 public class DimData<T extends Comparable<T>> implements DcColumnData {

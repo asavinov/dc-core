@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.data.eval;
+package org.conceptoriented.dc.schema;
 
-import org.conceptoriented.dc.schema.DcWorkspace;
-
-public interface DcEvaluator {
-    public DcWorkspace getWorkspace();
-    public void setWorkspace(DcWorkspace workspace);
-
-    public boolean nextInput(); // True if there exists a next element
-    public boolean firstInput(); // True if there exists a first element (if the set is not empty)
-    public boolean lastInput(); // True if there exists a last element (if the set is not empty)
-
-    public Object evaluate(); // Compute output for the specified intput and write it
-
-    public Object getOutput();
+public enum TableDefinitionType // Specific types of table formula
+{
+    FREE, // No definition for the table (and cannot be defined). Example: manually created table with primitive dimensions.
+    PRODUCT, // Table contains all combinations of its greater (key) sets satisfying the constraints
+    PROJECTION, // Table gets its elements from (unique) outputs of some function
+    FILTER, // Tables contains a subset of elements from its super-set
+    ANY, // Arbitrary formula without constraints can be provided with a mix of various expression types
 }

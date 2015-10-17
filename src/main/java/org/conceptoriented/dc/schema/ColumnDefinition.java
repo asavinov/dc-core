@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.conceptoriented.dc.utils.*;
 import org.conceptoriented.dc.data.*;
-import org.conceptoriented.dc.data.eval.*;
 import org.conceptoriented.dc.data.query.*;
 
 public class ColumnDefinition implements DcColumnDefinition
@@ -37,6 +36,12 @@ public class ColumnDefinition implements DcColumnDefinition
         setFormulaExpr(expr);
     }
 
+    protected ExprNode _formulaExpr;
+    @Override
+    public ExprNode getFormulaExpr() { return _formulaExpr; }
+    @Override
+    public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
+
     //
     // Structured (object) representation
     //
@@ -48,12 +53,6 @@ public class ColumnDefinition implements DcColumnDefinition
     protected boolean _appendSchema;
     public boolean isAppendSchema() { return _appendSchema; }
     public void setAppendSchema(boolean value) { _appendSchema = value; }
-
-    protected ExprNode _formulaExpr;
-    @Override
-    public ExprNode getFormulaExpr() { return _formulaExpr; }
-    @Override
-    public void setFormulaExpr(ExprNode value) { _formulaExpr = value; }
 
     //
     // Compute

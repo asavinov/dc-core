@@ -17,7 +17,6 @@
 package org.conceptoriented.dc.data;
 
 import org.conceptoriented.dc.schema.DcColumn;
-import org.conceptoriented.dc.data.eval.ExprNode;
 
 /**
  * Working with data in the table.
@@ -35,13 +34,6 @@ public interface DcTableData {
     public boolean isIndexed();
 
     public void reindex();
-
-    //
-    // Value methods (convenience, probably should be removed and replaced by manual access to dimensions)
-    //
-
-    Object getValue(String name, int offset);
-    void setValue(String name, int offset, Object value);
 
     //
     // Tuple (flat record) methods: append, insert, remove, read, write.

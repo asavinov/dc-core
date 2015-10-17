@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.data.eval;
+package org.conceptoriented.dc.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
