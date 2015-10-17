@@ -124,24 +124,25 @@ public class CoreTest {
 
         DcColumn[] cols = new DcColumn[] { c11, c12, c13, c14 };
         Object[] vals = new Object[4];
+        DcTableWriter w1 = t1.getTableWriter();
 
         vals[0] = 20;
         vals[1] = "Record 0";
         vals[2] = 20.0;
         vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
-        t1.getData().append(cols, vals);
+        w1.append(cols, vals);
 
         vals[0] = 10;
         vals[1] = "Record 1";
         vals[2] = 10.0;
         vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
-        t1.getData().append(cols, vals);
+        w1.append(cols, vals);
 
         vals[0] = 30;
         vals[1] = "Record 2";
         vals[2] = 30.0;
         vals[3] = BigDecimal.valueOf(20.0); // new BigDecimal(20.0);
-        t1.getData().append(cols, vals);
+        w1.append(cols, vals);
 
         //
         // Fill sample data in "Table 2"
@@ -155,30 +156,31 @@ public class CoreTest {
 
         cols = new DcColumn[] { c21, c22, c23, c24 };
         vals = new Object[4];
+        DcTableWriter w2 = t2.getTableWriter();
 
         vals[0] = "Value A";
         vals[1] = 20;
         vals[2] = 40.0;
         vals[3] = 0;
-        t2.getData().append(cols, vals);
+        w2.append(cols, vals);
 
         vals[0] = "Value A";
         vals[1] = 30;
         vals[2] = 40.0;
         vals[3] = 1;
-        t2.getData().append(cols, vals);
+        w2.append(cols, vals);
 
         vals[0] = "Value A";
         vals[1] = 30;
         vals[2] = 50.0;
         vals[3] = 1;
-        t2.getData().append(cols, vals);
+        w2.append(cols, vals);
 
         vals[0] = "Value B";
         vals[1] = 30;
         vals[2] = 50.0;
         vals[3] = 1;
-        t2.getData().append(cols, vals);
+        w2.append(cols, vals);
     }
 
     @Test

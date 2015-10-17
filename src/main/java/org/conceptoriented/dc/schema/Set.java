@@ -217,59 +217,6 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         }
     }
 
-    // Tuple methods
-
-    @Override
-    public int find(DcColumn[] dims, Object[] values) {
-        int[] result = java.util.stream.IntStream.range(0, getLength()).toArray(); // All elements of this set (can be quite long)
-
-        boolean hasBeenRestricted = false; // For the case where the Length==1, and no key columns are really provided, so we get at the end result.Length==1 which is misleading. Also, this fixes the problem of having no key dimensions.
-        for (int i = 0; i < dims.length; i++)
-        {
-            hasBeenRestricted = true;
-            int[] range = dims[i].getData().deproject(values[i]); // Deproject one value
-            result = Utils.intersect(result, range);
-            // OPTIMIZE: Write our own implementation for various operations (intersection etc.). Use the fact that they are ordered.
-            // OPTIMIZE: Use statistics for column distribution to choose best order of de-projections. Alternatively, the order of dimensions can be set by the external procedure taking into account statistics. Say, there could be a special utility method like SortDimensionsAccordingDiscriminationFactor or SortDimsForFinding tuples.
-            // OPTIMIZE: Remember the position for the case this value will have to be inserted so we do not have again search for this positin during insertion. Maybe store it in a static field as part of last operation.
-
-            if (result.length == 0) break; // Not found
-        }
-
-        if (result.length == 0) // Not found
-        {
-            return -1;
-        }
-        else if (result.length == 1) // Found single element - return its offset
-        {
-            if (hasBeenRestricted) return result[0];
-            else return -result.length;
-        }
-        else // Many elements satisfy these properties (non-unique identities). Use other methods for getting these records (like de-projection)
-        {
-            return -result.length;
-        }
-    }
-    @Override
-    public int append(DcColumn[] dims, Object[] values) {
-        for (int i = 0; i < dims.length; i++)
-        {
-            dims[i].getData().append(values[i]);
-        }
-
-        _length++;
-        return _length-1;
-    }
-    @Override
-    public void remove(int input) {
-        for (DcColumn col : getColumns())
-        {
-            col.getData().remove(input);
-        }
-
-        _length--;
-    }
-
     //
     // DcTableDefinition
     //
@@ -363,6 +310,9 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                 outputExpr.evaluateBegin();
             }
         	
+            DcTableWriter tableWriter = this.getTableWriter();
+            tableWriter.open();
+
             //
             // Find all local greater dimensions to be varied (including the super-dim)
             //
@@ -392,7 +342,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                     {
                         vals[i] = offsets[i];
                     }
-                    int input = append(dims, vals);
+                    int input = tableWriter.append(dims, vals);
 
                     //
                     // Now check if this appended element satisfies the where expression and if not then remove it
@@ -435,6 +385,14 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
                 }
             }
 
+            if(tableWriter != null)
+            {
+                tableWriter.close();
+            }
+            if (outputExpr != null)
+            {
+                outputExpr.evaluateEnd();
+            }
         }
         else
         {

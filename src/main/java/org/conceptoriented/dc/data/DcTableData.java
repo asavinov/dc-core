@@ -34,12 +34,4 @@ public interface DcTableData {
     public boolean isIndexed();
 
     public void reindex();
-
-    //
-    // Tuple (flat record) methods: append, insert, remove, read, write.
-    //
-
-    int find(DcColumn[] dims, Object[] values);
-    int append(DcColumn[] dims, Object[] values);
-    void remove(int input);
 }

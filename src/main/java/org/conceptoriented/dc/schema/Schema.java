@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.conceptoriented.dc.data.DcTableWriter;
 import org.conceptoriented.dc.schema.*;
 
 import com.google.common.io.Files;
@@ -217,6 +218,9 @@ public class Schema extends Set implements DcSchema {
         DcColumn[] columnArray = columns.toArray(new DcColumn[0]);
         Object[] valueArray = new Object[columnArray.length];
         try {
+        	DcTableWriter tableWriter = table.getTableWriter();
+        	tableWriter.open();
+        	
             Reader in = new FileReader(fileName);
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(in);
 
@@ -233,13 +237,14 @@ public class Schema extends Set implements DcSchema {
                     valueArray[i] = value;
                 }
 
-                table.getData().append(columnArray, valueArray);
+                tableWriter.append(columnArray, valueArray);
 
                 recordNumber++;
             }
 
             in.close();
-
+        	tableWriter.close();
+        	
         } catch (IOException e) {
             e.printStackTrace();
         }
