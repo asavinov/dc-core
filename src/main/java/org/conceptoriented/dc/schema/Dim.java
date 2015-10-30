@@ -115,12 +115,6 @@ public class Dim implements DcColumn {
         return _data;
     }
 
-    protected DcColumnDefinition _definition;
-    @Override
-    public DcColumnDefinition getDefinition() {
-        return _definition;
-    }
-
     public static DcColumnData CreateColumnData(DcTable type, DcColumn column)
     {
         DcColumnData colData = new DimDataEmpty();
@@ -222,8 +216,6 @@ public class Dim implements DcColumn {
         setOutput(dim.getOutput());
 
         _data = CreateColumnData(_output, this);
-        _definition = new ColumnDefinition(this);
-        // TODO: Copy definition
     }
 
     public Dim(DcTable set) { // Empty dimension
@@ -252,7 +244,6 @@ public class Dim implements DcColumn {
         this._output = output;
 
         _data = CreateColumnData(output, this);
-        _definition = new ColumnDefinition(this);
     }
 
 }

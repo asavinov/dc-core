@@ -441,7 +441,7 @@ public class ExprNode extends TreeNode<ExprNode> {
             // Open file for writing
             if (getOutputVariable().getTypeTable() != null && !getOutputVariable().getTypeTable().isPrimitive() && !getOutputVariable().getTypeTable().isPrimitive())
             {
-                setTableWriter(getOutputVariable().getTypeTable().getTableWriter());
+                setTableWriter(getOutputVariable().getTypeTable().getData().getTableWriter());
                 getTableWriter().open();
             }
 

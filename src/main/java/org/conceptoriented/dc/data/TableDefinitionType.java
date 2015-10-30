@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.schema;
+package org.conceptoriented.dc.data;
 
 public enum TableDefinitionType // Specific types of table formula
 {

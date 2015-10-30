@@ -56,6 +56,5 @@ public interface DcColumn {
     // Data and definition objects
     //
     public DcColumnData getData();
-    public DcColumnDefinition getDefinition();
 }
 

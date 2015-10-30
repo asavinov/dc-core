@@ -34,4 +34,8 @@ public interface DcTableData {
     public boolean isIndexed();
 
     public void reindex();
+
+    public DcTableReader getTableReader();
+    public DcTableWriter getTableWriter();
+    public DcTableDefinition getDefinition();
 }

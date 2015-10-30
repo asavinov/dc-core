@@ -1,4 +1,4 @@
-package org.conceptoriented.dc.schema;
+package org.conceptoriented.dc.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +7,11 @@ import java.util.List;
 import org.conceptoriented.dc.utils.*;
 import org.conceptoriented.dc.data.*;
 import org.conceptoriented.dc.data.query.*;
+import org.conceptoriented.dc.schema.DcColumn;
+import org.conceptoriented.dc.schema.DcTable;
+import org.conceptoriented.dc.schema.DcWorkspace;
+import org.conceptoriented.dc.schema.Dim;
+import org.conceptoriented.dc.schema.Utils;
 
 public class ColumnDefinition implements DcColumnDefinition
 {
@@ -79,7 +84,7 @@ public class ColumnDefinition implements DcColumnDefinition
             if (getFormulaExpr().getDefinitionType() == ColumnDefinitionType.LINK)
             {
             	// Adjust the expression according to other parameters of the definition
-                if(_dim.getDefinition().isAppendData()) 
+                if(isAppendData()) 
                 {
                 	getFormulaExpr().setAction(ActionType.APPEND);
                 }
@@ -103,7 +108,7 @@ public class ColumnDefinition implements DcColumnDefinition
             getFormulaExpr().resolve(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
             
         	getFormulaExpr().evaluateBegin();
-            DcTableReader tableReader = thisTable.getTableReader();
+            DcTableReader tableReader = thisTable.getData().getTableReader();
         	tableReader.open();
             while ((thisCurrent = tableReader.next()) != null)
             {
@@ -162,7 +167,7 @@ public class ColumnDefinition implements DcColumnDefinition
             outputExpr.resolve(workspace, Arrays.asList(groupVariable, measureVariable));
         
             getFormulaExpr().evaluateBegin();
-            DcTableReader tableReader = thisTable.getTableReader();
+            DcTableReader tableReader = thisTable.getData().getTableReader();
             tableReader.open();
             while ((thisCurrent = tableReader.next()) != null)
             {

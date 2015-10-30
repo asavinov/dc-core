@@ -70,7 +70,4 @@ public interface DcTable {
     DcTable getSubTable(String name); // Subtable
 
     public DcTableData getData();
-    public DcTableDefinition getDefinition();
-    public DcTableReader getTableReader();
-    public DcTableWriter getTableWriter();
 }

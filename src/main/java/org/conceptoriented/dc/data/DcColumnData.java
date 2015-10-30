@@ -58,4 +58,5 @@ public interface DcColumnData {
     Object project(int[] offsets);
     int[] deproject(Object value);
 
+    public DcColumnDefinition getDefinition();
 }

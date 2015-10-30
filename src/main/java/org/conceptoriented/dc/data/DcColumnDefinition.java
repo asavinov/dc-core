@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.schema;
+package org.conceptoriented.dc.data;
 
 import java.util.List;
 
-import org.conceptoriented.dc.data.ExprNode;
+import org.conceptoriented.dc.schema.DcColumn;
+import org.conceptoriented.dc.schema.DcTable;
 import org.conceptoriented.dc.utils.DimPath;
 import org.conceptoriented.dc.utils.Mapping;
 

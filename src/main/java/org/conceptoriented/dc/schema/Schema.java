@@ -218,7 +218,7 @@ public class Schema extends Set implements DcSchema {
         DcColumn[] columnArray = columns.toArray(new DcColumn[0]);
         Object[] valueArray = new Object[columnArray.length];
         try {
-        	DcTableWriter tableWriter = table.getTableWriter();
+        	DcTableWriter tableWriter = table.getData().getTableWriter();
         	tableWriter.open();
         	
             Reader in = new FileReader(fileName);

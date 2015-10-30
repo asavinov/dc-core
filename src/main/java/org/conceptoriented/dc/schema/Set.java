@@ -23,10 +23,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.conceptoriented.dc.data.DcTableData;
+import org.conceptoriented.dc.data.DcTableDefinition;
 import org.conceptoriented.dc.data.DcTableReader;
 import org.conceptoriented.dc.data.DcTableWriter;
 import org.conceptoriented.dc.data.DcVariable;
 import org.conceptoriented.dc.data.ExprNode;
+import org.conceptoriented.dc.data.TableDefinitionType;
 import org.conceptoriented.dc.data.TableReader;
 import org.conceptoriented.dc.data.TableWriter;
 import org.conceptoriented.dc.data.Variable;
@@ -162,21 +164,6 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         return this;
     }
 
-    @Override
-    public DcTableDefinition getDefinition() {
-        return this;
-    }
-
-    @Override
-    public DcTableReader getTableReader() {
-        return new TableReader(this);
-    }
-
-    @Override
-    public DcTableWriter getTableWriter() {
-        return new TableWriter(this);
-    }
-
     //
     // DcTableData
     //
@@ -217,6 +204,21 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         }
     }
 
+    @Override
+    public DcTableReader getTableReader() {
+        return new TableReader(this);
+    }
+
+    @Override
+    public DcTableWriter getTableWriter() {
+        return new TableWriter(this);
+    }
+
+    @Override
+    public DcTableDefinition getDefinition() {
+        return this;
+    }
+
     //
     // DcTableDefinition
     //
@@ -227,7 +229,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         if (isPrimitive()) return TableDefinitionType.FREE;
 
         // Try to find incoming generating (append) columns. If they exist then table instances are populated as this dimension output tuples.
-        List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList());
+        List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().getDefinition().isAppendData()).collect(Collectors.toList());
         if(inColumns != null && inColumns.size() > 0)
         {
             return TableDefinitionType.PROJECTION;
@@ -283,11 +285,11 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
 
         if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
-            List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getDefinition().isAppendData()).collect(Collectors.toList());
+            List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().getDefinition().isAppendData()).collect(Collectors.toList());
 
             for(DcColumn inColumn : inColumns) 
             {
-                inColumn.getDefinition().evaluate(); // Delegate to column evaluation - it will add records from column expression
+                inColumn.getData().getDefinition().evaluate(); // Delegate to column evaluation - it will add records from column expression
             }
         }
         else if (getDefinitionType() == TableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)

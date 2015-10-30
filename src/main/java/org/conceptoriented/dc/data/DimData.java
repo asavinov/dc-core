@@ -331,6 +331,12 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         }
     }
 
+    protected DcColumnDefinition _definition;
+    @Override
+    public DcColumnDefinition getDefinition() {
+        return _definition;
+    }
+
     //
     // Index methods
     //
@@ -473,6 +479,9 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
 
         _length = 0;
         setLength(dim.getInput().getData().getLength());
+
+        _definition = new ColumnDefinition(dim);
+        // TODO: Copy definition
     }
 }
 

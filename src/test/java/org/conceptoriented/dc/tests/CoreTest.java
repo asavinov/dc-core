@@ -124,7 +124,7 @@ public class CoreTest {
 
         DcColumn[] cols = new DcColumn[] { c11, c12, c13, c14 };
         Object[] vals = new Object[4];
-        DcTableWriter w1 = t1.getTableWriter();
+        DcTableWriter w1 = t1.getData().getTableWriter();
 
         vals[0] = 20;
         vals[1] = "Record 0";
@@ -156,7 +156,7 @@ public class CoreTest {
 
         cols = new DcColumn[] { c21, c22, c23, c24 };
         vals = new Object[4];
-        DcTableWriter w2 = t2.getTableWriter();
+        DcTableWriter w2 = t2.getData().getTableWriter();
 
         vals[0] = "Value A";
         vals[1] = 20;
@@ -225,12 +225,12 @@ public class CoreTest {
         //
         DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
 
-        c15.getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
+        c15.getData().getDefinition().setFormula("([Column 11]+10.0) * this.[Column 13]");
 
         c15.add();
 
         // Evaluate column
-        c15.getDefinition().evaluate();
+        c15.getData().getDefinition().evaluate();
 
         assertEquals(600.0, c15.getData().getValue(0));
         assertEquals(200.0, c15.getData().getValue(1));
@@ -254,12 +254,12 @@ public class CoreTest {
         //
         DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
 
-        c15.getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
+        c15.getData().getDefinition().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
 
         c15.add();
 
         // Evaluate column
-        c15.getDefinition().evaluate();
+        c15.getData().getDefinition().evaluate();
 
         assertEquals("0", c15.getData().getValue(0));
         assertEquals("1", c15.getData().getValue(1));
@@ -270,11 +270,11 @@ public class CoreTest {
         //
         DcColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
 
-        c16.getDefinition().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
+        c16.getData().getDefinition().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
 
         c16.add();
 
-        c16.getDefinition().evaluate();
+        c16.getData().getDefinition().evaluate();
 
         assertEquals(4.0, c16.getData().getValue(0));
         assertEquals(1.0, c16.getData().getValue(1));
@@ -298,12 +298,12 @@ public class CoreTest {
 
         DcColumn link = schema.createColumn("Column Link", t2, t1, false);
 
-        link.getDefinition().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
+        link.getData().getDefinition().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
 
         link.add();
 
         // Evaluate column
-        link.getDefinition().evaluate();
+        link.getData().getDefinition().evaluate();
 
         assertEquals(0, link.getData().getValue(0));
         assertEquals(2, link.getData().getValue(1));
@@ -324,11 +324,11 @@ public class CoreTest {
         DcColumn c24 = t2.getColumn("Table 1");
 
         DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
-        c15.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23], aggregator=SUM)");
+        c15.getData().getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23], aggregator=SUM)");
         c15.add();
 
         c15.getData().setValue(0.0);
-        c15.getDefinition().evaluate(); // {40, 140, 0}
+        c15.getData().getDefinition().evaluate(); // {40, 140, 0}
 
         assertEquals(40.0, c15.getData().getValue(0));
         assertEquals(140.0, c15.getData().getValue(1));
@@ -338,11 +338,11 @@ public class CoreTest {
         // Aggregation via a syntactic formula
         //
         DcColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
-        c16.getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
+        c16.getData().getDefinition().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
         c16.add();
 
         c16.getData().setValue(0.0);
-        c16.getDefinition().evaluate(); // {40, 140, 0}
+        c16.getData().getDefinition().evaluate(); // {40, 140, 0}
 
         assertEquals(81.0, c16.getData().getValue(0));
         assertEquals(283.0, c16.getData().getValue(1));
@@ -368,15 +368,15 @@ public class CoreTest {
         DcColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
         c32.add();
 
-        t3.getDefinition().populate();
+        t3.getData().getDefinition().populate();
         assertEquals(12, t3.getData().getLength());
 
         //
         // Add simple where expression
         //
-        t3.getDefinition().setWhereFormula("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
+        t3.getData().getDefinition().setWhereFormula("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
 
-        t3.getDefinition().populate();
+        t3.getData().getDefinition().populate();
         assertEquals(4, t3.getData().getLength());
 
         assertEquals(0, c31.getData().getValue(0));
@@ -397,11 +397,11 @@ public class CoreTest {
         // Define a new filter-set
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getDefinition().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
+        t3.getData().getDefinition().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
 
         schema.addTable(t3, t2, null);
 
-        t3.getDefinition().populate();
+        t3.getData().getDefinition().populate();
         assertEquals(1, t3.getData().getLength());
         assertEquals(1, t3.getSuperColumn().getData().getValue(0));
     }
@@ -429,12 +429,12 @@ public class CoreTest {
         // Create a generating column
         DcColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
 
-        c24.getDefinition().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
-        c24.getDefinition().setAppendData(true);
+        c24.getData().getDefinition().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
+        c24.getData().getDefinition().setAppendData(true);
 
         c24.add();
 
-        t3.getDefinition().populate();
+        t3.getData().getDefinition().populate();
 
         assertEquals(2, t3.getData().getLength());
 
@@ -457,12 +457,12 @@ public class CoreTest {
         // Create generating/import column
         DcColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
 
-        c25.getDefinition().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
-        c25.getDefinition().setAppendData(true);
+        c25.getData().getDefinition().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
+        c25.getData().getDefinition().setAppendData(true);
 
         c25.add();
 
-        t4.getDefinition().populate();
+        t4.getData().getDefinition().populate();
 
         assertEquals(3, t4.getData().getLength());
 
@@ -491,33 +491,33 @@ public class CoreTest {
 
         // Define a new arithmetic column: output is a computed primitive value
         DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
-        amountColumn.getDefinition().setFormula("[UnitPrice] * [Quantity]");
+        amountColumn.getData().getDefinition().setFormula("[UnitPrice] * [Quantity]");
         amountColumn.add();
-        amountColumn.getDefinition().evaluate();
+        amountColumn.getData().getDefinition().evaluate();
 
         // Define two link column: output is a tuple
         DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
-        productColumn.getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
+        productColumn.getData().getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
         productColumn.add();
-        productColumn.getDefinition().evaluate();
+        productColumn.getData().getDefinition().evaluate();
 
         DcColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
-        categoryColumn.getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
+        categoryColumn.getData().getDefinition().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
         categoryColumn.add();
-        categoryColumn.getDefinition().evaluate();
+        categoryColumn.getData().getDefinition().evaluate();
 
         // Define a new aggregation column: output is an aggregation of a group of values
         DcColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
-        totalAmountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
+        totalAmountColumn.getData().getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
         totalAmountColumn.add();
-        totalAmountColumn.getDefinition().evaluate();
+        totalAmountColumn.getData().getDefinition().evaluate();
 
         assertEquals(105268.6, totalAmountColumn.getData().getValue(6)); // cells = {286526.94999999995, 113694.75000000001, 177099.09999999995, 251330.5, 100726.8, 178188.80000000002, 105268.6, 141623.09000000003}
 
         DcColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
-        totalCountColumn.getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
+        totalCountColumn.getData().getDefinition().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
         totalCountColumn.add();
-        totalCountColumn.getDefinition().evaluate();
+        totalCountColumn.getData().getDefinition().evaluate();
 
         assertEquals(136, totalCountColumn.getData().getValue(6)); // cells = {404, 216, 334, 366, 196, 173, 136, 330}
     }

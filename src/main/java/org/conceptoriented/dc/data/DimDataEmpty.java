@@ -59,4 +59,7 @@ public class DimDataEmpty implements DcColumnData
 
     @Override
     public int[] deproject(Object value) { return null; } // Or empty array
+
+    @Override
+    public DcColumnDefinition getDefinition() { return null; }
 }
