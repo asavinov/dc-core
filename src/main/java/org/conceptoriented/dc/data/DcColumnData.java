@@ -16,6 +16,11 @@
 
 package org.conceptoriented.dc.data;
 
+import java.util.List;
+
+import org.conceptoriented.dc.schema.DcColumn;
+import org.conceptoriented.dc.schema.DcTable;
+
 /**
  * Storage methods for working with function data like reading and writing function output values for the specified inputs.
  *
@@ -58,5 +63,39 @@ public interface DcColumnData {
     Object project(int[] offsets);
     int[] deproject(Object value);
 
-    public DcColumnDefinition getDefinition();
+    //
+    // The former DcColumnDefinition 
+    //
+
+    public String getFormula();
+    public void setFormula(String formula);
+
+    //
+    // Structured (object) representation
+    //
+
+    public boolean isAppendData();
+    public void setAppendData(boolean value);
+
+    public boolean isAppendSchema();
+    public void setAppendSchema(boolean value);
+
+    public ExprNode getFormulaExpr();
+    public void setFormulaExpr(ExprNode exprNode);
+
+    //
+    // Compute
+    //
+
+    public void evaluate();
+
+    //
+    // Dependencies. The order is important and corresponds to dependency chain
+    //
+
+    public List<DcTable> usesTables(boolean recursive); // This element depends upon
+    public List<DcTable> isUsedInTables(boolean recursive); // Dependants
+
+    public List<DcColumn> usesColumns(boolean recursive); // This element depends upon
+    public List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 }

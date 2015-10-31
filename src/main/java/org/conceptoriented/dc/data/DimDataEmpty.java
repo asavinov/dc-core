@@ -1,5 +1,10 @@
 package org.conceptoriented.dc.data;
 
+import java.util.List;
+
+import org.conceptoriented.dc.schema.DcColumn;
+import org.conceptoriented.dc.schema.DcTable;
+
 public class DimDataEmpty implements DcColumnData
 {
     protected int _length;
@@ -60,6 +65,52 @@ public class DimDataEmpty implements DcColumnData
     @Override
     public int[] deproject(Object value) { return null; } // Or empty array
 
+    //
+    // The former DcColumnDefinition 
+    //
+
     @Override
-    public DcColumnDefinition getDefinition() { return null; }
+    public String getFormula() { return null; }
+    @Override
+    public void setFormula(String formula) {}
+
+    //
+    // Structured (object) representation
+    //
+
+    @Override
+    public boolean isAppendData() { return false; }
+    @Override
+    public void setAppendData(boolean value) {}
+
+    @Override
+    public boolean isAppendSchema() { return false; }
+    @Override
+    public void setAppendSchema(boolean value) {}
+
+    @Override
+    public ExprNode getFormulaExpr() { return null; }
+    @Override
+    public void setFormulaExpr(ExprNode exprNode) {}
+
+    //
+    // Compute
+    //
+
+    @Override
+    public void evaluate() {}
+
+    //
+    // Dependencies. The order is important and corresponds to dependency chain
+    //
+
+    @Override
+    public List<DcTable> usesTables(boolean recursive) { return null; } // This element depends upon
+    @Override
+    public List<DcTable> isUsedInTables(boolean recursive) { return null; } // Dependants
+
+    @Override
+    public List<DcColumn> usesColumns(boolean recursive) { return null; } // This element depends upon
+    @Override
+    public List<DcColumn> isUsedInColumns(boolean recursive) { return null; } // Dependants
 }

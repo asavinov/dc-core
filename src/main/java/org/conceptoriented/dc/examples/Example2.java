@@ -57,45 +57,45 @@ public class Example2 {
 
         // Arithmetic columns: output is a computed primitive value
         DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
-        amountColumn.getData().getDefinition().setFormula("[UnitPrice] * [OrderQty]");
+        amountColumn.getData().setFormula("[UnitPrice] * [OrderQty]");
         amountColumn.add();
-        amountColumn.getData().getDefinition().evaluate();
+        amountColumn.getData().evaluate();
 
         //
         // Link columns: output is a tuple
         //
         DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
-        productColumn.getData().getDefinition().setFormula("(( Integer [ProductID] = [ProductID] ))");
+        productColumn.getData().setFormula("(( Integer [ProductID] = [ProductID] ))");
         productColumn.add();
-        productColumn.getData().getDefinition().evaluate();
+        productColumn.getData().evaluate();
 
         DcColumn subCategoryColumn = schema.createColumn("SubCategory", productsTable, subCategoriesTable, false);
-        subCategoryColumn.getData().getDefinition().setFormula("(( Integer [ProductSubcategoryID] = [ProductSubcategoryID] ))");
+        subCategoryColumn.getData().setFormula("(( Integer [ProductSubcategoryID] = [ProductSubcategoryID] ))");
         subCategoryColumn.add();
-        subCategoryColumn.getData().getDefinition().evaluate();
+        subCategoryColumn.getData().evaluate();
 
         DcColumn categoryColumn = schema.createColumn("Category", subCategoriesTable, categoriesTable, false);
-        categoryColumn.getData().getDefinition().setFormula("(( Integer [ProductCategoryID] = [ProductCategoryID] ))");
+        categoryColumn.getData().setFormula("(( Integer [ProductCategoryID] = [ProductCategoryID] ))");
         categoryColumn.add();
-        categoryColumn.getData().getDefinition().evaluate();
+        categoryColumn.getData().evaluate();
 
         //
         // Aggregation columns: output is an aggregation of several values
         //
         DcColumn totalAmountColumn = schema.createColumn("Total Amount", subCategoriesTable, doubleType, false);
-        totalAmountColumn.getData().getDefinition().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory], measure=[Amount], aggregator=SUM)");
+        totalAmountColumn.getData().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory], measure=[Amount], aggregator=SUM)");
         totalAmountColumn.add();
-        totalAmountColumn.getData().getDefinition().evaluate();
+        totalAmountColumn.getData().evaluate();
 
         DcColumn totalCategoryColumn = schema.createColumn("Total Amount Category", categoriesTable, doubleType, false);
-        totalCategoryColumn.getData().getDefinition().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory].[Category], measure=[Amount], aggregator=SUM)");
+        totalCategoryColumn.getData().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory].[Category], measure=[Amount], aggregator=SUM)");
         totalCategoryColumn.add();
-        totalCategoryColumn.getData().getDefinition().evaluate();
+        totalCategoryColumn.getData().evaluate();
 
         DcColumn totalCategoryColumn2 = schema.createColumn("Total Amount Category 2", categoriesTable, doubleType, false);
-        totalCategoryColumn2.getData().getDefinition().setFormula("AGGREGATE(facts=[Production_ProductSubcategory], groups=[Category], measure=[Total Amount], aggregator=SUM)");
+        totalCategoryColumn2.getData().setFormula("AGGREGATE(facts=[Production_ProductSubcategory], groups=[Category], measure=[Total Amount], aggregator=SUM)");
         totalCategoryColumn2.add();
-        totalCategoryColumn2.getData().getDefinition().evaluate();
+        totalCategoryColumn2.getData().evaluate();
 
         //
         // Print results

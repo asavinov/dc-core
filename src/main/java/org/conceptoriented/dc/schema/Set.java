@@ -222,7 +222,7 @@ public class Set implements DcTable, DcTableData {
         if (isPrimitive()) return TableDefinitionType.FREE;
 
         // Try to find incoming generating (append) columns. If they exist then table instances are populated as this dimension output tuples.
-        List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().getDefinition().isAppendData()).collect(Collectors.toList());
+        List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().isAppendData()).collect(Collectors.toList());
         if(inColumns != null && inColumns.size() > 0)
         {
             return TableDefinitionType.PROJECTION;
@@ -278,11 +278,11 @@ public class Set implements DcTable, DcTableData {
 
         if (getDefinitionType() == TableDefinitionType.PROJECTION) // There are import dimensions so copy data from another set (projection of another set)
         {
-            List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().getDefinition().isAppendData()).collect(Collectors.toList());
+            List<DcColumn> inColumns = getInputColumns().stream().filter(d -> d.getData().isAppendData()).collect(Collectors.toList());
 
             for(DcColumn inColumn : inColumns) 
             {
-                inColumn.getData().getDefinition().evaluate(); // Delegate to column evaluation - it will add records from column expression
+                inColumn.getData().evaluate(); // Delegate to column evaluation - it will add records from column expression
             }
         }
         else if (getDefinitionType() == TableDefinitionType.PRODUCT) // Product of local sets (no project/de-project from another set)

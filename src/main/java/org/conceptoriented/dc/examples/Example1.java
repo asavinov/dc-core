@@ -48,9 +48,9 @@ public class Example1 {
 
         // Arithmetic columns: output is a computed primitive value
         DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
-        amountColumn.getData().getDefinition().setFormula("[UnitPrice] * [OrderQty]");
+        amountColumn.getData().setFormula("[UnitPrice] * [OrderQty]");
         amountColumn.add();
-        amountColumn.getData().getDefinition().evaluate();
+        amountColumn.getData().evaluate();
 
         //
         // Print results
