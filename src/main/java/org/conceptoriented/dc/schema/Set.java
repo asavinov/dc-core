@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.conceptoriented.dc.data.DcTableData;
-import org.conceptoriented.dc.data.DcTableDefinition;
 import org.conceptoriented.dc.data.DcTableReader;
 import org.conceptoriented.dc.data.DcTableWriter;
 import org.conceptoriented.dc.data.DcVariable;
@@ -33,9 +32,8 @@ import org.conceptoriented.dc.data.TableReader;
 import org.conceptoriented.dc.data.TableWriter;
 import org.conceptoriented.dc.data.Variable;
 import org.conceptoriented.dc.data.query.ExprBuilder;
-import org.conceptoriented.dc.schema.*;
 
-public class Set implements DcTable, DcTableData, DcTableDefinition {
+public class Set implements DcTable, DcTableData {
 
     //
     // DcTable interface
@@ -214,13 +212,8 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
         return new TableWriter(this);
     }
 
-    @Override
-    public DcTableDefinition getDefinition() {
-        return this;
-    }
-
     //
-    // DcTableDefinition
+    // The former DcTableDefinition - Now part of DcTableData
     //
 
     @Override
@@ -300,7 +293,7 @@ public class Set implements DcTable, DcTableData, DcTableDefinition {
             thisVariable.setTypeTable(this);
 
             // Evaluator expression for where formula
-            ExprNode outputExpr = this.getDefinition().getWhereExpr();
+            ExprNode outputExpr = this.getWhereExpr();
             if(outputExpr != null)
             {
                 outputExpr.getOutputVariable().setSchemaName(this.getSchema().getName());

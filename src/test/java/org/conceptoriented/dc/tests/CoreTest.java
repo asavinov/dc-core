@@ -368,15 +368,15 @@ public class CoreTest {
         DcColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
         c32.add();
 
-        t3.getData().getDefinition().populate();
+        t3.getData().populate();
         assertEquals(12, t3.getData().getLength());
 
         //
         // Add simple where expression
         //
-        t3.getData().getDefinition().setWhereFormula("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
+        t3.getData().setWhereFormula("([Table 1].[Column 11] > 10) && this.[Table 2].[Column 23] == 50.0");
 
-        t3.getData().getDefinition().populate();
+        t3.getData().populate();
         assertEquals(4, t3.getData().getLength());
 
         assertEquals(0, c31.getData().getValue(0));
@@ -397,11 +397,11 @@ public class CoreTest {
         // Define a new filter-set
         //
         DcTable t3 = schema.createTable("Table 3");
-        t3.getData().getDefinition().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
+        t3.getData().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
 
         schema.addTable(t3, t2, null);
 
-        t3.getData().getDefinition().populate();
+        t3.getData().populate();
         assertEquals(1, t3.getData().getLength());
         assertEquals(1, t3.getSuperColumn().getData().getValue(0));
     }
@@ -434,7 +434,7 @@ public class CoreTest {
 
         c24.add();
 
-        t3.getData().getDefinition().populate();
+        t3.getData().populate();
 
         assertEquals(2, t3.getData().getLength());
 
@@ -462,7 +462,7 @@ public class CoreTest {
 
         c25.add();
 
-        t4.getData().getDefinition().populate();
+        t4.getData().populate();
 
         assertEquals(3, t4.getData().getLength());
 

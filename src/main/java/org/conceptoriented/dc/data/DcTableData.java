@@ -16,7 +16,10 @@
 
 package org.conceptoriented.dc.data;
 
+import java.util.List;
+
 import org.conceptoriented.dc.schema.DcColumn;
+import org.conceptoriented.dc.schema.DcTable;
 
 /**
  * Working with data in the table.
@@ -37,5 +40,32 @@ public interface DcTableData {
 
     public DcTableReader getTableReader();
     public DcTableWriter getTableWriter();
-    public DcTableDefinition getDefinition();
+
+    //
+    // The former DcTableDefinition 
+    // 
+
+    public TableDefinitionType getDefinitionType();
+
+    public String getWhereFormula();
+    public void setWhereFormula(String value);
+
+    public ExprNode getWhereExpr();
+    public void setWhereExpr(ExprNode value);
+
+    public String getOrderbyFormula();
+    public void setOrderbyFormula(String value);
+
+    public void populate();
+
+    public void unpopulate(); // Is not it Length=0?
+
+    //
+    // Dependencies. The order is important and corresponds to dependency chain
+    //
+    public List<DcTable> usesTables(boolean recursive); // This element depends upon
+    public List<DcTable> isUsedInTables(boolean recursive); // Dependants
+
+    public List<DcColumn> usesColumns(boolean recursive); // This element depends upon
+    public List<DcColumn> isUsedInColumns(boolean recursive); // Dependants
 }
