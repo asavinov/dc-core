@@ -119,12 +119,14 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._outputVariable = variable;
     }
 
-    public void resolve(DcWorkspace workspace, List<DcVariable> variables) {
+    public void evaluateAndResolveSchema(DcWorkspace workspace, List<DcVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
             boolean success;
             int intValue = 0;
             double doubleValue = 0.0;
+
+            getOutputVariable().resolve(workspace);
 
             //
             // Resolve string into object and store in the result. Derive the type from the format.
@@ -150,8 +152,6 @@ public class ExprNode extends TreeNode<ExprNode> {
                     getOutputVariable().setValue(getName());
                 }
             }
-
-            getOutputVariable().resolve(workspace);
         }
         else if (getOperation() == OperationType.TUPLE)
         {
@@ -159,6 +159,11 @@ public class ExprNode extends TreeNode<ExprNode> {
             // Resolve this (tuples are resolved through the parent which must be resolved before children)
             // In TUPLE, Name denotes a function from the parent (input) to this node (output)
             //
+
+            //
+            // Resolve type table name
+            //
+            getOutputVariable().resolve(workspace);
 
             //
             // Resolve Name into a column object (a function from the parent to this node)
@@ -176,8 +181,6 @@ public class ExprNode extends TreeNode<ExprNode> {
 
                     if (col != null) // Column resolved
                     {
-                        setColumn(col);
-
                         // Check and process type information
                         if (getOutputVariable().getTypeTable() == null)
                         {
@@ -194,8 +197,15 @@ public class ExprNode extends TreeNode<ExprNode> {
                     else // Column not found
                     {
                         // Append a new column (schema change, e.g., if function output structure has to be propagated)
-                        // TODO:
+                        DcTable input = parentNode.getOutputVariable().getTypeTable();
+                        DcTable output = getOutputVariable().getTypeTable();
+                        String columnName = getName();
+
+                        col = input.getSchema().createColumn(columnName, input, output, false);
+                        col.add();
                     }
+
+                    setColumn(col);
                 }
             }
             else // This tuple in some other node, e.g, argument or value
@@ -204,16 +214,11 @@ public class ExprNode extends TreeNode<ExprNode> {
             }
 
             //
-            // Resolve type table name
-            //
-            getOutputVariable().resolve(workspace);
-
-            //
             // Resolve children (important: after the tuple itself, because this node will be used)
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.item.resolve(workspace, variables);
+                childNode.item.evaluateAndResolveSchema(workspace, variables);
             }
         }
         else if (getOperation() == OperationType.CALL)
@@ -224,14 +229,13 @@ public class ExprNode extends TreeNode<ExprNode> {
             //
             for (TreeNode<ExprNode> childNode : children)
             {
-                childNode.item.resolve(workspace, variables);
+                childNode.item.evaluateAndResolveSchema(workspace, variables);
             }
 
             //
             // Resolve type table name
             //
             getOutputVariable().resolve(workspace);
-
 
             //
             // Resolve Name into a column object, variable, procedure or whatever object that will return a result (children must be resolved before)

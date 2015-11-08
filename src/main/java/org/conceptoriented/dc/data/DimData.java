@@ -416,7 +416,7 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             getFormulaExpr().getOutputVariable().setTypeName(_dim.getOutput().getName());
             getFormulaExpr().getOutputVariable().setTypeSchema(_dim.getOutput().getSchema());
             getFormulaExpr().getOutputVariable().setTypeTable(_dim.getOutput());
-            getFormulaExpr().resolve(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
+            getFormulaExpr().evaluateAndResolveSchema(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
             
         	getFormulaExpr().evaluateBegin();
             DcTableReader tableReader = thisTable.getData().getTableReader();
@@ -452,7 +452,7 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             ExprNode groupExpr; // Returns a group this fact belongs to, is stored in the group variable
             ExprNode groupsNode = getFormulaExpr().getChild("groups").getChild(0);
             groupExpr = groupsNode;
-            groupExpr.resolve(workspace, Arrays.asList(thisVariable));
+            groupExpr.evaluateAndResolveSchema(workspace, Arrays.asList(thisVariable));
 
             DcVariable groupVariable; // Stores current group (input for the aggregated function)
             groupVariable = new Variable(_dim.getInput().getSchema().getName(), _dim.getInput().getName(), "this");
@@ -463,7 +463,7 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             ExprNode measureExpr; // Returns a new value to be aggregated with the old value, is stored in the measure variable
             ExprNode measureNode = getFormulaExpr().getChild("measure").getChild(0);
             measureExpr = measureNode;
-            measureExpr.resolve(workspace, Arrays.asList(thisVariable));
+            measureExpr.evaluateAndResolveSchema(workspace, Arrays.asList(thisVariable));
 
             DcVariable measureVariable; // Stores new value (output for the aggregated function)
             measureVariable = new Variable(_dim.getOutput().getSchema().getName(), _dim.getOutput().getName(), "value");
@@ -475,7 +475,7 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
 
             ExprNode outputExpr;
             outputExpr = ExprNode.createUpdater(_dim, updaterExpr.getName());
-            outputExpr.resolve(workspace, Arrays.asList(groupVariable, measureVariable));
+            outputExpr.evaluateAndResolveSchema(workspace, Arrays.asList(groupVariable, measureVariable));
         
             getFormulaExpr().evaluateBegin();
             DcTableReader tableReader = thisTable.getData().getTableReader();

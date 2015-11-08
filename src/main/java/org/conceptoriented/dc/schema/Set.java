@@ -300,7 +300,7 @@ public class Set implements DcTable, DcTableData {
                 outputExpr.getOutputVariable().setTypeName("Boolean");
                 outputExpr.getOutputVariable().setTypeSchema(this.getSchema());
                 outputExpr.getOutputVariable().setTypeTable(this.getSchema().getPrimitive("Boolean"));
-                outputExpr.resolve(this.getSchema().getWorkspace(), Arrays.asList(thisVariable));
+                outputExpr.evaluateAndResolveSchema(this.getSchema().getWorkspace(), Arrays.asList(thisVariable));
 
                 outputExpr.evaluateBegin();
             }
