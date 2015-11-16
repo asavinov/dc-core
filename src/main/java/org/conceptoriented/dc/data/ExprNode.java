@@ -119,7 +119,7 @@ public class ExprNode extends TreeNode<ExprNode> {
         this._outputVariable = variable;
     }
 
-    public void evaluateAndResolveSchema(DcWorkspace workspace, List<DcVariable> variables) {
+    public void evaluateAndResolveSchema(DcSpace workspace, List<DcVariable> variables) {
         if (getOperation() == OperationType.VALUE)
         {
             boolean success;
@@ -814,7 +814,7 @@ public class ExprNode extends TreeNode<ExprNode> {
     }
 
 
-    public static ExprNode createReader(DimPath path, boolean withThisVariable)
+    public static ExprNode createReader(ColumnPath path, boolean withThisVariable)
     {
         ExprNode expr = null;
 
@@ -885,7 +885,7 @@ public class ExprNode extends TreeNode<ExprNode> {
 
     public static ExprNode createReader(DcColumn column, boolean withThisVariable)
     {
-        return createReader(new DimPath(column), withThisVariable);
+        return createReader(new ColumnPath(column), withThisVariable);
     }
 
     public static ExprNode createUpdater(DcColumn column, String aggregationFunction)

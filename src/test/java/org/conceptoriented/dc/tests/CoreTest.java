@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.conceptoriented.dc.data.*;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 import org.conceptoriented.dc.schema.*;
-import org.conceptoriented.dc.utils.DimPath;
+import org.conceptoriented.dc.utils.ColumnPath;
 
 public class CoreTest {
 
@@ -61,19 +61,19 @@ public class CoreTest {
         exprBuilder = new ExprBuilder();
     }
 
-    DcWorkspace workspace;
+    DcSpace space;
     DcSchema schema;
 
     @Before
     public void setUp() {
-        workspace = new Workspace();
+        space = new Space();
 
         //
         // Prepare schema
         //
         schema = createSampleSchema();
-        workspace.addSchema(schema);
-        schema.setWorkspace(workspace);
+        space.addSchema(schema);
+        schema.setSpace(space);
     }
 
     protected DcSchema createSampleSchema()

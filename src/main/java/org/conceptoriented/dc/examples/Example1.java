@@ -25,10 +25,10 @@ public class Example1 {
 
         String detailsTableName = "Sales_SalesOrderDetail.txt";
 
-        DcWorkspace workspace = new Workspace();
+        DcSpace space = new Space();
         DcSchema schema = new Schema("Example 2");
-        workspace.addSchema(schema);
-        schema.setWorkspace(workspace);
+        space.addSchema(schema);
+        schema.setSpace(space);
 
         DcTable integerType = schema.getPrimitive("Integer");
         DcTable doubleType = schema.getPrimitive("Double");

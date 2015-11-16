@@ -50,7 +50,7 @@ public class Variable implements DcVariable
     public void setTypeName(String value) { _typeName = value; }
 
 
-    public void resolve(DcWorkspace workspace) {
+    public void resolve(DcSpace workspace) {
         if (!Strings.isNullOrEmpty(getSchemaName()))
         {
             // 1. Resolve schema name

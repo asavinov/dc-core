@@ -22,7 +22,7 @@ import java.time.Instant;
 import org.conceptoriented.dc.schema.*;
 import org.conceptoriented.dc.data.*;
 
-public class Dim implements DcColumn {
+public class Column implements DcColumn {
 
     //
     // ComColumn interface
@@ -117,7 +117,7 @@ public class Dim implements DcColumn {
 
     public static DcColumnData CreateColumnData(DcTable type, DcColumn column)
     {
-        DcColumnData colData = new DimDataEmpty();
+        DcColumnData colData = new ColumnDataEmpty();
 
 
         if (type == null || Utils.isNullOrEmpty(type.getName()))
@@ -137,34 +137,34 @@ public class Dim implements DcColumn {
         }
         else if (Utils.sameTableName(type.getName(), "Integer"))
         {
-            colData = new DimData<Integer>(column);
+            colData = new ColumnData<Integer>(column);
         }
         else if (Utils.sameTableName(type.getName(), "Double"))
         {
-            colData = new DimData<Double>(column);
+            colData = new ColumnData<Double>(column);
         }
         else if (Utils.sameTableName(type.getName(), "Decimal"))
         {
-            colData = new DimData<BigDecimal>(column);
+            colData = new ColumnData<BigDecimal>(column);
         }
         else if (Utils.sameTableName(type.getName(), "String"))
         {
-            colData = new DimData<String>(column);
+            colData = new ColumnData<String>(column);
         }
         else if (Utils.sameTableName(type.getName(), "Boolean"))
         {
-            colData = new DimData<Boolean>(column);
+            colData = new ColumnData<Boolean>(column);
         }
         else if (Utils.sameTableName(type.getName(), "DateTime"))
         {
-            colData = new DimData<Instant>(column);
+            colData = new ColumnData<Instant>(column);
         }
         else if (Utils.sameTableName(type.getName(), "Set"))
         {
         }
         else // User (non-primitive) set
         {
-            colData = new DimData<Integer>(column);
+            colData = new ColumnData<Integer>(column);
         }
 
         /*
@@ -205,36 +205,36 @@ public class Dim implements DcColumn {
     // Constructors
     //
 
-    public Dim(Dim dim) {
+    public Column(Column col) {
         this();
 
-        setName(dim.getName());
+        setName(col.getName());
 
-        setKey(dim.isKey());
+        setKey(col.isKey());
 
-        setInput(dim.getInput());
-        setOutput(dim.getOutput());
+        setInput(col.getInput());
+        setOutput(col.getOutput());
 
         _data = CreateColumnData(_output, this);
     }
 
-    public Dim(DcTable set) { // Empty dimension
-        this("", set, set);
+    public Column(DcTable tab) { // Empty dimension
+        this("", tab, tab);
     }
 
-    public Dim() {
+    public Column() {
         this("");
     }
 
-    public Dim(String name) {
+    public Column(String name) {
         this(name, null, null);
     }
 
-    public Dim(String name, DcTable input, DcTable output) {
+    public Column(String name, DcTable input, DcTable output) {
         this(name, input, output, false, false);
     }
 
-    public Dim(String name, DcTable input, DcTable output, boolean isKey, boolean isSuper) {
+    public Column(String name, DcTable input, DcTable output, boolean isKey, boolean isSuper) {
         this._name = name;
 
         this._key = isKey;

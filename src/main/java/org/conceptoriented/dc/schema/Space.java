@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import org.conceptoriented.dc.schema.*;
 
-public class Workspace implements DcWorkspace {
+public class Space implements DcSpace {
 
     protected List<DcSchema> schemas;
     @Override
@@ -62,7 +62,7 @@ public class Workspace implements DcWorkspace {
         this.mashup = mashup;
     }
 
-    public Workspace() {
+    public Space() {
         schemas = new ArrayList<DcSchema>();
     }
 }

@@ -58,7 +58,7 @@ public interface DcTable {
     //
 
     boolean isSubTable(DcTable parent); // Is subset of the specified table
-    boolean isInput(DcTable set); // Is lesser than the specified table
+    boolean isInput(DcTable tab); // Is lesser than the specified table
     boolean isLeast(); // Has no inputs
     boolean isGreatest(); // Has no outputs
 

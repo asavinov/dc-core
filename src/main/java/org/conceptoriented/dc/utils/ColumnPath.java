@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.conceptoriented.dc.schema.*;
 
-public class DimPath extends Dim {
+public class ColumnPath extends Column {
 
     protected List<DcColumn> segments;
     public List<DcColumn> getSegments() {
@@ -36,22 +36,22 @@ public class DimPath extends Dim {
 
 
 
-    public DimPath() {
+    public ColumnPath() {
         segments = new ArrayList<DcColumn>();
     }
 
-    public DimPath(DcTable set) {
+    public ColumnPath(DcTable tab) {
         this();
-        setInput(set);
-        setOutput(set);
+        setInput(tab);
+        setOutput(tab);
     }
 
-    public DimPath(String name) {
+    public ColumnPath(String name) {
         super(name);
         segments = new ArrayList<DcColumn>();
     }
 
-    public DimPath(DcColumn seg) {
+    public ColumnPath(DcColumn seg) {
         this();
 
         if (seg == null) return;
@@ -61,7 +61,7 @@ public class DimPath extends Dim {
         setOutput(segments.get(segments.size() - 1).getOutput());
     }
 
-    public DimPath(List<DcColumn> segs) {
+    public ColumnPath(List<DcColumn> segs) {
         this();
 
         if(segs == null || segs.size() == 0) return;
@@ -71,13 +71,13 @@ public class DimPath extends Dim {
         setOutput(segments.get(segments.size() - 1).getOutput());
     }
 
-    public DimPath(DimPath path) {
+    public ColumnPath(ColumnPath path) {
         super(path);
         segments = new ArrayList<DcColumn>();
         segments.addAll(path.getSegments());
     }
 
-    public DimPath(String name, DcTable input, DcTable output) {
+    public ColumnPath(String name, DcTable input, DcTable output) {
         super(name, input, output);
         segments = new ArrayList<DcColumn>();
     }

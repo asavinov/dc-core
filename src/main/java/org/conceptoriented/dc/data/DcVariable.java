@@ -18,7 +18,7 @@ package org.conceptoriented.dc.data;
 
 import org.conceptoriented.dc.schema.DcSchema;
 import org.conceptoriented.dc.schema.DcTable;
-import org.conceptoriented.dc.schema.DcWorkspace;
+import org.conceptoriented.dc.schema.DcSpace;
 
 public interface DcVariable {
 
@@ -38,7 +38,7 @@ public interface DcVariable {
     public String getTypeName();
     public void setTypeName(String typeName);
 
-    public void resolve(DcWorkspace workspace);
+    public void resolve(DcSpace workspace);
 
     public DcSchema getTypeSchema();
     public void setTypeSchema(DcSchema typeSchema);

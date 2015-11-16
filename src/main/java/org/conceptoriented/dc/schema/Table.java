@@ -33,7 +33,7 @@ import org.conceptoriented.dc.data.TableWriter;
 import org.conceptoriented.dc.data.Variable;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 
-public class Set implements DcTable, DcTableData {
+public class Table implements DcTable, DcTableData {
 
     //
     // DcTable interface
@@ -56,14 +56,14 @@ public class Set implements DcTable, DcTableData {
 
     // Outputs
 
-    protected List<DcColumn> greaterDims;
+    protected List<DcColumn> greaterCols;
     @Override
     public List<DcColumn> getColumns() {
-        return greaterDims;
+        return greaterCols;
     }
     @Override
     public DcColumn getSuperColumn() {
-        Optional<DcColumn> ret = greaterDims.stream().filter(x -> x.isSuper()).findAny();
+        Optional<DcColumn> ret = greaterCols.stream().filter(x -> x.isSuper()).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
@@ -79,14 +79,14 @@ public class Set implements DcTable, DcTableData {
 
     // Inputs
 
-    protected List<DcColumn> lesserDims;
+    protected List<DcColumn> lesserCols;
     @Override
     public List<DcColumn> getInputColumns() {
-        return lesserDims;
+        return lesserCols;
     }
     @Override
     public List<DcColumn> getSubColumns() {
-        return lesserDims.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
+        return lesserCols.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
     }
     @Override
     public List<DcTable> getSubTables() {
@@ -99,12 +99,12 @@ public class Set implements DcTable, DcTableData {
         int count = result.size();
         for (int i = 0; i < count; i++)
         {
-            List<DcTable> subsets = result.get(i).getAllSubTables();
-            if (subsets == null || subsets.size() == 0)
+            List<DcTable> subtabs = result.get(i).getAllSubTables();
+            if (subtabs == null || subtabs.size() == 0)
             {
                 continue;
             }
-            result.addAll(subsets);
+            result.addAll(subtabs);
         }
 
         return result;
@@ -114,14 +114,14 @@ public class Set implements DcTable, DcTableData {
 
     @Override
     public boolean isSubTable(DcTable parent) { // Is subset of the specified table
-        for (DcTable set = this; set != null; set = set.getSuperTable())
+        for (DcTable tab = this; tab != null; tab = tab.getSuperTable())
         {
-            if (set == parent) return true;
+            if (tab == parent) return true;
         }
         return false;
     }
     @Override
-    public boolean isInput(DcTable set) { // Is lesser than the specified table
+    public boolean isInput(DcTable tab) { // Is lesser than the specified table
         throw new UnsupportedOperationException("TODO");
     }
     @Override
@@ -138,12 +138,12 @@ public class Set implements DcTable, DcTableData {
 
     @Override
     public DcColumn getColumn(String name) { // Greater column
-        Optional<DcColumn> ret = greaterDims.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+        Optional<DcColumn> ret = greaterCols.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
     public DcTable getTable(String name) { // TODO: Greater table/type - not subtable
-        Optional<DcColumn> ret = lesserDims.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
+        Optional<DcColumn> ret = lesserCols.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
         return ret.isPresent() ? ret.get().getInput() : null;
     }
     @Override
@@ -300,7 +300,7 @@ public class Set implements DcTable, DcTableData {
                 outputExpr.getOutputVariable().setTypeName("Boolean");
                 outputExpr.getOutputVariable().setTypeSchema(this.getSchema());
                 outputExpr.getOutputVariable().setTypeTable(this.getSchema().getPrimitive("Boolean"));
-                outputExpr.evaluateAndResolveSchema(this.getSchema().getWorkspace(), Arrays.asList(thisVariable));
+                outputExpr.evaluateAndResolveSchema(this.getSchema().getSpace(), Arrays.asList(thisVariable));
 
                 outputExpr.evaluateBegin();
             }
@@ -311,33 +311,33 @@ public class Set implements DcTable, DcTableData {
             //
             // Find all local greater dimensions to be varied (including the super-dim)
             //
-            DcColumn[] dims = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new DcColumn[0]);
-            int dimCount = dims.length; // Dimensionality - how many free dimensions
-            Object[] vals = new Object[dimCount]; // A record with values for each free dimension being varied
+            DcColumn[] cols = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new DcColumn[0]);
+            int colCount = cols.length; // Dimensionality - how many free dimensions
+            Object[] vals = new Object[colCount]; // A record with values for each free dimension being varied
 
             //
             // The current state of the search procedure
             //
-            int[] lengths = new int[dimCount]; // Size of each dimension being varied (how many offsets in each dimension)
-            for (int i = 0; i < dimCount; i++) lengths[i] = dims[i].getOutput().getData().getLength();
+            int[] lengths = new int[colCount]; // Size of each dimension being varied (how many offsets in each dimension)
+            for (int i = 0; i < colCount; i++) lengths[i] = cols[i].getOutput().getData().getLength();
 
-            int[] offsets = new int[dimCount]; // The current point/offset for each dimensions during search
-            for (int i = 0; i < dimCount; i++) offsets[i] = -1;
+            int[] offsets = new int[colCount]; // The current point/offset for each dimensions during search
+            for (int i = 0; i < colCount; i++) offsets[i] = -1;
 
             int top = -1; // The current level/top where we change the offset. Depth of recursion.
-            do ++top; while (top < dimCount && lengths[top] == 0);
+            do ++top; while (top < colCount && lengths[top] == 0);
 
             // Alternative recursive iteration: http://stackoverflow.com/questions/13655299/c-sharp-most-efficient-way-to-iterate-through-multiple-arrays-list
             while (top >= 0)
             {
-                if (top == dimCount) // New element is ready. Process it.
+                if (top == colCount) // New element is ready. Process it.
                 {
                     // Initialize a record and append it
-                    for (int i = 0; i < dimCount; i++)
+                    for (int i = 0; i < colCount; i++)
                     {
                         vals[i] = offsets[i];
                     }
-                    int input = tableWriter.append(dims, vals);
+                    int input = tableWriter.append(cols, vals);
 
                     //
                     // Now check if this appended element satisfies the where expression and if not then remove it
@@ -370,7 +370,7 @@ public class Set implements DcTable, DcTableData {
                     if (offsets[top] < lengths[top]) // Offset chosen
                     {
                         do ++top;
-                        while (top < dimCount && lengths[top] == 0); // Go up (forward) by skipping empty dimensions
+                        while (top < colCount && lengths[top] == 0); // Go up (forward) by skipping empty dimensions
                     }
                     else // Level is finished. Go back.
                     {
@@ -425,16 +425,16 @@ public class Set implements DcTable, DcTableData {
     // Constructors
     //
 
-    public Set() {
+    public Table() {
         this("");
     }
 
-    public Set(String name)
+    public Table(String name)
     {
         this.name = name;
 
-        greaterDims = new ArrayList<DcColumn>();
-        lesserDims = new ArrayList<DcColumn>();
+        greaterCols = new ArrayList<DcColumn>();
+        lesserCols = new ArrayList<DcColumn>();
     }
 
 }

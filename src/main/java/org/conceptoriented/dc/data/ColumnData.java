@@ -24,9 +24,9 @@ import org.conceptoriented.dc.utils.*;
 import org.conceptoriented.dc.schema.*;
 import org.conceptoriented.dc.data.query.ExprBuilder;
 
-public class DimData<T extends Comparable<T>> implements DcColumnData {
+public class ColumnData<T extends Comparable<T>> implements DcColumnData {
 
-    protected DcColumn _dim;
+    protected DcColumn _column;
 
     // Memory management parameters for instances (used by extensions and in future will be removed from this class).
     protected static int initialSize = 1024 * 10; // In elements
@@ -383,11 +383,11 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         }
     	
         // General parameters
-        DcWorkspace workspace = _dim.getInput().getSchema().getWorkspace();
-        DcColumnData columnData = _dim.getData();
+        DcSpace workspace = _column.getInput().getSchema().getSpace();
+        DcColumnData columnData = _column.getData();
 
-        _dim.getData().setAutoIndex(false);
-        //_dim.getData().nullify();
+        _column.getData().setAutoIndex(false);
+        //_column.getData().nullify();
     
         Object thisCurrent = null;
         if (getFormulaExpr().getDefinitionType() == ColumnDefinitionType.ARITHMETIC || getFormulaExpr().getDefinitionType() == ColumnDefinitionType.LINK)
@@ -406,16 +406,16 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             }
 
             // Prepare parameter variables for the expression 
-            DcTable thisTable = _dim.getInput();
+            DcTable thisTable = _column.getInput();
             DcVariable thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
             thisVariable.setTypeSchema(thisTable.getSchema());
             thisVariable.setTypeTable(thisTable);
             
             // Parameterize expression and resolve it (bind names to real objects) 
-            getFormulaExpr().getOutputVariable().setSchemaName(_dim.getOutput().getSchema().getName());
-            getFormulaExpr().getOutputVariable().setTypeName(_dim.getOutput().getName());
-            getFormulaExpr().getOutputVariable().setTypeSchema(_dim.getOutput().getSchema());
-            getFormulaExpr().getOutputVariable().setTypeTable(_dim.getOutput());
+            getFormulaExpr().getOutputVariable().setSchemaName(_column.getOutput().getSchema().getName());
+            getFormulaExpr().getOutputVariable().setTypeName(_column.getOutput().getName());
+            getFormulaExpr().getOutputVariable().setTypeSchema(_column.getOutput().getSchema());
+            getFormulaExpr().getOutputVariable().setTypeTable(_column.getOutput());
             getFormulaExpr().evaluateAndResolveSchema(workspace, new ArrayList<DcVariable>(Arrays.asList(thisVariable)));
             
         	getFormulaExpr().evaluateBegin();
@@ -443,7 +443,7 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
 
             // This table and variable
             String thisTableName = factsNode.getName();
-            DcTable thisTable = _dim.getInput().getSchema().getSubTable(thisTableName);
+            DcTable thisTable = _column.getInput().getSchema().getSubTable(thisTableName);
             DcVariable thisVariable = new Variable(thisTable.getSchema().getName(), thisTable.getName(), "this");
             thisVariable.setTypeSchema(thisTable.getSchema());
             thisVariable.setTypeTable(thisTable);
@@ -455,9 +455,9 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             groupExpr.evaluateAndResolveSchema(workspace, Arrays.asList(thisVariable));
 
             DcVariable groupVariable; // Stores current group (input for the aggregated function)
-            groupVariable = new Variable(_dim.getInput().getSchema().getName(), _dim.getInput().getName(), "this");
-            groupVariable.setTypeSchema(_dim.getInput().getSchema());
-            groupVariable.setTypeTable(_dim.getInput());
+            groupVariable = new Variable(_column.getInput().getSchema().getName(), _column.getInput().getName(), "this");
+            groupVariable.setTypeSchema(_column.getInput().getSchema());
+            groupVariable.setTypeTable(_column.getInput());
 
             // Measure
             ExprNode measureExpr; // Returns a new value to be aggregated with the old value, is stored in the measure variable
@@ -466,15 +466,15 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             measureExpr.evaluateAndResolveSchema(workspace, Arrays.asList(thisVariable));
 
             DcVariable measureVariable; // Stores new value (output for the aggregated function)
-            measureVariable = new Variable(_dim.getOutput().getSchema().getName(), _dim.getOutput().getName(), "value");
-            measureVariable.setTypeSchema(_dim.getOutput().getSchema());
-            measureVariable.setTypeTable(_dim.getOutput());
+            measureVariable = new Variable(_column.getOutput().getSchema().getName(), _column.getOutput().getName(), "value");
+            measureVariable.setTypeSchema(_column.getOutput().getSchema());
+            measureVariable.setTypeTable(_column.getOutput());
 
             // Updater/aggregation function
             ExprNode updaterExpr = getFormulaExpr().getChild("aggregator").getChild(0);
 
             ExprNode outputExpr;
-            outputExpr = ExprNode.createUpdater(_dim, updaterExpr.getName());
+            outputExpr = ExprNode.createUpdater(_column, updaterExpr.getName());
             outputExpr.evaluateAndResolveSchema(workspace, Arrays.asList(groupVariable, measureVariable));
         
             getFormulaExpr().evaluateBegin();
@@ -509,15 +509,15 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
             throw new UnsupportedOperationException("This type of column definition is not implemented.");
         }
 
-        _dim.getData().reindex();
-        _dim.getData().setAutoIndex(true);
+        _column.getData().reindex();
+        _column.getData().setAutoIndex(true);
     }
 
     //
     // Dependencies
     //
 
-    public List<Dim> dependencies;
+    public List<Column> dependencies;
 
     @Override
     public List<DcTable> usesTables(boolean recursive) // This element depends upon
@@ -650,9 +650,9 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
 
     protected Object toThisType(Object value)
     {
-        if(_dim == null || _dim.getOutput() == null) return value;
+        if(_column == null || _column.getOutput() == null) return value;
 
-        String type = _dim.getOutput().getName();
+        String type = _column.getOutput().getName();
         switch(type) {
         case "Integer" : return Utils.toInt32(value);
         case "Double" : return Utils.toDouble(value);
@@ -664,10 +664,10 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         }
     }
 
-    public DimData(DcColumn dim) {
+    public ColumnData(DcColumn col) {
         // TODO: Check if output (greater) set is of correct type
 
-        _dim = dim;
+        _column = col;
 
         allocatedSize = initialSize;
         _cells = (T[]) new Comparable[allocatedSize];
@@ -683,9 +683,9 @@ public class DimData<T extends Comparable<T>> implements DcColumnData {
         _indexed = true;
 
         _length = 0;
-        setLength(dim.getInput().getData().getLength());
+        setLength(col.getInput().getData().getLength());
 
-        dependencies = new ArrayList<Dim>();
+        dependencies = new ArrayList<Column>();
     }
 }
 

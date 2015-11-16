@@ -28,10 +28,10 @@ public class Example2 {
         String subCategoriesTableName = "Production_ProductSubcategory.txt";
         String categoriesTableName = "Production_ProductCategory.txt";
 
-        Workspace workspace = new Workspace();
+        Space space = new Space();
         DcSchema schema = new Schema("Example 1");
-        workspace.addSchema(schema);
-        schema.setWorkspace(workspace);
+        space.addSchema(schema);
+        schema.setSpace(space);
 
         DcTable integerType = schema.getPrimitive("Integer");
         DcTable doubleType = schema.getPrimitive("Double");

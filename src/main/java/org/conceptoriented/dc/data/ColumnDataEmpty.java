@@ -5,7 +5,7 @@ import java.util.List;
 import org.conceptoriented.dc.schema.DcColumn;
 import org.conceptoriented.dc.schema.DcTable;
 
-public class DimDataEmpty implements DcColumnData
+public class ColumnDataEmpty implements DcColumnData
 {
     protected int _length;
     @Override

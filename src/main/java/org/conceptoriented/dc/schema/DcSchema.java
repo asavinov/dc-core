@@ -18,8 +18,8 @@ package org.conceptoriented.dc.schema;
 
 public interface DcSchema extends DcTable {
 
-    public DcWorkspace getWorkspace();
-    public void setWorkspace(DcWorkspace workspace);
+    public DcSpace getSpace();
+    public void setSpace(DcSpace workspace);
 
     public DcTable getPrimitive(String dataType);
     public DcTable getRoot();

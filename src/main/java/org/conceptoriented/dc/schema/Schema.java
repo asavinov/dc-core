@@ -31,20 +31,20 @@ import org.conceptoriented.dc.schema.*;
 
 import com.google.common.io.Files;
 
-public class Schema extends Set implements DcSchema {
+public class Schema extends Table implements DcSchema {
 
     //
     // ComSchema interface
     //
 
-    protected DcWorkspace workspace;
+    protected DcSpace space;
     @Override
-    public DcWorkspace getWorkspace() {
-        return workspace;
+    public DcSpace getSpace() {
+        return space;
     }
     @Override
-    public void setWorkspace(DcWorkspace workspace) {
-        this.workspace = workspace;
+    public void setSpace(DcSpace space) {
+        this.space = space;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class Schema extends Set implements DcSchema {
 
     @Override
     public DcTable createTable(String name) {
-        DcTable table = new Set(name);
+        DcTable table = new Table(name);
         return table;
     }
 
@@ -77,9 +77,9 @@ public class Schema extends Set implements DcSchema {
             superName = "Super";
         }
 
-        Dim dim = new Dim(superName, table, parent, true, true);
+        Column col = new Column(superName, table, parent, true, true);
 
-        dim.add();
+        col.add();
 
         return table;
     }
@@ -110,9 +110,9 @@ public class Schema extends Set implements DcSchema {
     @Override
     public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey) {
 
-        DcColumn dim = new Dim(name, input, output, isKey, false);
+        DcColumn col = new Column(name, input, output, isKey, false);
 
-        return dim;
+        return col;
     }
     @Override
     public void deleteColumn(DcColumn column) {
@@ -257,36 +257,36 @@ public class Schema extends Set implements DcSchema {
 
     protected void createDataTypes() // Create all primitive data types from some specification like Enum, List or XML
     {
-        Set set;
-        Dim dim;
+        Table tab;
+        Column col;
 
-        set = new Set("Root");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("Root");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("Integer");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("Integer");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("Double");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("Double");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("Decimal");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("Decimal");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("String");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("String");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("Boolean");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("Boolean");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
 
-        set = new Set("DateTime");
-        dim = new Dim("Top", set, this, true, true);
-        dim.add();
+        tab = new Table("DateTime");
+        col = new Column("Top", tab, this, true, true);
+        col.add();
     }
 
     public Schema() {

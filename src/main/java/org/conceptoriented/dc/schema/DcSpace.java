@@ -18,7 +18,7 @@ package org.conceptoriented.dc.schema;
 
 import java.util.List;
 
-public interface DcWorkspace {
+public interface DcSpace {
 
     public List<DcSchema> getSchemas();
     public void addSchema(DcSchema schema);
