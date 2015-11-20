@@ -20,9 +20,6 @@ import org.conceptoriented.dc.data.DcColumnData;
 
 /**
  * Describes one column.
- *
- * @author savinov
- *
  */
 public interface DcColumn {
 
@@ -48,9 +45,6 @@ public interface DcColumn {
 
     public DcTable getOutput();
     public void setOutput(DcTable output);
-
-    public void add();
-    public void remove();
 
     //
     // Data and definition objects

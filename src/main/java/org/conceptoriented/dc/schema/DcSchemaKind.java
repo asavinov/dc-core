@@ -14,40 +14,12 @@
  * limitations under the License.
  */
 
-package org.conceptoriented.dc.data;
+package org.conceptoriented.dc.schema;
 
-import org.conceptoriented.dc.schema.*;
-
-public class TableReader implements DcTableReader {
-
-    DcTable table;
-    int rowid = -1;
-
-    @Override
-	public void open() {
-    	rowid = -1;
-	}
-
-	@Override
-	public void close() {
-		rowid = table.getData().getLength();
-	}
-
-	@Override
-	public Object next() {
-        if (rowid < table.getData().getLength()-1)
-        {
-            rowid++;
-            return rowid;
-        }
-        else
-        {
-            return null;
-        }
-	}
-
-    public TableReader(DcTable table)
-    {
-        this.table = table;
-    }
+public enum DcSchemaKind {
+    Dc, // Default. It is internal implementation
+    Csv, // Csv
+    Oledb, // Oledb
+    Jdbc, // Jdbc
+    Rel, // Rel can be an abstract parent for Jdbc and Oledb 
 }

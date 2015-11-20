@@ -201,8 +201,7 @@ public class ExprNode extends TreeNode<ExprNode> {
                         DcTable output = getOutputVariable().getTypeTable();
                         String columnName = getName();
 
-                        col = input.getSchema().createColumn(columnName, input, output, false);
-                        col.add();
+                        col = input.getSpace().createColumn(columnName, input, output, false);
                     }
 
                     setColumn(col);

@@ -25,7 +25,7 @@ import org.conceptoriented.dc.data.*;
 public class Column implements DcColumn {
 
     //
-    // ComColumn interface
+    // DcColumn interface
     //
 
     protected String _name;
@@ -83,30 +83,6 @@ public class Column implements DcColumn {
         if (_output == value) return;
         _output = value;
         _data = CreateColumnData(_output, this);
-    }
-
-    @Override
-    public void add() {
-        assert _input != null && _output != null;
-
-        if (_super) // Only one super-dim per table can exist
-        {
-            if (_input != null && _input.getSuperColumn() != null)
-            {
-                _input.getSuperColumn().remove(); // Replace the existing column by the new one
-            }
-        }
-
-        if (_output != null) _output.getInputColumns().add(this);
-        if (_input != null) _input.getColumns().add(this);
-    }
-
-    @Override
-    public void remove() {
-        assert _input != null && _output != null;
-
-        if (_output != null) _output.getInputColumns().remove(this);
-        if (_input != null) _input.getColumns().remove(this);
     }
 
     protected DcColumnData _data;

@@ -24,11 +24,10 @@ import org.conceptoriented.dc.data.DcTableWriter;
 
 /**
  * Describes one table.
- *
- * @author savinov
- *
  */
 public interface DcTable {
+
+    public DcSpace getSpace();
 
     public String getName();
     public void setName(String name);

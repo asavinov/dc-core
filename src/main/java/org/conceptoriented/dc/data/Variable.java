@@ -16,6 +16,8 @@
 
 package org.conceptoriented.dc.data;
 
+import java.util.Optional;
+
 import org.conceptoriented.dc.schema.*;
 
 import com.google.common.base.Strings;
@@ -50,11 +52,11 @@ public class Variable implements DcVariable
     public void setTypeName(String value) { _typeName = value; }
 
 
-    public void resolve(DcSpace workspace) {
+    public void resolve(DcSpace space) {
         if (!Strings.isNullOrEmpty(getSchemaName()))
         {
             // 1. Resolve schema name
-            setTypeSchema(workspace.getSchema(getSchemaName()));
+            setTypeSchema(space.getSchema(getSchemaName()));
 
             if (getTypeSchema() == null) return; // Cannot resolve
 
@@ -66,19 +68,21 @@ public class Variable implements DcVariable
         else if (!Strings.isNullOrEmpty(getTypeName())) // No schema name (imcomplete info)
         {
             // 1. try to find the table in the mashup
-            if (workspace.getMashup() != null)
+        	Optional<DcSchema> ret = space.getSchemas().stream().filter(x -> x.getSchemaKind() == DcSchemaKind.Dc).findAny();
+            DcSchema mashup = ret.isPresent() ? ret.get() : null;
+            if (mashup != null)
             {
-                setTypeTable(workspace.getMashup().getSubTable(getTypeName()));
+                setTypeTable(mashup.getSubTable(getTypeName()));
                 if (getTypeTable() != null)
                 {
-                    setTypeSchema(workspace.getMashup());
+                    setTypeSchema(mashup);
                     setSchemaName(getTypeSchema().getName()); // We also reconstruct the name
                     return;
                 }
             }
 
             // 2. try to find the table in any other schema
-            for (DcSchema schema : workspace.getSchemas())
+            for (DcSchema schema : space.getSchemas())
             {
                 setTypeTable(schema.getSubTable(getTypeName()));
                 if (getTypeTable() != null)

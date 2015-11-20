@@ -29,9 +29,7 @@ public class Example2 {
         String categoriesTableName = "Production_ProductCategory.txt";
 
         Space space = new Space();
-        DcSchema schema = new Schema("Example 1");
-        space.addSchema(schema);
-        schema.setSpace(space);
+        DcSchema schema = space.createSchema("Example 2", DcSchemaKind.Dc);
 
         DcTable integerType = schema.getPrimitive("Integer");
         DcTable doubleType = schema.getPrimitive("Double");
@@ -42,13 +40,9 @@ public class Example2 {
         long loadStartTime = System.currentTimeMillis();
 
         DcTable detailsTable = ((Schema)schema).createFromCsv(path + "\\" + detailsTableName, true);
-        schema.addTable(detailsTable, null, null);
         DcTable productsTable = ((Schema)schema).createFromCsv(path + "\\" + productsTableName, true);
-        schema.addTable(productsTable, null, null);
         DcTable subCategoriesTable = ((Schema)schema).createFromCsv(path + "\\" + subCategoriesTableName, true);
-        schema.addTable(subCategoriesTable, null, null);
         DcTable categoriesTable = ((Schema)schema).createFromCsv(path + "\\" + categoriesTableName, true);
-        schema.addTable(categoriesTable, null, null);
 
         //
         // Create, define and evaluate columns
@@ -56,45 +50,38 @@ public class Example2 {
         long evaluationStartTime = System.currentTimeMillis();
 
         // Arithmetic columns: output is a computed primitive value
-        DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
+        DcColumn amountColumn = space.createColumn("Amount", detailsTable, doubleType, false);
         amountColumn.getData().setFormula("[UnitPrice] * [OrderQty]");
-        amountColumn.add();
         amountColumn.getData().evaluate();
 
         //
         // Link columns: output is a tuple
         //
-        DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
+        DcColumn productColumn = space.createColumn("Product", detailsTable, productsTable, false);
         productColumn.getData().setFormula("(( Integer [ProductID] = [ProductID] ))");
-        productColumn.add();
         productColumn.getData().evaluate();
 
-        DcColumn subCategoryColumn = schema.createColumn("SubCategory", productsTable, subCategoriesTable, false);
+        DcColumn subCategoryColumn = space.createColumn("SubCategory", productsTable, subCategoriesTable, false);
         subCategoryColumn.getData().setFormula("(( Integer [ProductSubcategoryID] = [ProductSubcategoryID] ))");
-        subCategoryColumn.add();
         subCategoryColumn.getData().evaluate();
 
-        DcColumn categoryColumn = schema.createColumn("Category", subCategoriesTable, categoriesTable, false);
+        DcColumn categoryColumn = space.createColumn("Category", subCategoriesTable, categoriesTable, false);
         categoryColumn.getData().setFormula("(( Integer [ProductCategoryID] = [ProductCategoryID] ))");
-        categoryColumn.add();
         categoryColumn.getData().evaluate();
 
         //
         // Aggregation columns: output is an aggregation of several values
         //
-        DcColumn totalAmountColumn = schema.createColumn("Total Amount", subCategoriesTable, doubleType, false);
+        DcColumn totalAmountColumn = space.createColumn("Total Amount", subCategoriesTable, doubleType, false);
         totalAmountColumn.getData().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory], measure=[Amount], aggregator=SUM)");
-        totalAmountColumn.add();
         totalAmountColumn.getData().evaluate();
 
-        DcColumn totalCategoryColumn = schema.createColumn("Total Amount Category", categoriesTable, doubleType, false);
+        DcColumn totalCategoryColumn = space.createColumn("Total Amount Category", categoriesTable, doubleType, false);
         totalCategoryColumn.getData().setFormula("AGGREGATE(facts=[Sales_SalesOrderDetail], groups=[Product].[SubCategory].[Category], measure=[Amount], aggregator=SUM)");
-        totalCategoryColumn.add();
         totalCategoryColumn.getData().evaluate();
 
-        DcColumn totalCategoryColumn2 = schema.createColumn("Total Amount Category 2", categoriesTable, doubleType, false);
+        DcColumn totalCategoryColumn2 = space.createColumn("Total Amount Category 2", categoriesTable, doubleType, false);
         totalCategoryColumn2.getData().setFormula("AGGREGATE(facts=[Production_ProductSubcategory], groups=[Category], measure=[Total Amount], aggregator=SUM)");
-        totalCategoryColumn2.add();
         totalCategoryColumn2.getData().evaluate();
 
         //

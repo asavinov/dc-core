@@ -33,31 +33,10 @@ import org.conceptoriented.dc.utils.ColumnPath;
 
 public class CoreTest {
 
-    static String detailsTableName = "target/test-classes/example2/OrderDetails.csv";
-    static String productsTableName = "target/test-classes/example2/Products.csv";
-    static String categoriesTableName = "target/test-classes/example2/Categories.csv";
-
     public static ExprBuilder exprBuilder;
 
     @BeforeClass
     public static void setUpClass() {
-
-        try {
-            File testFile = null;
-
-            testFile = new File(ClassLoader.getSystemResource("example2/OrderDetails.csv").toURI());
-            detailsTableName = testFile.getAbsolutePath();
-
-            testFile = new File(ClassLoader.getSystemResource("example2/Products.csv").toURI());
-            productsTableName = testFile.getAbsolutePath();
-
-            testFile = new File(ClassLoader.getSystemResource("example2/Categories.csv").toURI());
-            categoriesTableName = testFile.getAbsolutePath();
-        } catch (URISyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         exprBuilder = new ExprBuilder();
     }
 
@@ -67,50 +46,32 @@ public class CoreTest {
     @Before
     public void setUp() {
         space = new Space();
-
-        //
-        // Prepare schema
-        //
-        schema = createSampleSchema();
-        space.addSchema(schema);
-        schema.setSpace(space);
+        schema = space.createSchema("My Schema", DcSchemaKind.Dc);
+        createSampleSchema(schema);
     }
 
-    protected DcSchema createSampleSchema()
+    public static void createSampleSchema(DcSchema schema)
     {
-        // Prepare schema
-        DcSchema schema = new Schema("My Schema");
+        DcSpace space = schema.getSpace();
 
         // Table 1
-        DcTable t1 = schema.createTable("Table 1");
-        schema.addTable(t1, schema.getRoot(), null);
+        DcTable t1 = space.createTable("Table 1", schema.getRoot());
 
-        DcColumn c11 = schema.createColumn("Column 11", t1, schema.getPrimitive("Integer"), true);
-        c11.add();
-        DcColumn c12 = schema.createColumn("Column 12", t1, schema.getPrimitive("String"), true);
-        c12.add();
-        DcColumn c13 = schema.createColumn("Column 13", t1, schema.getPrimitive("Double"), false);
-        c13.add();
-        DcColumn c14 = schema.createColumn("Column 14", t1, schema.getPrimitive("Decimal"), false);
-        c14.add();
+        DcColumn c11 = space.createColumn("Column 11", t1, schema.getPrimitive("Integer"), true);
+        DcColumn c12 = space.createColumn("Column 12", t1, schema.getPrimitive("String"), true);
+        DcColumn c13 = space.createColumn("Column 13", t1, schema.getPrimitive("Double"), false);
+        DcColumn c14 = space.createColumn("Column 14", t1, schema.getPrimitive("Decimal"), false);
 
         // Table 2
-        DcTable t2 = schema.createTable("Table 2");
-        schema.addTable(t2, schema.getRoot(), null);
+        DcTable t2 = space.createTable("Table 2", schema.getRoot());
 
-        DcColumn c21 = schema.createColumn("Column 21", t2, schema.getPrimitive("String"), true);
-        c21.add();
-        DcColumn c22 = schema.createColumn("Column 22", t2, schema.getPrimitive("Integer"), true);
-        c22.add();
-        DcColumn c23 = schema.createColumn("Column 23", t2, schema.getPrimitive("Double"), false);
-        c23.add();
-        DcColumn c24 = schema.createColumn("Table 1", t2, t1, false);
-        c24.add();
-
-        return schema;
+        DcColumn c21 = space.createColumn("Column 21", t2, schema.getPrimitive("String"), true);
+        DcColumn c22 = space.createColumn("Column 22", t2, schema.getPrimitive("Integer"), true);
+        DcColumn c23 = space.createColumn("Column 23", t2, schema.getPrimitive("Double"), false);
+        DcColumn c24 = space.createColumn("Table 1", t2, t1, false);
     }
 
-    protected void createSampleData(DcSchema schema)
+    public static void createSampleData(DcSchema schema)
     {
         //
         // Fill sample data in "Table 1"
@@ -223,11 +184,8 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
-
+        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
         c15.getData().setFormula("([Column 11]+10.0) * this.[Column 13]");
-
-        c15.add();
 
         // Evaluate column
         c15.getData().evaluate();
@@ -252,11 +210,8 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c15 = schema.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
-
+        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
         c15.getData().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
-
-        c15.add();
 
         // Evaluate column
         c15.getData().evaluate();
@@ -268,11 +223,8 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c16 = schema.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
-
+        DcColumn c16 = space.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
         c16.getData().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
-
-        c16.add();
 
         c16.getData().evaluate();
 
@@ -296,11 +248,8 @@ public class CoreTest {
         // Define a derived column with a definition
         //
 
-        DcColumn link = schema.createColumn("Column Link", t2, t1, false);
-
+        DcColumn link = space.createColumn("Column Link", t2, t1, false);
         link.getData().setFormula("(( [Integer] [Column 11] = this.[Column 22], [Decimal] [Column 14] = 20.0 ))");
-
-        link.add();
 
         // Evaluate column
         link.getData().evaluate();
@@ -323,9 +272,8 @@ public class CoreTest {
         DcColumn c23 = t2.getColumn("Column 23");
         DcColumn c24 = t2.getColumn("Table 1");
 
-        DcColumn c15 = schema.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c15 = space.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
         c15.getData().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23], aggregator=SUM)");
-        c15.add();
 
         c15.getData().setValue(0.0);
         c15.getData().evaluate(); // {40, 140, 0}
@@ -337,9 +285,8 @@ public class CoreTest {
         //
         // Aggregation via a syntactic formula
         //
-        DcColumn c16 = schema.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c16 = space.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
         c16.getData().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
-        c16.add();
 
         c16.getData().setValue(0.0);
         c16.getData().evaluate(); // {40, 140, 0}
@@ -360,13 +307,10 @@ public class CoreTest {
         //
         // Define a new product-set
         //
-        DcTable t3 = schema.createTable("Table 3");
-        schema.addTable(t3, null, null);
+        DcTable t3 = space.createTable("Table 3", schema.getRoot());
 
-        DcColumn c31 = schema.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
-        c31.add();
-        DcColumn c32 = schema.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
-        c32.add();
+        DcColumn c31 = space.createColumn(t1.getName(), t3, t1, true); // {*20, 10, *30}
+        DcColumn c32 = space.createColumn(t2.getName(), t3, t2, true); // {40, 40, *50, *50}
 
         t3.getData().populate();
         assertEquals(12, t3.getData().getLength());
@@ -396,10 +340,8 @@ public class CoreTest {
         //
         // Define a new filter-set
         //
-        DcTable t3 = schema.createTable("Table 3");
+        DcTable t3 = space.createTable("Table 3", t2);
         t3.getData().setWhereFormula("[Column 22] > 20.0 && this.Super.[Column 23] < 50");
-
-        schema.addTable(t3, t2, null);
 
         t3.getData().populate();
         assertEquals(1, t3.getData().getLength());
@@ -420,19 +362,15 @@ public class CoreTest {
         //
         // Project "Table 2" along "Column 21" and get 2 unique records in a new set "Value A" (3 references) and "Value B" (1 reference)
         //
-        DcTable t3 = schema.createTable("Table 3");
-        schema.addTable(t3, null, null);
+        DcTable t3 = space.createTable("Table 3", schema.getRoot());
 
-        DcColumn c31 = schema.createColumn("Column 31", t3, c21.getOutput(), true);
-        c31.add();
+        DcColumn c31 = space.createColumn("Column 31", t3, c21.getOutput(), true);
 
         // Create a generating column
-        DcColumn c24 = schema.createColumn(t3.getName(), t2, t3, false);
+        DcColumn c24 = space.createColumn(t3.getName(), t2, t3, false);
 
         c24.getData().setFormula("(( [String] [Column 31] = this.[Column 21] ))");
         c24.getData().setAppendData(true);
-
-        c24.add();
 
         t3.getData().populate();
 
@@ -446,21 +384,16 @@ public class CoreTest {
         //
         // Defining a combination of "Column 21" and "Column 22" and project with 3 unique records in a new set
         //
-        DcTable t4 = schema.createTable("Table 4");
-        schema.addTable(t4, null, null);
+        DcTable t4 = space.createTable("Table 4", schema.getRoot());
 
-        DcColumn c41 = schema.createColumn("Column 41", t4, c21.getOutput(), true);
-        c41.add();
-        DcColumn c42 = schema.createColumn("Column 42", t4, c22.getOutput(), true);
-        c42.add();
+        DcColumn c41 = space.createColumn("Column 41", t4, c21.getOutput(), true);
+        DcColumn c42 = space.createColumn("Column 42", t4, c22.getOutput(), true);
 
         // Create generating/import column
-        DcColumn c25 = schema.createColumn(t4.getName(), t2, t4, false);
+        DcColumn c25 = space.createColumn(t4.getName(), t2, t4, false);
 
         c25.getData().setFormula("(( [String] [Column 41] = this.[Column 21] , [Integer] [Column 42] = this.[Column 22] ))");
         c25.getData().setAppendData(true);
-
-        c25.add();
 
         t4.getData().populate();
 
@@ -470,56 +403,6 @@ public class CoreTest {
         assertEquals(1, c25.getData().getValue(1));
         assertEquals(1, c25.getData().getValue(2));
         assertEquals(2, c25.getData().getValue(3));
-    }
-
-    @Test
-    public void CsvTest()
-    {
-        DcTable integerType = schema.getPrimitive("Integer");
-        DcTable doubleType = schema.getPrimitive("Double");
-
-        DcTable detailsTable = ((Schema)schema).createFromCsv(detailsTableName, true);
-        schema.addTable(detailsTable, null, null);
-        DcTable productsTable = ((Schema)schema).createFromCsv(productsTableName, true);
-        schema.addTable(productsTable, null, null);
-        DcTable categoriesTable = ((Schema)schema).createFromCsv(categoriesTableName, true);
-        schema.addTable(categoriesTable, null, null);
-
-        assertEquals(2155, detailsTable.getData().getLength());
-        assertEquals(77, productsTable.getData().getLength());
-        assertEquals(8, categoriesTable.getData().getLength());
-
-        // Define a new arithmetic column: output is a computed primitive value
-        DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
-        amountColumn.getData().setFormula("[UnitPrice] * [Quantity]");
-        amountColumn.add();
-        amountColumn.getData().evaluate();
-
-        // Define two link column: output is a tuple
-        DcColumn productColumn = schema.createColumn("Product", detailsTable, productsTable, false);
-        productColumn.getData().setFormula("(( Integer [ProductID] = [ProductID] ))");
-        productColumn.add();
-        productColumn.getData().evaluate();
-
-        DcColumn categoryColumn = schema.createColumn("Category", productsTable, categoriesTable, false);
-        categoryColumn.getData().setFormula("(( Integer [CategoryID] = [CategoryID] ))");
-        categoryColumn.add();
-        categoryColumn.getData().evaluate();
-
-        // Define a new aggregation column: output is an aggregation of a group of values
-        DcColumn totalAmountColumn = schema.createColumn("Total Amount", categoriesTable, doubleType, false);
-        totalAmountColumn.getData().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=SUM)");
-        totalAmountColumn.add();
-        totalAmountColumn.getData().evaluate();
-
-        assertEquals(105268.6, totalAmountColumn.getData().getValue(6)); // cells = {286526.94999999995, 113694.75000000001, 177099.09999999995, 251330.5, 100726.8, 178188.80000000002, 105268.6, 141623.09000000003}
-
-        DcColumn totalCountColumn = schema.createColumn("Total Count", categoriesTable, integerType, false);
-        totalCountColumn.getData().setFormula("AGGREGATE(facts=[OrderDetails], groups=[Product].[Category], measure=[Amount], aggregator=COUNT)");
-        totalCountColumn.add();
-        totalCountColumn.getData().evaluate();
-
-        assertEquals(136, totalCountColumn.getData().getValue(6)); // cells = {404, 216, 334, 366, 196, 173, 136, 330}
     }
 
 }

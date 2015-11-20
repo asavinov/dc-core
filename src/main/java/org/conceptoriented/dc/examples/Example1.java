@@ -26,9 +26,7 @@ public class Example1 {
         String detailsTableName = "Sales_SalesOrderDetail.txt";
 
         DcSpace space = new Space();
-        DcSchema schema = new Schema("Example 2");
-        space.addSchema(schema);
-        schema.setSpace(space);
+        DcSchema schema = space.createSchema("Example 1", DcSchemaKind.Dc);
 
         DcTable integerType = schema.getPrimitive("Integer");
         DcTable doubleType = schema.getPrimitive("Double");
@@ -39,7 +37,6 @@ public class Example1 {
         long loadStartTime = System.currentTimeMillis();
 
         DcTable detailsTable = ((Schema)schema).createFromCsv(path + "\\" + detailsTableName, true);
-        schema.addTable(detailsTable, null, null);
 
         //
         // Create, define and evaluate columns
@@ -47,9 +44,8 @@ public class Example1 {
         long evaluationStartTime = System.currentTimeMillis();
 
         // Arithmetic columns: output is a computed primitive value
-        DcColumn amountColumn = schema.createColumn("Amount", detailsTable, doubleType, false);
+        DcColumn amountColumn = space.createColumn("Amount", detailsTable, doubleType, false);
         amountColumn.getData().setFormula("[UnitPrice] * [OrderQty]");
-        amountColumn.add();
         amountColumn.getData().evaluate();
 
         //

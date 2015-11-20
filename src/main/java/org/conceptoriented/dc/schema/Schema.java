@@ -34,18 +34,12 @@ import com.google.common.io.Files;
 public class Schema extends Table implements DcSchema {
 
     //
-    // ComSchema interface
+    // DcSchema interface
     //
 
-    protected DcSpace space;
+    protected DcSchemaKind _schemaKind;
     @Override
-    public DcSpace getSpace() {
-        return space;
-    }
-    @Override
-    public void setSpace(DcSpace space) {
-        this.space = space;
-    }
+    public DcSchemaKind getSchemaKind() { return _schemaKind; }
 
     @Override
     public DcTable getPrimitive(String dataType) {
@@ -58,87 +52,7 @@ public class Schema extends Table implements DcSchema {
         return getPrimitive("Root");
     }
 
-    // Table factory
-
-    @Override
-    public DcTable createTable(String name) {
-        DcTable table = new Table(name);
-        return table;
-    }
-
-    @Override
-    public DcTable addTable(DcTable table, DcTable parent, String superName) {
-        if (parent == null)
-        {
-            parent = getRoot();
-        }
-        if (Utils.isNullOrEmpty(superName))
-        {
-            superName = "Super";
-        }
-
-        Column col = new Column(superName, table, parent, true, true);
-
-        col.add();
-
-        return table;
-    }
-
-    @Override
-    public void deleteTable(DcTable table) {
-        List<DcColumn> toRemove;
-        toRemove = new ArrayList<DcColumn>(table.getInputColumns());
-        for (DcColumn col : toRemove)
-        {
-            col.remove();
-        }
-        toRemove = new ArrayList<DcColumn>(table.getColumns());
-        for (DcColumn col : toRemove)
-        {
-            col.remove();
-        }
-    }
-
-    @Override
-    public void renameTable(DcTable table, String newName) {
-        tableRenamed(table, newName); // Rename with propagation
-        table.setName(newName);
-    }
-
-    // Column factory
-
-    @Override
-    public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey) {
-
-        DcColumn col = new Column(name, input, output, isKey, false);
-
-        return col;
-    }
-    @Override
-    public void deleteColumn(DcColumn column) {
-        columnDeleted(column);
-        column.remove();
-    }
-    @Override
-    public void renameColumn(DcColumn column, String newName) {
-        columnRenamed(column, newName); // Rename with propagation
-        column.setName(newName);
-    }
-
-    protected void columnRenamed(DcColumn column, String newName) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected void tableRenamed(DcTable table, String newName) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected void columnDeleted(DcColumn column) {
-        throw new UnsupportedOperationException();
-    }
-
     public DcTable createFromCsv(String fileName, boolean hasHeaderRecord) {
-
         //
         // Read schema and sample values which are used to suggest mappings
         //
@@ -203,11 +117,10 @@ public class Schema extends Table implements DcSchema {
         //
         // Create table with columns according to the mappings and target types
         //
-        DcTable table = this.createTable(tableName);
+        DcTable table = getSpace().createTable(tableName, this.getRoot());
 
         for(int i=0; i<sourceNames.size(); i++) {
-            DcColumn column = createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
-            column.add();
+            DcColumn column = getSpace().createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
             column.getData().setAutoIndex(false); // We will do many appends
             columns.add(column);
         }
@@ -257,44 +170,23 @@ public class Schema extends Table implements DcSchema {
 
     protected void createDataTypes() // Create all primitive data types from some specification like Enum, List or XML
     {
-        Table tab;
-        Column col;
-
-        tab = new Table("Root");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("Integer");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("Double");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("Decimal");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("String");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("Boolean");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
-
-        tab = new Table("DateTime");
-        col = new Column("Top", tab, this, true, true);
-        col.add();
+        getSpace().createTable("Root", this);
+        getSpace().createTable("Integer", this);
+        getSpace().createTable("Double", this);
+        getSpace().createTable("Decimal", this);
+        getSpace().createTable("String", this);
+        getSpace().createTable("Boolean", this);
+        getSpace().createTable("DateTime", this);
     }
 
-    public Schema() {
-        this("");
+    public Schema(DcSpace space) {
+        this("", space);
     }
 
-    public Schema(String name) {
-        super(name);
+    public Schema(String name, DcSpace space) {
+        super(name, space);
+
+        _schemaKind = DcSchemaKind.Dc;
 
         createDataTypes(); // Generate all predefined primitive sets as subsets
     }

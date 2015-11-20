@@ -16,7 +16,7 @@
 
 package org.conceptoriented.dc.schema;
 
-public enum DcDataType
+public enum DcPrimitiveType
 {
     // Built-in types in C#: http://msdn.microsoft.com/en-us/library/vstudio/ya5y69ds.aspx
     Void, // Null, Nothing, Empty no value. Can be equivalent to Top.
@@ -29,5 +29,5 @@ public enum DcDataType
     String,
     Boolean,
     DateTime,
-    Set, // User-defined. It is any set that is not root (non-primititve type). Arbitrary user-defined name.
+    Table, // User-defined. It is any set that is not root (non-primititve type). Arbitrary user-defined name.
 }

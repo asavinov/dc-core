@@ -39,6 +39,12 @@ public class Table implements DcTable, DcTableData {
     // DcTable interface
     //
 
+    protected DcSpace _space;
+    @Override
+    public DcSpace getSpace() {
+        return _space;
+    }
+
     protected String name;
     @Override
     public String getName() {
@@ -56,14 +62,13 @@ public class Table implements DcTable, DcTableData {
 
     // Outputs
 
-    protected List<DcColumn> greaterCols;
     @Override
     public List<DcColumn> getColumns() {
-        return greaterCols;
+        return getSpace().getColumns(this);
     }
     @Override
     public DcColumn getSuperColumn() {
-        Optional<DcColumn> ret = greaterCols.stream().filter(x -> x.isSuper()).findAny();
+        Optional<DcColumn> ret = getColumns().stream().filter(x -> x.isSuper()).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
@@ -72,21 +77,20 @@ public class Table implements DcTable, DcTableData {
     }
     @Override
     public DcSchema getSchema() {
-        DcTable t = this;
-        while(t.getSuperColumn() != null) t = t.getSuperColumn().getOutput();
-        return (DcSchema)t;
+        DcTable tab = this;
+        while(tab.getSuperTable() != null) tab = tab.getSuperTable();
+        return tab instanceof DcSchema ? (DcSchema)tab : null;
     }
 
     // Inputs
 
-    protected List<DcColumn> lesserCols;
     @Override
     public List<DcColumn> getInputColumns() {
-        return lesserCols;
+        return getSpace().getInputColumns(this);
     }
     @Override
     public List<DcColumn> getSubColumns() {
-        return lesserCols.stream().filter(x -> x.isSuper()).collect(Collectors.toList());
+        return getInputColumns().stream().filter(x -> x.isSuper()).collect(Collectors.toList());
     }
     @Override
     public List<DcTable> getSubTables() {
@@ -138,17 +142,17 @@ public class Table implements DcTable, DcTableData {
 
     @Override
     public DcColumn getColumn(String name) { // Greater column
-        Optional<DcColumn> ret = greaterCols.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findAny();
+        Optional<DcColumn> ret = getColumns().stream().filter(x -> Utils.sameColumnName(x.getName(), name)).findAny();
         return ret.isPresent() ? ret.get() : null;
     }
     @Override
-    public DcTable getTable(String name) { // TODO: Greater table/type - not subtable
-        Optional<DcColumn> ret = lesserCols.stream().filter(x -> x.isSuper() && x.getInput().getName().equalsIgnoreCase(name)).findAny();
+    public DcTable getTable(String name) {
+        Optional<DcColumn> ret = getColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), name)).findAny();
         return ret.isPresent() ? ret.get().getInput() : null;
     }
     @Override
     public DcTable getSubTable(String name) { // Subtable
-        if(getName().equalsIgnoreCase(name)) return this;
+        if(Utils.sameTableName(getName(), name)) return this;
 
         for(DcColumn c : getSubColumns()) {
             DcTable t = c.getInput().getSubTable(name);
@@ -425,16 +429,14 @@ public class Table implements DcTable, DcTableData {
     // Constructors
     //
 
-    public Table() {
-        this("");
+    public Table(DcSpace space) {
+        this("", space);
     }
 
-    public Table(String name)
+    public Table(String name, DcSpace space)
     {
+        _space = space;
         this.name = name;
-
-        greaterCols = new ArrayList<DcColumn>();
-        lesserCols = new ArrayList<DcColumn>();
     }
 
 }

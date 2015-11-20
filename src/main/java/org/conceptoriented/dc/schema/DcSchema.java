@@ -18,23 +18,9 @@ package org.conceptoriented.dc.schema;
 
 public interface DcSchema extends DcTable {
 
-    public DcSpace getSpace();
-    public void setSpace(DcSpace workspace);
+    public DcSchemaKind getSchemaKind();
 
     public DcTable getPrimitive(String dataType);
     public DcTable getRoot();
-
-    // Table factory
-
-    public DcTable createTable(String name);
-    public DcTable addTable(DcTable table, DcTable parent, String superName);
-    public void deleteTable(DcTable table);
-    public void renameTable(DcTable table, String newName);
-
-    // Column factory
-
-    public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey);
-    public void deleteColumn(DcColumn column);
-    public void renameColumn(DcColumn column, String newName);
 }
 

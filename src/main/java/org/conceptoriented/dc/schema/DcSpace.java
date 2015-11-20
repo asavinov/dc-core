@@ -19,14 +19,26 @@ package org.conceptoriented.dc.schema;
 import java.util.List;
 
 public interface DcSpace {
-
+    //
+    // Schemas
+    //
+    public DcSchema createSchema(String name, DcSchemaKind schemaType);
+    public void deleteSchema(DcSchema schema);
     public List<DcSchema> getSchemas();
-    public void addSchema(DcSchema schema);
-    public void removeSchema(DcSchema schema);
-
     public DcSchema getSchema(String name);
+    
+    //
+    // Tables
+    //
+    public DcTable createTable(String name, DcTable parent);
+    public void deleteTable(DcTable table);
+    public List<DcTable> getTables(DcSchema schema);
 
-    public DcSchema getMashup();
-    public void setMashup(DcSchema mashup);
+    //
+    // Columns
+    //
+    public DcColumn createColumn(String name, DcTable input, DcTable output, boolean isKey);
+    public void deleteColumn(DcColumn column);
+    public List<DcColumn> getColumns(DcTable table);
+    public List<DcColumn> getInputColumns(DcTable table);
 }
-
