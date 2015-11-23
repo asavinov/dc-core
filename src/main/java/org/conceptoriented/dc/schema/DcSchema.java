@@ -19,8 +19,7 @@ package org.conceptoriented.dc.schema;
 public interface DcSchema extends DcTable {
 
     public DcSchemaKind getSchemaKind();
-
-    public DcTable getPrimitive(String dataType);
     public DcTable getRoot();
+    public DcTable getPrimitiveType(String dataType);
 }
 

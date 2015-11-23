@@ -57,17 +57,17 @@ public class CoreTest {
         // Table 1
         DcTable t1 = space.createTable("Table 1", schema.getRoot());
 
-        DcColumn c11 = space.createColumn("Column 11", t1, schema.getPrimitive("Integer"), true);
-        DcColumn c12 = space.createColumn("Column 12", t1, schema.getPrimitive("String"), true);
-        DcColumn c13 = space.createColumn("Column 13", t1, schema.getPrimitive("Double"), false);
-        DcColumn c14 = space.createColumn("Column 14", t1, schema.getPrimitive("Decimal"), false);
+        DcColumn c11 = space.createColumn("Column 11", t1, schema.getPrimitiveType("Integer"), true);
+        DcColumn c12 = space.createColumn("Column 12", t1, schema.getPrimitiveType("String"), true);
+        DcColumn c13 = space.createColumn("Column 13", t1, schema.getPrimitiveType("Double"), false);
+        DcColumn c14 = space.createColumn("Column 14", t1, schema.getPrimitiveType("Decimal"), false);
 
         // Table 2
         DcTable t2 = space.createTable("Table 2", schema.getRoot());
 
-        DcColumn c21 = space.createColumn("Column 21", t2, schema.getPrimitive("String"), true);
-        DcColumn c22 = space.createColumn("Column 22", t2, schema.getPrimitive("Integer"), true);
-        DcColumn c23 = space.createColumn("Column 23", t2, schema.getPrimitive("Double"), false);
+        DcColumn c21 = space.createColumn("Column 21", t2, schema.getPrimitiveType("String"), true);
+        DcColumn c22 = space.createColumn("Column 22", t2, schema.getPrimitiveType("Integer"), true);
+        DcColumn c23 = space.createColumn("Column 23", t2, schema.getPrimitiveType("Double"), false);
         DcColumn c24 = space.createColumn("Table 1", t2, t1, false);
     }
 
@@ -151,7 +151,7 @@ public class CoreTest {
         DcTable t2 = schema.getSubTable("Table 2");
 
         // Finding by name and check various properties provided by the schema
-        assertEquals(schema.getPrimitive("Decimal").getName(), "Decimal");
+        assertEquals(schema.getPrimitiveType("Decimal").getName(), "Decimal");
 
         assertEquals(t1.getName(), "Table 1");
         assertEquals(t2.getName(), "Table 2");
@@ -184,7 +184,7 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitiveType("Double"), false);
         c15.getData().setFormula("([Column 11]+10.0) * this.[Column 13]");
 
         // Evaluate column
@@ -210,7 +210,7 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitive("String"), false);
+        DcColumn c15 = space.createColumn("Column 15", t1, schema.getPrimitiveType("String"), false);
         c15.getData().setFormula("call:java.lang.String.substring( [Column 12], 7, 8 )");
 
         // Evaluate column
@@ -223,7 +223,7 @@ public class CoreTest {
         //
         // Define a derived column with a definition
         //
-        DcColumn c16 = space.createColumn("Column 15", t1, schema.getPrimitive("Double"), false);
+        DcColumn c16 = space.createColumn("Column 15", t1, schema.getPrimitiveType("Double"), false);
         c16.getData().setFormula("call:java.lang.Math.pow( [Column 11] / 10.0, [Column 13] / 10.0 )");
 
         c16.getData().evaluate();
@@ -272,7 +272,7 @@ public class CoreTest {
         DcColumn c23 = t2.getColumn("Column 23");
         DcColumn c24 = t2.getColumn("Table 1");
 
-        DcColumn c15 = space.createColumn("Agg of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c15 = space.createColumn("Agg of Column 23", t1, schema.getPrimitiveType("Double"), false);
         c15.getData().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23], aggregator=SUM)");
 
         c15.getData().setValue(0.0);
@@ -285,7 +285,7 @@ public class CoreTest {
         //
         // Aggregation via a syntactic formula
         //
-        DcColumn c16 = space.createColumn("Agg2 of Column 23", t1, schema.getPrimitive("Double"), false);
+        DcColumn c16 = space.createColumn("Agg2 of Column 23", t1, schema.getPrimitiveType("Double"), false);
         c16.getData().setFormula("AGGREGATE(facts=[Table 2], groups=[Table 1], measure=[Column 23]*2.0 + 1, aggregator=SUM)");
 
         c16.getData().setValue(0.0);

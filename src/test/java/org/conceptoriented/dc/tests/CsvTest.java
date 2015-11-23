@@ -70,8 +70,8 @@ public class CsvTest {
     @Test
     public void CsvReadTest()
     {
-        DcTable integerType = schema.getPrimitive("Integer");
-        DcTable doubleType = schema.getPrimitive("Double");
+        DcTable integerType = schema.getPrimitiveType("Integer");
+        DcTable doubleType = schema.getPrimitiveType("Double");
 
         DcTable detailsTable = ((Schema)schema).createFromCsv(detailsTableName, true);
         DcTable productsTable = ((Schema)schema).createFromCsv(productsTableName, true);

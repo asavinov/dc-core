@@ -42,14 +42,14 @@ public class Schema extends Table implements DcSchema {
     public DcSchemaKind getSchemaKind() { return _schemaKind; }
 
     @Override
-    public DcTable getPrimitive(String dataType) {
-        Optional<DcColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
-        return col.isPresent() ? col.get().getInput() : null;
+    public DcTable getRoot() {
+        return getPrimitiveType("Root");
     }
 
     @Override
-    public DcTable getRoot() {
-        return getPrimitive("Root");
+    public DcTable getPrimitiveType(String dataType) {
+        Optional<DcColumn> col = getSubColumns().stream().filter(x -> Utils.sameTableName(x.getInput().getName(), dataType)).findAny();
+        return col.isPresent() ? col.get().getInput() : null;
     }
 
     public DcTable createFromCsv(String fileName, boolean hasHeaderRecord) {
@@ -120,7 +120,7 @@ public class Schema extends Table implements DcSchema {
         DcTable table = getSpace().createTable(tableName, this.getRoot());
 
         for(int i=0; i<sourceNames.size(); i++) {
-            DcColumn column = getSpace().createColumn(sourceNames.get(i), table, this.getPrimitive(targetTypes.get(i)), false);
+            DcColumn column = getSpace().createColumn(sourceNames.get(i), table, this.getPrimitiveType(targetTypes.get(i)), false);
             column.getData().setAutoIndex(false); // We will do many appends
             columns.add(column);
         }

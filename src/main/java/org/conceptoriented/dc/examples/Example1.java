@@ -28,8 +28,8 @@ public class Example1 {
         DcSpace space = new Space();
         DcSchema schema = space.createSchema("Example 1", DcSchemaKind.Dc);
 
-        DcTable integerType = schema.getPrimitive("Integer");
-        DcTable doubleType = schema.getPrimitive("Double");
+        DcTable integerType = schema.getPrimitiveType("Integer");
+        DcTable doubleType = schema.getPrimitiveType("Double");
 
         //
         // Load data from CSV files

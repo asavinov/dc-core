@@ -303,7 +303,7 @@ public class Table implements DcTable, DcTableData {
                 outputExpr.getOutputVariable().setSchemaName(this.getSchema().getName());
                 outputExpr.getOutputVariable().setTypeName("Boolean");
                 outputExpr.getOutputVariable().setTypeSchema(this.getSchema());
-                outputExpr.getOutputVariable().setTypeTable(this.getSchema().getPrimitive("Boolean"));
+                outputExpr.getOutputVariable().setTypeTable(this.getSchema().getPrimitiveType("Boolean"));
                 outputExpr.evaluateAndResolveSchema(this.getSchema().getSpace(), Arrays.asList(thisVariable));
 
                 outputExpr.evaluateBegin();
@@ -315,9 +315,15 @@ public class Table implements DcTable, DcTableData {
             //
             // Find all local greater dimensions to be varied (including the super-dim)
             //
-            DcColumn[] cols = getColumns().stream().filter(x -> x.isKey()).collect(Collectors.toList()).toArray(new DcColumn[0]);
+            DcColumn[] cols = getColumns().stream().filter(x -> x.isKey() && !x.isPrimitive()).collect(Collectors.toList()).toArray(new DcColumn[0]);
             int colCount = cols.length; // Dimensionality - how many free dimensions
             Object[] vals = new Object[colCount]; // A record with values for each free dimension being varied
+            
+            // Prepare columns
+            for(DcColumn col :cols) {
+                col.getData().setAutoIndex(false);
+                col.getData().nullify();
+            }
 
             //
             // The current state of the search procedure
@@ -382,6 +388,11 @@ public class Table implements DcTable, DcTableData {
                         while (top >= 0 && lengths[top] == 0); // Go down (backward) by skipping empty dimensions and reseting
                     }
                 }
+            }
+
+            for(DcColumn col :cols) {
+                col.getData().reindex();
+                col.getData().setAutoIndex(true);
             }
 
             if(tableWriter != null)
