@@ -240,7 +240,7 @@ public class ColumnData<T extends Comparable<T>> implements DcColumnData {
     @Override
     public void nullify() // Reset values and index to initial state (all nulls)
     {
-        throw new UnsupportedOperationException();
+        //throw new UnsupportedOperationException();
     }
 
     @Override
@@ -548,7 +548,7 @@ public class ColumnData<T extends Comparable<T>> implements DcColumnData {
 
     private int FindIndex(int offset) // Find an index for an offset of a cell (rather than a value in this cell)
     {
-        // A value can be stored at many different offsets while one offset has always one index and therefore a single valueis returned rather than an interval.
+        // A value can be stored at many different offsets while one offset has always one index and therefore a single value returned rather than an interval.
 
         // First, we try to find it in the null interval
 

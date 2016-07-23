@@ -33,9 +33,9 @@ It loads data into memory and queries it repeatedly column-wise much faster than
 
 More information about DataCommandr and the underlying data model can be found from the following sources: 
 
-* Examples of using DataCommandr can be found in the `org.conceptoriented.dc.examples` package. The corresponding data sets are located in the resources folder: `/dce-java/src/test/resources` 
+* Examples of using DataCommandr can be found in the `org.conceptoriented.dc.examples` package. The corresponding data sets are located in the resources folder: `/dc-core/src/test/resources` 
 
-* Source code of this project can be checked out from bitbucket: <http://bitbucket.org/conceptoriented/dce-java>
+* Source code of this project can be checked out from bitbucket: <http://bitbucket.org/conceptoriented/dc-core>
 
 * More information information on all aspects of concept-oriented paradigm including the concept-oriented model and concept-oriented programming including publications can found on the concept-oriented portal: <http://www.conceptoriented.org>
 
