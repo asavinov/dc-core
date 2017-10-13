@@ -1,7 +1,7 @@
 
      ____        _         ____                                     _
     |  _ \  __ _| |_ __ _ / ___| ___  __  __ __  __  __ _ __  _  __| |_ __ 
-    | | | |/ _` | __/ _` | |    / _ \|  `Â´  |  `Â´  |/ _` |  \| |/ _  | '__/
+    | | | |/ _` | __/ _` | |    / _ \|  `´  |  `´  |/ _` |  \| |/ _  | '__/
     | |_| | (_| | || (_| | |___| (_| | |\/| | |\/| | (_| |   ' | (_| | |
     |____/ \__,_|\__\__,_|\____|\___/|_|  |_|_|  |_|\__,_|_|\__|\__,_|_|
 
@@ -62,6 +62,7 @@ totalAmountColumn.evaluate();
 ```
 
 It is important that three types of column definitions are used: 
+
 * **Calculate** columns - defining a new column depending on the values of other columns of the same table. It is a column-oriented analogue of select in SQL and map in MapReduce
 * **Link** columns - defining a column which references records from another table. It is a column-oriented analogue of joins.
 * **Aggregate** columns - defining a column which aggregates data from another table. It is a column-oriented analogue of group-by in SQL and reduce in MapReduce.
